@@ -1,0 +1,87 @@
+package com.oop.inteliframework.hologram.line;
+
+import com.oop.inteliframework.commons.util.InteliCache;
+import com.oop.inteliframework.hologram.HologramLine;
+import com.oop.inteliframework.hologram.animation.ContentAnimation;
+import com.oop.inteliframework.hologram.util.UpdateableObject;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+public class HologramItem extends HologramLine<HologramItem, ItemStack> {
+    private UpdateableObject<Function<Player, ItemStack>> itemStackSupplier;
+
+    private final InteliCache<UUID, Integer> itemCache = InteliCache
+            .builder()
+            .concurrencyLevel(0)
+            .expireAfter(2, TimeUnit.SECONDS)
+            .resetExpireAfterAccess(true)
+            .build();
+
+    public HologramItem(Function<Player, ItemStack> itemStackSupplier) {
+        this.itemStackSupplier = new UpdateableObject<>(itemStackSupplier);
+    }
+
+    public HologramItem(Supplier<ItemStack> itemStackSupplier) {
+        this(player -> itemStackSupplier.get());
+    }
+
+    public HologramItem(ItemStack itemStack) {
+        this(() -> itemStack);
+    }
+
+    @Override
+    public synchronized void preUpdate() {
+        if (wrappedArmorStand == null)
+            location.set(location.get().clone().add(0.0, 0.8, 0.0));
+
+        super.preUpdate();
+    }
+
+    @Override
+    public synchronized void update() {
+        if (location.isUpdated())
+            location.set(location.current().clone().add(0.0, 0.8, 0.0));
+
+        for (Player viewer : getHologramView().getViewers()) {
+            Integer cachedItemHash = itemCache.get(viewer.getUniqueId());
+            ItemStack suppliedItem = itemStackSupplier.get().apply(viewer);
+
+            if (suppliedItem == null) continue;
+
+            Runnable output = () -> {
+                wrappedArmorStand.outputItem(viewer, suppliedItem);
+                System.out.println("output");
+            };
+
+            if (cachedItemHash == null) {
+                itemCache.put(viewer.getUniqueId(), suppliedItem.hashCode());
+                output.run();
+                continue;
+            }
+
+            if (cachedItemHash == suppliedItem.hashCode()) continue;
+            output.run();
+
+            itemCache.remove(viewer.getUniqueId());
+            itemCache.put(viewer.getUniqueId(), suppliedItem.hashCode());
+            wrappedArmorStand.update(viewer);
+        }
+    }
+
+    @Override
+    protected void armorStandCreate() {
+        wrappedArmorStand.setLocation(location.current().clone().add(0.0, 0.8, 0.0));
+        wrappedArmorStand.setCustomNameVisibility(false);
+        wrappedArmorStand.setupItem();
+    }
+
+    @Override
+    public void clearData() {
+        itemCache.clear();
+    }
+}

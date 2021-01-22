@@ -1,0 +1,3 @@
+name: inteli-test-plugin
+version: 0.1
+main: com.oop.inteliframework.testplugin.TestPlugin
