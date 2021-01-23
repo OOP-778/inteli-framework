@@ -7,7 +7,8 @@ import org.bukkit.entity.Player;
 
 import java.util.Collections;
 
-public class SbAdapter_1_12 extends SbAdapter {
+public class SbAdapter_1_16 extends SbAdapter {
+
     @Override
     protected void _sendObjective(IScoreboard scoreboard, ObjectiveAction objectiveAction, Player... players) throws Throwable {
         Object packet = SB_OBJECTIVE_PACKET_CONSTRUCTOR.newInstance();
@@ -41,8 +42,10 @@ public class SbAdapter_1_12 extends SbAdapter {
         setField(packet, "c", (15 - line));
         setField(packet, "b", scoreboard.getId());
 
-        setField(packet, "d", scoreAction == ScoreAction.REMOVE ? ENUM_SB_ACTION_REMOVE : ENUM_SB_ACTION_CHANGE);
-        setField(packet, "a", scoreboard.getLineIdentifiers()[line-1]);
+        setField(packet, "d", scoreAction == ScoreAction.REMOVE ? ENUM_SB_ACTION_REMOVE_1_13 : ENUM_SB_ACTION_CHANGE_1_13);
+        setField(packet, "a",
+                StringFormat.colored(scoreboard.getLineIdentifiers()[line])
+        );
 
         for (Player player : players)
             getPacketSender().accept(player, packet);
@@ -58,14 +61,11 @@ public class SbAdapter_1_12 extends SbAdapter {
             if (teamAction == TeamAction.CREATE)
                 setField(packet, "h", Collections.singleton(identifier));
 
-            if (parts[0] != null)
-                setField(packet, "c", parts[0]);
-
-            if (parts[1] != null)
-                setField(packet, "d", parts[1]);
+            setCompField(packet, "c", StringFormat.colored(parts[0]));
         }
 
         for (Player player : players)
             getPacketSender().accept(player, packet);
     }
+
 }

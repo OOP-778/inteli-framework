@@ -2,6 +2,7 @@ package com.oop.inteliframework.scoreboard;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Sets;
+import com.oop.inteliframework.commons.util.InteliVersion;
 import com.oop.inteliframework.scoreboard.adapter.SbAdapter;
 import lombok.Getter;
 import lombok.Setter;
@@ -47,6 +48,9 @@ public class IScoreboard {
     }
 
     public static String[] splitIntoParts(String input) {
+        if (InteliVersion.isOrAfter(13))
+            return new String[] {input};
+
         String[] arr = new String[]{"", "", ""};
 
         int counter = 0;
