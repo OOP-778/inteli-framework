@@ -30,6 +30,7 @@ public class TestPlugin extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
         Bukkit.getPluginManager().registerEvents(this, this);
+        // Enable it if you need catch some packets! :)
         //Bukkit.getPluginManager().registerEvents(new PacketCatcher(), this);
         hologramController = HologramController
                 .builder()
