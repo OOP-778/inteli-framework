@@ -3,8 +3,7 @@ package com.oop.inteliframework.scoreboard.adapter;
 import com.oop.inteliframework.commons.util.SimpleReflection;
 import com.oop.inteliframework.commons.util.InteliVersion;
 import com.oop.inteliframework.scoreboard.IScoreboard;
-import com.oop.inteliframework.scoreboard.adapter.impl.SbAdapter_1_12;
-import com.oop.inteliframework.scoreboard.adapter.impl.SbAdapter_1_8;
+import com.oop.inteliframework.scoreboard.adapter.impl.*;
 import lombok.Getter;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -30,14 +29,29 @@ public abstract class SbAdapter {
     protected static Enum<?>
             ENUM_SB_HEALTH_INTEGER,
             ENUM_SB_ACTION_REMOVE,
-            ENUM_SB_ACTION_CHANGE;
+            ENUM_SB_ACTION_CHANGE,
+            ENUM_SB_ACTION_REMOVE_1_13,
+            ENUM_SB_ACTION_CHANGE_1_13;
+
     private static Method MESSAGE_FROM_STRING;
 
     static {
-        if (InteliVersion.is(8))
+
+        if(InteliVersion.is(8))
             implementation = new SbAdapter_1_8();
-        else
+        else if (InteliVersion.is(12))
             implementation = new SbAdapter_1_12();
+        else if (InteliVersion.is(13))
+            implementation = new SbAdapter_1_13();
+        else if (InteliVersion.is(14))
+            implementation = new SbAdapter_1_14();
+        else if (InteliVersion.is(15))
+            implementation = new SbAdapter_1_15();
+        else if (InteliVersion.is(16))
+            implementation = new SbAdapter_1_16();
+        else
+            throw new Error("Unsupported version " + InteliVersion.getStringVersion() + " for scoreboard!");
+
     }
 
     private BiConsumer<Player, Object> packetSender;
@@ -49,6 +63,7 @@ public abstract class SbAdapter {
                     PLAYER_CONNECTION_CLASS,
                     CRAFT_PLAYER_CLASS,
                     ENUM_SB_ACTION_CLASS,
+                    ENUM_SB_ACTION_CLASS_1_13,
                     ENUM_SB_DISPLAY_CLASS;
             CRAFT_CHAT_MESSAGE_CLASS = SimpleReflection.findClass("{cb}.util.CraftChatMessage");
             ENTITY_PLAYER_CLASS = SimpleReflection.findClass("{nms}.EntityPlayer");
@@ -58,11 +73,20 @@ public abstract class SbAdapter {
             Method PLAYER_GET_HANDLE = SimpleReflection.getMethod(CRAFT_PLAYER_CLASS, "getHandle");
             Method CONNECTION_SEND_PACKET = SimpleReflection.getMethod(PLAYER_CONNECTION_CLASS, "sendPacket", SimpleReflection.findClass("{nms}.Packet"));
             Field PLAYER_CONNECTION = SimpleReflection.getField(ENTITY_PLAYER_CLASS, "playerConnection");
-            ENUM_SB_ACTION_CLASS = SimpleReflection.findClass("{nms}.PacketPlayOutScoreboardScore$EnumScoreboardAction");
-            ENUM_SB_DISPLAY_CLASS = SimpleReflection.findClass("{nms}.IScoreboardCriteria$EnumScoreboardHealthDisplay");
-            ENUM_SB_ACTION_CHANGE = Enum.valueOf((Class<Enum>)ENUM_SB_ACTION_CLASS, "CHANGE");
-            ENUM_SB_ACTION_REMOVE = Enum.valueOf((Class<Enum>)ENUM_SB_ACTION_CLASS, "REMOVE");
 
+            if (InteliVersion.isBefore(8)) {
+                ENUM_SB_ACTION_CLASS = SimpleReflection.findClass("{nms}.PacketPlayOutScoreboardScore$EnumScoreboardAction");
+
+                ENUM_SB_ACTION_CHANGE = Enum.valueOf((Class<Enum>)ENUM_SB_ACTION_CLASS, "CHANGE");
+                ENUM_SB_ACTION_REMOVE = Enum.valueOf((Class<Enum>)ENUM_SB_ACTION_CLASS, "REMOVE");
+            } if (InteliVersion.isOrAfter(13)) {
+                ENUM_SB_ACTION_CLASS_1_13 = SimpleReflection.findClass("{nms}.ScoreboardServer$Action");
+
+                ENUM_SB_ACTION_CHANGE_1_13 = Enum.valueOf((Class<Enum>)ENUM_SB_ACTION_CLASS_1_13, "CHANGE");
+                ENUM_SB_ACTION_REMOVE_1_13 = Enum.valueOf((Class<Enum>)ENUM_SB_ACTION_CLASS_1_13, "REMOVE");
+            }
+
+            ENUM_SB_DISPLAY_CLASS = SimpleReflection.findClass("{nms}.IScoreboardCriteria$EnumScoreboardHealthDisplay");
             ENUM_SB_HEALTH_INTEGER = Enum.valueOf((Class<Enum>)ENUM_SB_DISPLAY_CLASS, "INTEGER");
 
             MESSAGE_FROM_STRING = SimpleReflection.getMethod(
@@ -102,22 +126,6 @@ public abstract class SbAdapter {
         } catch (Throwable throwable) {
             throw new IllegalStateException("Failed to construct adapter of " + getClass().getSimpleName(), throwable);
         }
-    }
-
-    private static void printOutPacket(Object packet) {
-        System.out.println("=== Packet (" + packet.getClass().getSimpleName() + ")");
-        System.out.println("");
-        System.out.println("====== Name ==== Value");
-        for (Field declaredField : packet.getClass().getDeclaredFields()) {
-            declaredField.setAccessible(true);
-
-            try {
-                System.out.println("       " + declaredField.getName() + "      " + declaredField.get(packet));
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        }
-        System.out.println("");
     }
 
     protected void setCompField(Object where, String fieldName, String value) {
