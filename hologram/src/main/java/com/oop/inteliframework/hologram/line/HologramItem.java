@@ -4,6 +4,7 @@ import com.oop.inteliframework.commons.util.InteliCache;
 import com.oop.inteliframework.hologram.HologramLine;
 import com.oop.inteliframework.hologram.animation.ContentAnimation;
 import com.oop.inteliframework.hologram.util.UpdateableObject;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -51,11 +52,11 @@ public class HologramItem extends HologramLine<HologramItem, ItemStack> {
             Integer cachedItemHash = itemCache.get(viewer.getUniqueId());
             ItemStack suppliedItem = itemStackSupplier.get().apply(viewer);
 
-            if (suppliedItem == null) continue;
+            if (suppliedItem == null) suppliedItem = new ItemStack(Material.STONE);
 
+            ItemStack finalSuppliedItem = suppliedItem;
             Runnable output = () -> {
-                wrappedArmorStand.outputItem(viewer, suppliedItem);
-                System.out.println("output");
+                wrappedArmorStand.outputItem(viewer, finalSuppliedItem);
             };
 
             if (cachedItemHash == null) {
@@ -78,6 +79,12 @@ public class HologramItem extends HologramLine<HologramItem, ItemStack> {
         wrappedArmorStand.setLocation(location.current().clone().add(0.0, 0.8, 0.0));
         wrappedArmorStand.setCustomNameVisibility(false);
         wrappedArmorStand.setupItem();
+    }
+
+    @Override
+    protected void handleRemove(Player player) {
+        super.handleRemove(player);
+        itemCache.remove(player.getUniqueId());
     }
 
     @Override
