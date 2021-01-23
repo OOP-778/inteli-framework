@@ -1,5 +1,6 @@
 package com.oop.inteliframework.scoreboard.adapter.impl;
 
+import com.oop.inteliframework.commons.util.StringFormat;
 import com.oop.inteliframework.scoreboard.IScoreboard;
 import com.oop.inteliframework.scoreboard.ScoreboardCache;
 import com.oop.inteliframework.scoreboard.adapter.SbAdapter;
@@ -21,7 +22,7 @@ public class SbAdapter_1_8 extends SbAdapter {
                 if (userCache.getTitle() == null)
                     userCache.setTitle(scoreboard.getTitleSupplier().apply(player));
 
-                setCompField(packet, "b", ChatColor.translateAlternateColorCodes('&', userCache.getTitle()));
+                setCompField(packet, "b", StringFormat.colored(userCache.getTitle()));
                 if (ENUM_SB_HEALTH_INTEGER != null)
                     setField(packet, "c", ENUM_SB_HEALTH_INTEGER);
             }
@@ -47,7 +48,7 @@ public class SbAdapter_1_8 extends SbAdapter {
         setField(packet, "b", scoreboard.getId());
 
         setField(packet, "d", scoreAction == ScoreAction.REMOVE ? ENUM_SB_ACTION_REMOVE : ENUM_SB_ACTION_CHANGE);
-        setField(packet, "a", scoreboard.getLineIdentifiers()[line]);
+        setField(packet, "a", StringFormat.colored(scoreboard.getLineIdentifiers()[line]));
 
         for (Player player : players)
             getPacketSender().accept(player, packet);

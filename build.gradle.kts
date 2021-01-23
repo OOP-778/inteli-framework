@@ -38,7 +38,7 @@ configureProject("adapters") {
 configureProject("test-plugin") {
     needMc = true
     needNMS = true
-    out = "/run/media/brian/BRABARAR/Serrvers/OOP/1.8.8/plugins/"
+    out = "E:\\Coding\\1.8_Server\\plugins\\"
 }
 
 configureProject("commons") {
