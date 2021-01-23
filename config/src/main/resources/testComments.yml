@@ -1,4 +1,168 @@
-# Hello Beach
+# <--------------->
+# HEllo
+# <--------------->
 
-hello:
-  hello:
+
+# Locale default en-us
+locale: "en-us"
+
+# Enables or disables debug
+debug: false
+
+database:
+  # There's two database types
+  # SQLITE
+  # MYSQL
+  # FLAT
+  type: sqlite
+
+  # <<< If you're using SQLITE you should ignore under >>>
+  database: "data"
+  hostname: 127.0.0.1
+  port: 3306
+  username: "root"
+  password: "ouf123"
+
+# Top systems configurations
+top systems:
+  prestige:
+    # Update interval
+    interval: "10s"
+
+    # How much entries should be there?
+    entries limit: 10
+
+  blocks:
+    # Update interval
+    interval: "10s"
+
+    # How much entries should be there?
+    entries limit: 10
+
+prisoner defaults:
+  # Is auto sell enabled
+  auto sell: false
+
+  # Is auto pickup
+  auto pickup: false
+
+  # Is auto burn
+  auto burn: false
+
+  # Blocks fortune
+  fortune blocks: false
+
+mine defaults:
+  # Icon that will be shown in /mines
+  icon:
+    material: STONE
+    display name: "&e{mine_name}"
+
+  # How much prisoners can a mine hold at a time? For no limit -1
+  limit: -1
+
+  # Is teleportation to the mine enabled?
+  teleporation: true
+
+  # Is ender pearls disabled?
+  disable enderpearls: true
+
+  # Is animal spawning disabled?
+  disable animal spawn: false
+
+  # Is monster spawning disabled?
+  disable monster spawn: false
+
+  # How resetting works?
+  resetting:
+
+    # There's two modes PERCENTAGE and TIMED
+    # Percentage will run when x rate of blocks are left
+    # Timed will happen on mine load and when x time is passed after load
+    mode: PERCENTAGE
+
+    # If percentage the value should be a number between 0 and 100% of blocks left
+    # If timed the value should be xDxHxMxS where D stands for days, H stands for hours, M for minutes and S for seconds
+    value: 60%
+
+  # Materials used to generate mine
+  # The rate cannot exceed or be lower than 100!
+  materials:
+    - "STONE:50"
+    - "DIAMOND_ORE:35"
+    - "CYAN_TERRACOTTA:15"
+
+  # Default shop items, the format is: "material:price"
+  shop items:
+    - "DIAMOND_ORE:50"
+    - "IRON_ORE:25"
+    - "GOLD_ORE:15"
+
+area selection tool:
+  material: STICK
+  display name: "&ePrison Wand"
+
+# When item is not found inside mine shop, it can use a fallback!
+shopgui fall back: true
+
+# Progression scale
+progression scale:
+  symbols: "::::::::::"
+  color: "&7"
+  completed color: "&e"
+
+# How long will the blocks statistic cache blocks
+blocks cache time limit: "1h"
+
+# Sold blocks message interval
+sold message interval: "1m"
+
+# Should it reset the ranks after prestige
+reset ranks after prestige up: false
+
+# How often should it send the rankup available message
+rankup message interval: "6s"
+
+# Should it use mine shop of the current rank of the player
+use mine shops by rank: false
+
+# How much chunks per tick should the block setting use
+# Please be careful with this. As it can cause serious performance issues, test the values you set before using.
+chunks per tick: 5
+
+# Disable or Enable dropping items
+dropping items: true
+
+# Update backpacks every
+update backpacks every: "1s"
+
+# Handle items with name, lore, etc.
+# In shops, auto sell, etc.
+handle named items: false
+
+# Disable interactable blocks
+disable interactable blocks:
+  - "CRAFTING_TABLE"
+  - "CHEST"
+  - "BREWING_STAND"
+  - "ANVIL"
+  - "ITEM_FRAME"
+
+# Suffixes for formatting numbers
+# Each value goes by +3 0's
+number formatter suffixes:
+  - ""
+  - "k"
+  - "m"
+  - "b"
+  - "T"
+  - "Q"
+  - "Qt"
+  - "S"
+  - "ST"
+  - "O"
+  - "N"
+  - "D"
+  - "UD"
+  - "DD"
+  - "Z"

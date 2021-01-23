@@ -58,7 +58,7 @@ subprojects {
         config?.let {
             if (it.needMc) {
                 compileOnly("org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT")
-                compileOnly("org.apache.commons:commons-lang3:3.11")
+                implementation("org.apache.commons:commons-lang3:3.11")
             }
 
             if (it.needNMS)

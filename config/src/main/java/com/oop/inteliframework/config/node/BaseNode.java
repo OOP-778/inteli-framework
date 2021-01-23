@@ -16,6 +16,7 @@ import java.util.*;
 public abstract class BaseNode implements Node {
     @Getter
     private final List<String> comments = new LinkedList<>();
+
     @NotNull
     @Getter
     @Setter

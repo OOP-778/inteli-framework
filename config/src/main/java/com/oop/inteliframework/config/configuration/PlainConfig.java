@@ -22,9 +22,20 @@ public class PlainConfig extends ParentableNode {
     @Setter
     private ConfigurationHandler handler;
 
-    @SneakyThrows
     public PlainConfig(@NonNull File file) {
-        this(file.getName(), new FileInputStream(file));
+        super(file.getName(), null);
+
+        handler = ConfigurationHandlers
+                .findHandler(file.getName())
+                .orElseThrow(() -> new IllegalStateException("Failed to find configuration handler for filename: " + file.getName()));
+
+        try {
+            Node loaded = handler.load(new FileInputStream(file));
+            Preconditions.checkArgument(loaded instanceof ParentableNode, "Loaded node must be parentable!");
+            merge((ParentableNode) loaded);
+        } catch (Throwable throwable) {
+            throw new IllegalStateException(format("Failed to load file with name: {} with handler: {}", file.getName(), handler.name()), throwable);
+        }
     }
 
     public PlainConfig(String filename, @NonNull InputStream stream) {
