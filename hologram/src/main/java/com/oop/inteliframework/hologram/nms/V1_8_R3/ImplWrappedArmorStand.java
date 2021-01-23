@@ -49,6 +49,7 @@ public class ImplWrappedArmorStand implements WrappedArmorStand {
         List<Packet> packetList = new LinkedList<>();
 
         packetList.add(new PacketPlayOutSpawnEntityLiving(entity));
+        System.out.println(attachedItem);
         if (attachedItem != null) {
             packetList.add(attachedItem.constructSpawnPacket());
             packetList.add(attachedItem.constructUpdatePacket(player));
@@ -175,7 +176,7 @@ public class ImplWrappedArmorStand implements WrappedArmorStand {
     }
 
     @Override
-    public void outputItem(Player player, ItemStack itemStack) {
+    public void outputItem(Player player, org.bukkit.inventory.ItemStack itemStack) {
         if (itemStack == null) return;
 
         if (attachedItem == null)
