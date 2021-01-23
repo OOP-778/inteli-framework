@@ -1,20 +1,23 @@
-package com.oop.inteliframework.hologram.nms.V1_8_R3;
+package com.oop.inteliframework.hologram.nms.V1_14_R1;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.oop.inteliframework.commons.util.SimpleReflection;
 import com.oop.inteliframework.hologram.HologramLine;
 import com.oop.inteliframework.hologram.nms.WrappedArmorStand;
 import com.oop.inteliframework.hologram.util.UpdateableObject;
-import net.minecraft.server.v1_8_R3.*;
+import lombok.SneakyThrows;
+import net.minecraft.server.v1_14_R1.*;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_14_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_14_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_14_R1.util.CraftChatMessage;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
-import static com.oop.inteliframework.hologram.nms.V1_8_R3.Helper.sendPacket;
+import static com.oop.inteliframework.hologram.nms.V1_14_R1.Helper.sendPacket;
 
 public class ImplWrappedArmorStand implements WrappedArmorStand {
     private EntityArmorStand entity;
@@ -52,7 +55,7 @@ public class ImplWrappedArmorStand implements WrappedArmorStand {
         if (attachedItem != null) {
             packetList.add(attachedItem.constructSpawnPacket());
             packetList.add(attachedItem.constructUpdatePacket(player));
-            packetList.add(new PacketPlayOutAttachEntity(0, attachedItem.entityItem, entity));
+            packetList.add(new PacketPlayOutMount(entity));
         }
 
         sendPacket(player, packetList.toArray(new Packet[0]));
@@ -82,7 +85,7 @@ public class ImplWrappedArmorStand implements WrappedArmorStand {
 
     @Override
     public void setCustomName(String customName) {
-        entity.setCustomName(customName);
+        entity.setCustomName(CraftChatMessage.fromString(customName)[0]);
     }
 
     @Override
@@ -117,6 +120,11 @@ public class ImplWrappedArmorStand implements WrappedArmorStand {
         else {
             entity.setLocation(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
             packets.add(new PacketPlayOutEntityTeleport(entity));
+
+            if (attachedItem != null) {
+                attachedItem.entityItem.setLocation(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
+                packets.add(new PacketPlayOutEntityTeleport(attachedItem.entityItem));
+            }
         }
 
         for (Player viewer : line.getHologramView().getViewers()) {
@@ -136,15 +144,19 @@ public class ImplWrappedArmorStand implements WrappedArmorStand {
         };
     }
 
+    @SneakyThrows
     public void setupItem() {
         attachedItem = new WrappedItem(location.current());
-        attachedItem.entityItem.vehicle = entity;
-        entity.passenger = attachedItem.entityItem;
+        entity.passengers.add(attachedItem.entityItem);
+
+        SimpleReflection
+                .getField(Entity.class, "vehicle")
+                .set(attachedItem.entityItem, entity);
     }
 
     @Override
     public void setGravity(boolean gravity) {
-        entity.setGravity(gravity);
+        entity.setNoGravity(gravity);
     }
 
     @Override
@@ -176,7 +188,8 @@ public class ImplWrappedArmorStand implements WrappedArmorStand {
 
     @Override
     public void outputItem(Player player, ItemStack itemStack) {
-        if (itemStack == null) return;
+        if (itemStack == null)
+            return;
 
         if (attachedItem == null)
             setupItem();
