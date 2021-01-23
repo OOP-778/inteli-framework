@@ -1,20 +1,20 @@
-package com.oop.inteliframework.hologram.nms.V1_8_R3;
+package com.oop.inteliframework.hologram.nms.V1_8_R1;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.oop.inteliframework.hologram.HologramLine;
 import com.oop.inteliframework.hologram.nms.WrappedArmorStand;
 import com.oop.inteliframework.hologram.util.UpdateableObject;
-import net.minecraft.server.v1_8_R3.*;
+import net.minecraft.server.v1_8_R1.*;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_8_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_8_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
-import static com.oop.inteliframework.hologram.nms.V1_8_R3.Helper.sendPacket;
+import static com.oop.inteliframework.hologram.nms.V1_8_R1.Helper.sendPacket;
 
 public class ImplWrappedArmorStand implements WrappedArmorStand {
     private EntityArmorStand entity;
@@ -107,13 +107,14 @@ public class ImplWrappedArmorStand implements WrappedArmorStand {
         boolean move = !(Math.abs(diffX) >= 4 || Math.abs(diffY) >= 4 || Math.abs(diffZ) >= 4);
 
         if (move)
-            packets.add(new PacketPlayOutEntity.PacketPlayOutRelEntityMove(
+            packets.add(new PacketPlayOutRelEntityMove(
                     entity.getId(),
                     (byte) diffX,
                     (byte) diffY,
                     (byte) diffZ,
                     false
             ));
+
         else {
             entity.setLocation(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
             packets.add(new PacketPlayOutEntityTeleport(entity));

@@ -1,4 +1,5 @@
 package com.oop.inteliframework.hologram.rule;
+
 import com.oop.inteliframework.hologram.HologramView;
 import org.bukkit.entity.Player;
 
