@@ -1,12 +1,12 @@
-package com.oop.inteliframework.config.handler.impl;
+package com.oop.inteliframework.config.handler.impl.yaml;
 
 import com.oop.inteliframework.commons.util.InteliPair;
 import com.oop.inteliframework.commons.util.InteliTriPair;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class Commentator {
     public static Map<String, List<String>> comments(String[] array) {
@@ -24,8 +24,10 @@ public class Commentator {
 
         if (headerScrap.getThird() == -1)
             headerScrap.setThird(0);
-        else
+        else {
             headerScrap.setThird(headerScrap.getThird() + 1);
+            comments.put("#", transformDescription(headerScrap.getFirst()));
+        }
 
         LinkedList<String> currentPath = new LinkedList<>();
         int currentPathSpace = 0;
@@ -37,7 +39,8 @@ public class Commentator {
             // If line is a comment
             if (isComment(line)) {
                 InteliPair<String[], Integer> pair = scrapLinesTill(i, array, l -> !isComment(l));
-                nextComments.addAll(Arrays.asList(pair.getKey()));
+                nextComments.addAll(transformDescription(pair.getKey()));
+
                 i += pair.getValue();
                 continue;
             }
@@ -49,11 +52,12 @@ public class Commentator {
                 boolean isList = array[i + 1].trim().startsWith("-");
 
                 // We got a section
+                int spaces = spacesTillChar(split[0]);
                 if ((split.length == 1 || split[1].trim().length() == 0) && !isList) {
-                    int spaces = spacesTillChar(split[0]);
 
                     if (spaces + 2 == currentPathSpace) {
-                        currentPath.removeLast();
+                        if (!currentPath.isEmpty())
+                            currentPath.removeLast();
                         currentPath.offer(split[0].trim());
 
                     } else {
@@ -72,15 +76,27 @@ public class Commentator {
                         comments.put(String.join(".", currentPath), new ArrayList<>(nextComments));
                         nextComments.clear();
                     }
+                } else {
+                    if (spaces == 0)
+                        currentPath.clear();
                 }
 
                 if (!nextComments.isEmpty()) {
-                    comments.put(String.join(".", currentPath) + "." + split[0].trim(), new ArrayList<>(nextComments));
+                    List<String> path = new ArrayList<>(currentPath);
+                    path.add(split[0].trim());
+                    comments.put(String.join(".", path), new ArrayList<>(nextComments));
                     nextComments.clear();
                 }
             }
         }
         return comments;
+    }
+
+    private static List<String> transformDescription(String[] desc) {
+        return Arrays
+                .stream(desc)
+                .map(d -> d.trim().substring(1).trim())
+                .collect(Collectors.toList());
     }
 
     private static int spacesTillChar(String line) {
