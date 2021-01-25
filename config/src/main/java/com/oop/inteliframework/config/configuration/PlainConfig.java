@@ -7,12 +7,12 @@ import com.oop.inteliframework.config.node.Node;
 import com.oop.inteliframework.config.node.ParentableNode;
 import lombok.NonNull;
 import lombok.Setter;
-import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 
 import static com.oop.inteliframework.commons.util.StringFormat.format;
 
@@ -33,6 +33,8 @@ public class PlainConfig extends ParentableNode {
             Node loaded = handler.load(new FileInputStream(file));
             Preconditions.checkArgument(loaded instanceof ParentableNode, "Loaded node must be parentable!");
             merge((ParentableNode) loaded);
+
+            dump();
         } catch (Throwable throwable) {
             throw new IllegalStateException(format("Failed to load file with name: {} with handler: {}", file.getName(), handler.name()), throwable);
         }
