@@ -49,7 +49,7 @@ public class Commentator {
                 String[] split = line.split(":");
 
                 // Check for list
-                boolean isList = array[i + 1].trim().startsWith("-");
+                boolean isList = (array.length-1) != i && array[i + 1].trim().startsWith("-");
 
                 // We got a section
                 int spaces = spacesTillChar(split[0]);
@@ -77,7 +77,12 @@ public class Commentator {
                         nextComments.clear();
                     }
                 } else {
-                    if (spaces == 0)
+                    if (currentPathSpace - 2 == spaces) {
+                        currentPath.removeLast();
+                        currentPathSpace -= 2;
+                    }
+
+                    if (spaces == 0 && !currentPath.isEmpty())
                         currentPath.clear();
                 }
 
