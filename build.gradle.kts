@@ -38,7 +38,7 @@ configureProject("adapters") {
 configureProject("test-plugin") {
     needMc = true
     needNMS = true
-    out = "E:\\Coding\\1.8_Server\\plugins\\"
+    out = "out/"
 }
 
 configureProject("commons") {
