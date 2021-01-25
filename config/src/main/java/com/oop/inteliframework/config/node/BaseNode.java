@@ -8,6 +8,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.oop.inteliframework.commons.util.CollectionHelper.addAndReturn;
 
 /**
  * The base node implementation
@@ -38,11 +41,14 @@ public abstract class BaseNode implements Node {
     @Override
     public @NonNull String path() {
         if (parent == null) return key;
-        return String.join(".", parents()) + "." + key;
+        return addAndReturn(parents(), key)
+                .stream()
+                .filter(it -> it.trim().length() != 0)
+                .collect(Collectors.joining("."));
     }
 
     private List<String> parents() {
-        List<String> parents = new ArrayList<>();
+        List<String> parents = new LinkedList<>();
         ParentableNode current = parent;
 
         while (true) {
@@ -55,6 +61,7 @@ public abstract class BaseNode implements Node {
             current = current.parent().orElse(null);
         }
 
+        Collections.reverse(parents);
         return parents;
     }
 

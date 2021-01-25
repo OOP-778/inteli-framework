@@ -1,6 +1,6 @@
 package com.oop.inteliframework.config.node;
 
-import com.google.common.collect.Iterators;
+import com.google.gson.internal.LinkedTreeMap;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.StringUtils;
@@ -16,7 +16,7 @@ import static com.oop.inteliframework.commons.util.StringFormat.format;
 public class ParentableNode extends BaseNode implements Iterable<Node> {
 
     @Getter
-    private final Map<String, Node> nodes = new TreeMap<>(String::compareToIgnoreCase);
+    private final Map<String, Node> nodes = new LinkedTreeMap<>(String::compareToIgnoreCase);
 
     public ParentableNode(@NotNull String key, @Nullable ParentableNode parent) {
         super(key, parent);
@@ -42,15 +42,15 @@ public class ParentableNode extends BaseNode implements Iterable<Node> {
         Node node = nodes.get(paths[0]);
 
         if (node instanceof ParentableNode && paths.length != 1)
-            return Optional.ofNullable(getNodeAt(Arrays.copyOfRange(paths, 1, paths.length)));
+            return Optional.ofNullable(((ParentableNode) node).getNodeAt(Arrays.copyOfRange(paths, 1, paths.length)));
 
         return Optional.ofNullable(node);
     }
 
     protected Node getNodeAt(String[] paths) {
         Node node = nodes.get(paths[0]);
-        if (node != null && paths.length != 1)
-            getNodeAt(Arrays.copyOfRange(paths, 1, paths.length));
+        if (node != null && paths.length != 1 && node instanceof ParentableNode)
+            return ((ParentableNode) node).getNodeAt(Arrays.copyOfRange(paths, 1, paths.length));
 
         return node;
     }
@@ -60,6 +60,9 @@ public class ParentableNode extends BaseNode implements Iterable<Node> {
             value.parent(this);
             nodes.put(value.key(), value);
         }
+
+        this.comments().clear();
+        this.comments().addAll(node.comments());
     }
 
     @NotNull
@@ -79,8 +82,9 @@ public class ParentableNode extends BaseNode implements Iterable<Node> {
     }
 
     public void dump() {
-        System.out.println("DUMPING == " + key() + " ==");
-        System.out.println("");
+        for (String comment : comments())
+            System.out.println("#" + comment);
+        System.out.println("== " + path() + " ==");
 
         List<Node> nodes = new LinkedList<>(nodes().values());
         nodes.sort(Comparator.comparing(node -> !node.isParentable()));
@@ -88,8 +92,13 @@ public class ParentableNode extends BaseNode implements Iterable<Node> {
         for (Node node : this) {
             if (node.isParentable())
                 node.asParentable().get().dump();
-            else
-                System.out.println(format("Key={}, Value={}", node.key(), node.asValuable().get().value()));
+
+            else {
+                NodeValuable nodeValuable = node.asValuable().get();
+                for (String comment : nodeValuable.comments())
+                    System.out.println("#" + comment);
+                System.out.println(format("Key={}, Value={}", node.path(), nodeValuable.value()));
+            }
         }
     }
 }
