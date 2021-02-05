@@ -1,11 +1,10 @@
 package com.oop.inteliframework.config.annotations;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import org.jetbrains.annotations.NotNull;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.TYPE})
@@ -18,4 +17,11 @@ public @interface Comment {
      */
     @NotNull
     String[] value();
+
+    /**
+     * If comments already present, should it override?
+     *
+     * @return if the comments should be overwritten
+     */
+    boolean override() default false;
 }

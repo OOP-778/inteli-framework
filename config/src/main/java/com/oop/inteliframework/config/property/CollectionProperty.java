@@ -1,18 +1,18 @@
 package com.oop.inteliframework.config.property;
 
-import com.oop.inteliframework.config.node.Node;
-import com.oop.inteliframework.config.node.NodeValuable;
-import lombok.AllArgsConstructor;
-import lombok.NonNull;
-
-import java.util.Collection;
-
 import static com.oop.inteliframework.commons.util.CollectionHelper.addAndReturn;
 import static com.oop.inteliframework.config.util.Helper.cloneCollection;
 import static com.oop.inteliframework.config.util.Helper.isPrimitive;
 
+import com.oop.inteliframework.config.node.Node;
+import com.oop.inteliframework.config.node.ValueNode;
+import java.util.Collection;
+import lombok.AllArgsConstructor;
+import lombok.NonNull;
+
 /**
  * Collection property is used for collections
+ *
  * @param <T> The type that list is storing
  * @param <C> the collection type
  */
@@ -25,14 +25,16 @@ public class CollectionProperty<T, C extends Collection<T>> implements Property<
     @NonNull
     private final Class<T> valueClass;
 
-    public static <T, C extends Collection<T>> CollectionProperty<T, C> from(C collection, Class<T> valueClass, T ...values) {
+    public static <T, C extends Collection<T>> CollectionProperty<T, C> from(C collection,
+        Class<T> valueClass, T... values) {
         return new CollectionProperty<>(addAndReturn(collection, values), valueClass);
     }
 
     @Override
     public Node toNode(String key) {
-        if (isPrimitive(valueClass))
-            return new NodeValuable(key, null, collection);
+        if (isPrimitive(valueClass)) {
+            return new ValueNode(key, null, collection);
+        }
 
         // TODO: Implement custom object serializers
         throw new IllegalStateException("Custom object serializers not implemented");

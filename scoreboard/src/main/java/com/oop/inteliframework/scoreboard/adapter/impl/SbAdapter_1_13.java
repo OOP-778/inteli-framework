@@ -1,7 +1,7 @@
 package com.oop.inteliframework.scoreboard.adapter.impl;
 
 import com.oop.inteliframework.commons.util.StringFormat;
-import com.oop.inteliframework.scoreboard.IScoreboard;
+import com.oop.inteliframework.scoreboard.InteliScoreboard;
 import com.oop.inteliframework.scoreboard.adapter.SbAdapter;
 import org.bukkit.entity.Player;
 
@@ -10,7 +10,7 @@ import java.util.Collections;
 public class SbAdapter_1_13 extends SbAdapter {
 
     @Override
-    protected void _sendObjective(IScoreboard scoreboard, ObjectiveAction objectiveAction, Player... players) throws Throwable {
+    protected void _sendObjective(InteliScoreboard scoreboard, ObjectiveAction objectiveAction, Player... players) throws Throwable {
         Object packet = SB_OBJECTIVE_PACKET_CONSTRUCTOR.newInstance();
         setField(packet, "a", scoreboard.getId());
         setField(packet, "d", objectiveAction.ordinal());
@@ -27,7 +27,7 @@ public class SbAdapter_1_13 extends SbAdapter {
     }
 
     @Override
-    protected void _sendDisplayObjective(IScoreboard scoreboard, Player... players) throws Throwable {
+    protected void _sendDisplayObjective(InteliScoreboard scoreboard, Player... players) throws Throwable {
         Object packet = SB_OBJECTIVE_PACKET_DISPLAY_CONSTRUCTOR.newInstance();
         setField(packet, "b", scoreboard.getId());
         setField(packet, "a", 1);
@@ -37,7 +37,7 @@ public class SbAdapter_1_13 extends SbAdapter {
     }
 
     @Override
-    protected void _sendScore(IScoreboard scoreboard, int line, ScoreAction scoreAction, Player... players) throws Throwable {
+    protected void _sendScore(InteliScoreboard scoreboard, int line, ScoreAction scoreAction, Player... players) throws Throwable {
         Object packet = SB_SCORE_PACKET_CONSTRUCTOR.newInstance();
         setField(packet, "c", (15 - line));
         setField(packet, "b", scoreboard.getId());
@@ -52,7 +52,7 @@ public class SbAdapter_1_13 extends SbAdapter {
     }
 
     @Override
-    protected void _sendTeam(IScoreboard scoreboard, String identifier, String[] parts, TeamAction teamAction, Player... players) throws Throwable {
+    protected void _sendTeam(InteliScoreboard scoreboard, String identifier, String[] parts, TeamAction teamAction, Player... players) throws Throwable {
         Object packet = SB_TEAM_PACKET_CONSTRUCTOR.newInstance();
         setField(packet, "a", identifier);
         setField(packet, "i", teamAction.ordinal());

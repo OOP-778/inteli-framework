@@ -2,29 +2,32 @@ package com.oop.inteliframework.config.util;
 
 import com.google.gson.internal.Primitives;
 import com.oop.inteliframework.commons.util.SimpleReflection;
-import lombok.SneakyThrows;
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Consumer;
+import lombok.SneakyThrows;
 
 public class Helper {
+
     public static boolean isPrimitive(Class<?> clazz) {
         Class<?> primitiveClass = Primitives.unwrap(clazz);
         return primitiveClass == int.class
-                || primitiveClass == double.class
-                || primitiveClass == float.class
-                || primitiveClass == long.class
-                || primitiveClass == boolean.class;
+            || primitiveClass == double.class
+            || primitiveClass == float.class
+            || primitiveClass == long.class
+            || primitiveClass == boolean.class
+            || primitiveClass == String.class;
     }
 
     public static <T extends Collection> T cloneCollection(T collection) {
         try {
             return (T) SimpleReflection
-                    .getConstructor(collection.getClass(), Collection.class)
-                    .newInstance(collection);
+                .getConstructor(collection.getClass(), Collection.class)
+                .newInstance(collection);
         } catch (Throwable throwable) {
-            throw new IllegalStateException("Collection of type " + collection.getClass().getSimpleName() + " doesn't contain an constructor with collection param");
+            throw new IllegalStateException(
+                "Collection of type " + collection.getClass().getSimpleName()
+                    + " doesn't contain an constructor with collection param");
         }
     }
 

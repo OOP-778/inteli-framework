@@ -1,5 +1,14 @@
 package com.oop.inteliframework.config.node;
 
+import static com.oop.inteliframework.commons.util.CollectionHelper.addAndReturn;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -7,16 +16,13 @@ import lombok.experimental.Accessors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static com.oop.inteliframework.commons.util.CollectionHelper.addAndReturn;
-
 /**
  * The base node implementation
  */
 @Accessors(fluent = true)
+@EqualsAndHashCode
 public abstract class BaseNode implements Node {
+
     @Getter
     private final List<String> comments = new LinkedList<>();
 
@@ -26,37 +32,41 @@ public abstract class BaseNode implements Node {
     private String key;
 
     @Nullable
-    private ParentableNode parent;
+    private ParentNode parent;
 
-    public BaseNode(String key, ParentableNode parent) {
+    public BaseNode(String key, ParentNode parent) {
         this.key = key;
         this.parent = parent;
     }
 
     @Override
-    public Optional<ParentableNode> parent() {
+    public Optional<ParentNode> parent() {
         return Optional.ofNullable(parent);
     }
 
     @Override
     public @NonNull String path() {
-        if (parent == null) return key;
+        if (parent == null) {
+            return key;
+        }
         return addAndReturn(parents(), key)
-                .stream()
-                .filter(it -> it.trim().length() != 0)
-                .collect(Collectors.joining("."));
+            .stream()
+            .filter(it -> it.trim().length() != 0)
+            .collect(Collectors.joining("."));
     }
 
     private List<String> parents() {
         List<String> parents = new LinkedList<>();
-        ParentableNode current = parent;
+        ParentNode current = parent;
 
         while (true) {
-            if (current != null)
+            if (current != null) {
                 parents.add(current.key());
+            }
 
-            if (current == null)
+            if (current == null) {
                 break;
+            }
 
             current = current.parent().orElse(null);
         }
@@ -66,11 +76,11 @@ public abstract class BaseNode implements Node {
     }
 
     @Override
-    public void comment(String... comments) {
+    public void appendComments(String... comments) {
         this.comments.addAll(Arrays.asList(comments));
     }
 
-    public void parent(@NonNull ParentableNode parent) {
+    public void parent(@NonNull ParentNode parent) {
         this.parent = parent;
     }
 }

@@ -2,7 +2,7 @@ package com.oop.inteliframework.scoreboard.adapter;
 
 import com.oop.inteliframework.commons.util.SimpleReflection;
 import com.oop.inteliframework.commons.util.InteliVersion;
-import com.oop.inteliframework.scoreboard.IScoreboard;
+import com.oop.inteliframework.scoreboard.InteliScoreboard;
 import com.oop.inteliframework.scoreboard.adapter.impl.*;
 import lombok.Getter;
 import org.bukkit.entity.HumanEntity;
@@ -149,7 +149,7 @@ public abstract class SbAdapter {
         }
     }
 
-    public void sendObjective(IScoreboard scoreboard, ObjectiveAction objectiveAction, Player... players) {
+    public void sendObjective(InteliScoreboard scoreboard, ObjectiveAction objectiveAction, Player... players) {
         try {
             _sendObjective(scoreboard, objectiveAction, players);
         } catch (Throwable throwable) {
@@ -157,7 +157,7 @@ public abstract class SbAdapter {
         }
     }
 
-    public void sendDisplayObjective(IScoreboard scoreboard, Player... players) {
+    public void sendDisplayObjective(InteliScoreboard scoreboard, Player... players) {
         try {
             _sendDisplayObjective(scoreboard, players);
         } catch (Throwable throwable) {
@@ -165,7 +165,7 @@ public abstract class SbAdapter {
         }
     }
 
-    public void sendScore(IScoreboard scoreboard, int line, ScoreAction scoreAction, Player... players) {
+    public void sendScore(InteliScoreboard scoreboard, int line, ScoreAction scoreAction, Player... players) {
         try {
             _sendScore(scoreboard, line, scoreAction, players);
         } catch (Throwable throwable) {
@@ -173,7 +173,7 @@ public abstract class SbAdapter {
         }
     }
 
-    public void sendTeam(IScoreboard scoreboard, String identifier, String[] parts, TeamAction teamAction, Player... players) {
+    public void sendTeam(InteliScoreboard scoreboard, String identifier, String[] parts, TeamAction teamAction, Player... players) {
         try {
             _sendTeam(scoreboard, identifier, parts, teamAction, players);
         } catch (Throwable throwable) {
@@ -181,13 +181,13 @@ public abstract class SbAdapter {
         }
     }
 
-    protected abstract void _sendObjective(IScoreboard scoreboard, ObjectiveAction objectiveAction, Player... players) throws Throwable;
+    protected abstract void _sendObjective(InteliScoreboard scoreboard, ObjectiveAction objectiveAction, Player... players) throws Throwable;
 
-    protected abstract void _sendDisplayObjective(IScoreboard scoreboard, Player... players) throws Throwable;
+    protected abstract void _sendDisplayObjective(InteliScoreboard scoreboard, Player... players) throws Throwable;
 
-    protected abstract void _sendScore(IScoreboard scoreboard, int line, ScoreAction scoreAction, Player... players) throws Throwable;
+    protected abstract void _sendScore(InteliScoreboard scoreboard, int line, ScoreAction scoreAction, Player... players) throws Throwable;
 
-    protected abstract void _sendTeam(IScoreboard scoreboard, String identifier, String[] parts, TeamAction teamAction, Player... players) throws Throwable;
+    protected abstract void _sendTeam(InteliScoreboard scoreboard, String identifier, String[] parts, TeamAction teamAction, Player... players) throws Throwable;
 
     public static enum ScoreAction {
         CHANGE,

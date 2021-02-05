@@ -13,7 +13,6 @@ public class AnimationHelper {
         List<ContentAnimation> animations = new ArrayList<>();
 
         List<InteliPair<Integer, Integer>> animationGroups = getGroups(text);
-
         for (InteliPair<Integer, Integer> animationGroup : animationGroups) {
             String match = text.substring(animationGroup.getKey(), animationGroup.getValue());
             match = match.substring(1, match.length() - 2);

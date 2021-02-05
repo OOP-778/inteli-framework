@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.internal.Primitives;
+import java.lang.annotation.Annotation;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.bukkit.Bukkit;
 
@@ -122,14 +123,28 @@ public final class SimpleReflection {
 
         try {
             field = clazz.getDeclaredField(fieldName);
+        } catch (NoSuchFieldException e) {}
+
+        try {
             if (field == null)
                 field = clazz.getField(fieldName);
-            field.setAccessible(true);
-            stringFieldMap.put(fieldName, field);
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
         }
+
+        field.setAccessible(true);
+        stringFieldMap.put(fieldName, field);
         return field;
+    }
+
+    public static <T> Field getFieldAnnotatedBy(Class<?> target, Class<? extends Annotation> annotationClass) {
+        for (Field field : FieldUtils.getAllFieldsList(target)) {
+            if (!field.isAnnotationPresent(annotationClass)) continue;
+
+            return field;
+        }
+
+        return null;
     }
 
     public static <T> Field getField(Class<?> target, String name, Class<T> fieldType, int index) {

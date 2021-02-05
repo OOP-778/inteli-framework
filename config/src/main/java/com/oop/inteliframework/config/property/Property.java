@@ -8,6 +8,7 @@ import com.oop.inteliframework.config.node.Node;
  * @param <T> the type of object that this property holds
  */
 public interface Property<T> {
+
     /**
      * Convert property to node
      *

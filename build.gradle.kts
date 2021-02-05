@@ -19,16 +19,30 @@ loadProjects()
 
 configureProject("config") {
     needMc = true
+    publish = true
 }
 
 configureProject("hologram") {
     needMc = true
     needNMS = true
+    publish = true
+}
+
+configureProject("message") {
+    needMc = true
+    needNMS = false
+    publish = true
 }
 
 configureProject("scoreboard") {
     needMc = true
     needNMS = true
+    publish = true
+}
+
+configureProject("menu") {
+    needMc = true
+    publish = true
 }
 
 configureProject("adapters") {
@@ -38,7 +52,7 @@ configureProject("adapters") {
 configureProject("test-plugin") {
     needMc = true
     needNMS = true
-    out = "out/"
+    out = "/run/media/brian/BRABARAR/Serrvers/OOP/1.16/plugins/"
 }
 
 configureProject("commons") {
@@ -50,6 +64,7 @@ subprojects {
         jcenter()
         maven { setUrl("https://repo.codemc.org/repository/nms/") }
         maven { setUrl("https://oss.sonatype.org/content/repositories/snapshots") }
+        mavenLocal()
     }
 
     val config = props[name]

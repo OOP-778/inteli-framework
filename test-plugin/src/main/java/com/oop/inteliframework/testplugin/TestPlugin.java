@@ -1,123 +1,236 @@
 package com.oop.inteliframework.testplugin;
 
-import com.oop.inteliframework.hologram.Hologram;
-import com.oop.inteliframework.hologram.HologramController;
-import com.oop.inteliframework.hologram.builder.HologramBuilder;
-import com.oop.inteliframework.scoreboard.IScoreboard;
+import static com.oop.inteliframework.commons.util.StringFormat.colored;
+
+import com.oop.inteliframework.config.configuration.PlainConfig;
+import com.oop.inteliframework.config.util.Paths;
+import com.oop.inteliframework.config.util.Paths.CopyOption;
+import com.oop.intelimenus.InteliMenus;
+import com.oop.intelimenus.attribute.AttributeComponent;
+import com.oop.intelimenus.attribute.Attributes;
+import com.oop.intelimenus.button.builder.IButtonBuilder;
+import com.oop.intelimenus.config.MenuConfiguration;
+import com.oop.intelimenus.config.MenuLoader;
+import com.oop.intelimenus.interfaces.MenuUtil;
+import com.oop.intelimenus.menu.simple.MenuBuilder;
+import com.oop.orangeengine.item.custom.OItem;
+import com.oop.orangeengine.material.OMaterial;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.IntStream;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.HumanEntity;
+import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class TestPlugin extends JavaPlugin implements Listener {
-    private HologramController hologramController;
-    private Hologram hologram;
 
-    private IScoreboard scoreboard;
+    private TestPlugin plugin;
+    private MenuConfiguration configuration;
 
     @Override
     public void onEnable() {
+        this.plugin = this;
         Bukkit.getPluginManager().registerEvents(this, this);
-        // Enable it if you need catch some packets! :)
-        //Bukkit.getPluginManager().registerEvents(new PacketCatcher(), this);
-        hologramController = HologramController
-                .builder()
-                .plugin(this)
-                .executorService(Executors.newScheduledThreadPool(2))
-                .build();
 
-        List<String> lines = new ArrayList<>(
-                Arrays.asList(
-                        "#1e7037----------------------qqqq",
-                        "#70571e----------------------qqq",
-                        "#2a2563----------------------",
-                        "#360d35eqqqqqqqqqqqqqqqqqqqqqqqewe",
-                        "#a6a14cqwrqwerwqetrwetrwetr",
-                        "#20b6d4tregjiwoejrgowegrgwergregqewerqwergtwertwetwte",
-                        "#52703ftretowerjowegwnegor",
-                        "#1a3b40wreoijwopgjoguroiweurgoiwehrgoiuhwerogihwoerghiweougrhweogrw"
-                        )
+        if (!getDataFolder().exists()) {
+            getDataFolder().mkdirs();
+        }
+
+        InteliMenus menus = InteliMenus.register(
+            this,
+            itemStack -> new MenuItemBuilder(new OItem(itemStack))
         );
 
-        scoreboard = new IScoreboard();
-        scoreboard.setTitleSupplier(player -> lines.get(ThreadLocalRandom.current().nextInt(lines.size() - 1)));
-        scoreboard.getLines().add(player -> "&cHey!awgaqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqwgwgawg");
-        scoreboard.getLines().add(player -> "&c2!wgagwafqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqaw");
-        scoreboard.getLines().add(player -> "&c25!awqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqgagwagwagaw");
-        scoreboard.getLines().add(player -> lines.get(ThreadLocalRandom.current().nextInt(lines.size() - 1)));
-        scoreboard.getLines().add(player -> lines.get(ThreadLocalRandom.current().nextInt(lines.size() - 1)));
-        scoreboard.getLines().add(player -> lines.get(ThreadLocalRandom.current().nextInt(lines.size() - 1)));
-        scoreboard.getLines().add(player -> lines.get(ThreadLocalRandom.current().nextInt(lines.size() - 1)));
-        scoreboard.getLines().add(player -> lines.get(ThreadLocalRandom.current().nextInt(lines.size() - 1)));
-        scoreboard.getLines().add(player -> lines.get(ThreadLocalRandom.current().nextInt(lines.size() - 1)));
-        scoreboard.getLines().add(player -> lines.get(ThreadLocalRandom.current().nextInt(lines.size() - 1)));
-        scoreboard.getLines().add(player -> lines.get(ThreadLocalRandom.current().nextInt(lines.size() - 1)));
-        scoreboard.getLines().add(player -> lines.get(ThreadLocalRandom.current().nextInt(lines.size() - 1)));
+        MenuLoader menuLoader = new MenuLoader();
+        menuLoader.setItemProvider(material -> OMaterial.matchMaterial(material).parseItem());
 
-        new BukkitRunnable() {
+        Paths.copyFileFromJar("menu.yml", getDataFolder(), CopyOption.COPY_IF_NOT_EXIST,
+            TestPlugin.class);
+        configuration = new MenuConfiguration(
+            new PlainConfig(new File(getDataFolder(), "menu.yml")), menuLoader);
+
+        menus.registerMenuUtil(new MenuUtil() {
             @Override
-            public void run() {
-                scoreboard.updateAll();
+            public void ensureSync(Runnable runnable) {
+                Bukkit.getScheduler().runTask(plugin, runnable);
             }
-        }.runTaskTimerAsynchronously(this, 1, 1);
-    }
 
-    @EventHandler
-    public void onJoin(PlayerJoinEvent event) {
-        scoreboard.add(event.getPlayer());
-    }
+            @Override
+            public void async(Runnable runnable) {
+                Bukkit.getScheduler().runTaskAsynchronously(plugin, runnable);
+            }
 
-    @EventHandler
-    public void onQuit(PlayerQuitEvent event) {
-        scoreboard.remove(event.getPlayer());
+            @Override
+            public void playSound(String name, float volume, float pitch, float yaw) {
+
+            }
+        });
     }
 
     @EventHandler
     public void onChat(AsyncPlayerChatEvent event) {
-        if (hologram == null) {
-            hologram = new HologramBuilder()
-                    // Set global default refresh rate
-                    .refreshRate(1)
+//        TestMenu testMenu = new TestMenu(event.getPlayer(), configuration);
+//        testMenu.openAction(null);
 
-                    // OP's view
-                    .addView(view -> {
-                        view.addRule((holo, player) -> player.isOp());
-                        view.addLines(lines -> lines
-                                .displayItem(player -> player.getInventory().getItem(0))
-                                .displayText(player -> "&cYour op!")
-                                .displayText(HumanEntity::getName)
-                                .displayText("&cOOOOOOOF"));
-                    })
-                    .addView(view -> {
-                        view.addLines(lines -> lines
-                                .displayItem(player -> player.getInventory().getItem(0))
-                                .displayText(player -> "&cYour bot.")
-                                .displayText(HumanEntity::getName)
-                                .displayText("&cOOOOOOOF"));
-                    })
-                    .build();
+        List<Integer> ints = new ArrayList<>();
+        IntStream.range(10, 36).forEach(ints::add);
 
-            hologram.setLocation(event.getPlayer().getLocation());
-            hologramController.registerHologram(hologram);
-        }
+        MenuBuilder
+            .pagedMenu(int.class)
+            .who(event.getPlayer())
+            .objectsProvider(() -> ints)
+            .pagedButtonBuilder(player -> IButtonBuilder
+                .of(new OItem(OMaterial.CREEPER_HEAD).setDisplayName("&cI: " + player)
+                    .getItemStack())
+                .clickTrigger(trigger -> {
+                    System.out.println("Clicked on " + player);
+                    trigger.setCancelled(true);
+                })
+                .toButton())
+            .rows(4)
+            .title("&cTest Paged Menu - &4{currentPage}&8/&c{pages}")
+            .designer()
+            .row(1, "@@@@A@@@@",
+                '@',
+                new IButtonBuilder().item(new ItemStack(Material.STAINED_GLASS_PANE)).toButton(),
+                'A', IButtonBuilder
+                    .of(new OItem(Material.ANVIL).setDisplayName("Text").getItemStack())
+                    .addAnimation(animation -> {
+                        animation.frames(4);
+                        animation.shouldGoBack(true);
+                        animation.interval(20);
+                        animation.repeat(true);
+                        animation.onFrame((frame, anim, button) -> {
+                            int charIndex = frame - 1;
+                            if (!button.getCurrentItem().isPresent()) {
+                                return;
+                            }
 
-        hologram.setLocation(event.getPlayer().getLocation());
+                            ItemStack itemStack = button.getCurrentItem().get().get();
+                            itemStack = itemStack.clone();
+
+                            ItemMeta itemMeta = itemStack.getItemMeta();
+
+                            String displayName = itemMeta.getDisplayName();
+                            String newDisplayName = "";
+
+                            char[] chars = displayName.toCharArray();
+                            for (int i = 0; i < chars.length; i++) {
+                                if (i != charIndex) {
+                                    newDisplayName += "&5" + chars[i];
+                                } else {
+                                    newDisplayName += "&b&l" + chars[i] + "&5";
+                                }
+                            }
+
+                            itemMeta.setDisplayName(colored(newDisplayName));
+                            itemStack.setItemMeta(itemMeta);
+
+                            Objects.requireNonNull(button.getCurrentMenu(), "menu is null")
+                                .getInventoryData().updateItem(
+                                Objects.requireNonNull(button.getParent(), "button parent is null")
+                                    .getIndex(), itemStack);
+                        });
+                    }).toButton()
+            )
+            .row(4, "@@@P@N@@@",
+                '@',
+                new IButtonBuilder().item(new ItemStack(Material.STAINED_GLASS_PANE)).toButton(),
+                'N', IButtonBuilder.of()
+                    .addAttribute(Attributes.NEXT_PAGE.get())
+                    .addState("page-available",
+                        new OItem(Material.ARROW).setDisplayName("Next Page").getItemStack())
+                    .addState("page-not-available", Material.STAINED_GLASS_PANE)
+                    .toButton(),
+                'P', IButtonBuilder.of()
+                    .addAttribute(Attributes.PREVIOUS_PAGE.get())
+                    .addState("page-available",
+                        new OItem(Material.ARROW).setDisplayName("Previous Page").getItemStack())
+                    .addState("page-not-available", Material.STAINED_GLASS_PANE)
+                    .toButton()
+            )
+            .fillEmpty(() -> IButtonBuilder
+                .of(new OItem(Material.BARRIER).setDisplayName("&c???").getItemStack())
+                .addAttribute(Attributes.PLACEHOLDER).toButton())
+            .menu()
+            .applyComponent(AttributeComponent.class,
+                comp -> comp.addAttribute(Attributes.RETURN_ON_CLOSE))
+            .openAction(null);
     }
 
     @Override
     public void onDisable() {
-        hologramController.onDisable();
+        InteliMenus.getInteliMenus().disable();
+    }
+
+    public static class MenuItemBuilder implements
+        com.oop.intelimenus.interfaces.MenuItemBuilder<MenuItemBuilder> {
+
+        private final OItem item;
+
+        public MenuItemBuilder(OItem item) {
+            this.item = item;
+        }
+
+        @Override
+        public ItemStack getItem() {
+            return item.getItemStack();
+        }
+
+        @Override
+        public MenuItemBuilder replace(String what, Object to) {
+            item.replace(what, to);
+            return this;
+        }
+
+        @Override
+        public MenuItemBuilder replace(Function<String, String> parser) {
+            return this;
+        }
+
+        @Override
+        public List<String> getLore() {
+            return item.getLore();
+        }
+
+        @Override
+        public MenuItemBuilder lore(List<String> newLore) {
+            item.setLore(newLore);
+            return this;
+        }
+
+        @Override
+        public MenuItemBuilder appendLore(String line) {
+            item.appendLore(line);
+            return this;
+        }
+
+        @Override
+        public MenuItemBuilder appendLore(Collection<String> lines) {
+            for (String line : lines) {
+                appendLore(line);
+            }
+            return this;
+        }
+
+        @Override
+        public MenuItemBuilder displayName(String newDisplayName) {
+            item.setDisplayName(newDisplayName);
+            return this;
+        }
+
+        @Override
+        public MenuItemBuilder clone() {
+            return new MenuItemBuilder(item.clone());
+        }
     }
 }

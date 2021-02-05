@@ -1,2 +1,11 @@
 # wfawfawfaw
 
+hello:
+  key: value
+  key2: value
+
+hello2:
+  key:
+    <data>
+  key2:
+    <data>

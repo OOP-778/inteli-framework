@@ -14,4 +14,12 @@ public class CollectionHelper {
 
         return copy;
     }
+
+    public static <T> T[] joinArrays(T[] ...arrays) {
+        List<T> list = new LinkedList<>();
+        for (T[] array : arrays)
+            list.addAll(Arrays.asList(array));
+
+        return (T[]) list.toArray();
+    }
 }

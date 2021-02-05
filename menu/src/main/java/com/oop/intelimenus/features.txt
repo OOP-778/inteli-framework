@@ -1,0 +1,9 @@
+- easy to use for develpers
+- fully config support (multiple ways of loading menus)
+- animations support
+- multiple button states
+- pages system
+- multiple users can see same menu
+- menu states (RETURNING, OPENING, FORCE_CLOSE)
+- slot system instead of buttons
+- single slot update system (rebuild not required for single slot)
