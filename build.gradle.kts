@@ -1,3 +1,8 @@
+
+import java.io.FileOutputStream
+
+import java.io.BufferedInputStream
+import java.net.URL
 plugins {
     java
     id("com.github.johnrengelman.shadow") version "6.1.0"
@@ -5,7 +10,6 @@ plugins {
 }
 
 version = "1.0"
-
 subprojects {
     apply {
         plugin("java")
@@ -20,49 +24,76 @@ loadProjects()
 configureProject("config") {
     needMc = true
     publish = true
+    version = "0.1"
 }
 
 configureProject("hologram") {
     needMc = true
     needNMS = true
     publish = true
+    version = "0.1"
 }
 
 configureProject("message") {
     needMc = true
     needNMS = false
     publish = true
+    version = "0.1"
 }
 
 configureProject("scoreboard") {
     needMc = true
     needNMS = true
     publish = true
+    version = "0.1"
 }
 
 configureProject("menu") {
     needMc = true
     publish = true
+    version = "0.1"
+}
+
+configureProject("command-bukkit") {
+    needMc = true
+    publish = true
+    version = "0.1"
+}
+
+configureProject("item") {
+    needMc = true
+    publish = true
+    version = "0.1"
 }
 
 configureProject("adapters") {
     needMc = true
+    version = "0.1"
 }
 
 configureProject("test-plugin") {
     needMc = true
     needNMS = true
-    out = "/run/media/brian/BRABARAR/Serrvers/OOP/1.16/plugins/"
+    out = "/run/media/oop-778/BRABARAR/Serrvers/OOP/1.16/plugins/"
 }
 
 configureProject("commons") {
     needMc = true
+    publish = true
+    version = "0.1"
+}
+
+configureProject("packet-injector") {
+    needMc = true
+    publish = true
+    version = "0.1"
 }
 
 subprojects {
     repositories {
         jcenter()
         maven { setUrl("https://repo.codemc.org/repository/nms/") }
+        maven { setUrl("https://repo.codemc.org/repository/maven-public/") }
         maven { setUrl("https://oss.sonatype.org/content/repositories/snapshots") }
         mavenLocal()
     }
@@ -162,7 +193,6 @@ tasks {
         }
     }
 }
-
 // << UTILS START >>
 fun loadProjects() {
     for (children in childProjects.values)
