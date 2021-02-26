@@ -1,13 +1,3 @@
-plugins {
-    java
-}
-
-version = "1.0"
-
-repositories {
-    mavenCentral()
-}
-
 dependencies {
-    testCompile("junit", "junit", "4.12")
+    implementation("com.google.guava:guava:30.1-jre")
 }
