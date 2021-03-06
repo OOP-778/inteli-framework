@@ -4,7 +4,6 @@ import com.oop.inteliframework.commons.util.StringFormat;
 import com.oop.inteliframework.scoreboard.IScoreboard;
 import com.oop.inteliframework.scoreboard.ScoreboardCache;
 import com.oop.inteliframework.scoreboard.adapter.SbAdapter;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.Collections;

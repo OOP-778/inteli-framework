@@ -8,10 +8,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class ConcurrentObject<T> {
+    private final ReentrantLock lock = new ReentrantLock();
     @Getter
     private @NonNull T object;
-
-    private final ReentrantLock lock = new ReentrantLock();
 
     public ConcurrentObject(T object) {
         this.object = object;
@@ -30,7 +29,7 @@ public class ConcurrentObject<T> {
         return o;
     }
 
-    public void lock(Function<T, T> function){
+    public void lock(Function<T, T> function) {
         lock.lock();
         try {
             this.object = function.apply(object);

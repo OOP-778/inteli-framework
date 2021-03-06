@@ -2,13 +2,11 @@ package com.oop.inteliframework.hologram.builder;
 
 import com.google.common.base.Preconditions;
 import com.oop.inteliframework.hologram.Hologram;
-import com.oop.inteliframework.hologram.rule.HologramRule;
 import com.oop.inteliframework.hologram.HologramLine;
 import com.oop.inteliframework.hologram.HologramView;
-import com.oop.inteliframework.hologram.animation.ContentAnimation;
 import com.oop.inteliframework.hologram.line.HologramItem;
 import com.oop.inteliframework.hologram.line.HologramText;
-import lombok.Getter;
+import com.oop.inteliframework.hologram.rule.HologramRule;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -35,16 +33,16 @@ public class HologramBuilder {
     private List<ViewBuilder> views = new ArrayList<>();
 
     /*
-    Set global refresh rate of views
-    Each view can override this value
-    And it can be changed dynamically
+    * Set global refresh rate of views
+    * Each view can override this value
+     * And it can be changed dynamically
     */
     public HologramBuilder refreshRate(long time, TimeUnit unit) {
         return refreshRate(unit.toMillis(time));
     }
 
     /*
-    Add a view to the list of views
+     * Add a view to the list of views
     */
     public HologramBuilder addView(Consumer<ViewBuilder> consumer) {
         ViewBuilder viewBuilder = new ViewBuilder();
@@ -100,7 +98,7 @@ public class HologramBuilder {
          * Add new line to the view
          */
         public ViewBuilder addLines(Consumer<LinesBuilder> consumer) {
-            LinesBuilder builder =  new LinesBuilder(line -> lines.add(line));
+            LinesBuilder builder = new LinesBuilder(line -> lines.add(line));
             consumer.accept(builder);
             return this;
         }

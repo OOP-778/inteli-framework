@@ -7,20 +7,38 @@ import com.oop.inteliframework.config.node.ParentableNode;
 import lombok.NonNull;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-
-import static com.oop.inteliframework.commons.util.StringFormat.format;
 
 /**
  * Handles YAML configurations
  */
 public class YamlConfigurationHandler implements ConfigurationHandler {
     private final Yaml yaml = new Yaml();
+
+    public static void initializeParent(@NonNull ParentableNode parent, Map<Object, Object> map) {
+        map.forEach((key, value) -> {
+            if (value instanceof Map) {
+                ParentableNode child = new ParentableNode(key.toString(), parent);
+                initializeParent(child, (Map<Object, Object>) value);
+
+                parent
+                        .nodes()
+                        .put(key.toString(), child);
+
+            } else {
+                NodeValuable nodeValuable = new NodeValuable(key.toString(), parent, value);
+                parent
+                        .nodes()
+                        .put(nodeValuable.key(), nodeValuable);
+            }
+        });
+    }
 
     @Override
     public Node load(@NonNull InputStream stream) {
@@ -46,25 +64,6 @@ public class YamlConfigurationHandler implements ConfigurationHandler {
         } catch (Throwable throwable) {
             throw new IllegalStateException("Failed to load yaml configuration from stream", throwable);
         }
-    }
-
-    public static void initializeParent(@NonNull ParentableNode parent, Map<Object, Object> map) {
-        map.forEach((key, value) -> {
-            if (value instanceof Map) {
-                ParentableNode child = new ParentableNode(key.toString(), parent);
-                initializeParent(child, (Map<Object, Object>) value);
-
-                parent
-                        .nodes()
-                        .put(key.toString(), child);
-
-            } else {
-                NodeValuable nodeValuable = new NodeValuable(key.toString(), parent, value);
-                parent
-                        .nodes()
-                        .put(nodeValuable.key(), nodeValuable);
-            }
-        });
     }
 
     @Override

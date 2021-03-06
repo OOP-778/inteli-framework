@@ -22,7 +22,40 @@ public class PlayerTracker {
     private JavaPlugin registerer;
 
     // This will be registered by who the first registers
-    private PlayerTracker() {}
+    private PlayerTracker() {
+    }
+
+    public static void register(JavaPlugin plugin) {
+        if (tracker != null) return;
+
+        tracker = new PlayerTracker();
+        tracker.registerer = plugin;
+        Bukkit.getScheduler().runTaskTimer(plugin, tracker.execute(), 20 * 2, 20 * 2);
+    }
+
+    public static synchronized void track(String world, InteliPair<Integer, Integer>... chunks) {
+        InteliCache<InteliPair<Integer, Integer>, Set<Player>> chunksCache = tracker.trackedPlayers.getIfAbsent(world, () -> InteliCache.builder().concurrencyLevel(1).expireAfter(10, TimeUnit.SECONDS).resetExpireAfterAccess(true).build());
+        if (chunksCache.keys().containsAll(Arrays.asList(chunks)))
+            return;
+
+        for (InteliPair<Integer, Integer> chunk : chunks)
+            if (!chunksCache.has(chunk)) chunksCache.put(chunk, new HashSet<>());
+    }
+
+    public static synchronized Set<Player> request(String world, InteliPair<Integer, Integer>... chunks) {
+        Set<Player> players = new HashSet<>();
+
+        InteliCache<InteliPair<Integer, Integer>, Set<Player>> worldPlayers = tracker.trackedPlayers.get(world);
+        if (worldPlayers == null) return players;
+
+        for (InteliPair<Integer, Integer> chunk : chunks) {
+            Optional
+                    .ofNullable(worldPlayers.get(chunk))
+                    .ifPresent(players::addAll);
+        }
+
+        return players;
+    }
 
     private Runnable execute() {
         return () -> {
@@ -75,39 +108,7 @@ public class PlayerTracker {
         };
     }
 
-    public static void register(JavaPlugin plugin) {
-        if (tracker != null) return;
-
-        tracker = new PlayerTracker();
-        tracker.registerer = plugin;
-        Bukkit.getScheduler().runTaskTimer(plugin, tracker.execute(), 20 * 2, 20 * 2);
-    }
-
     private void async(Runnable runnable) {
         Bukkit.getScheduler().runTaskAsynchronously(registerer, runnable);
-    }
-
-    public static synchronized void track(String world, InteliPair<Integer, Integer>... chunks) {
-        InteliCache<InteliPair<Integer, Integer>, Set<Player>> chunksCache = tracker.trackedPlayers.getIfAbsent(world, () -> InteliCache.builder().concurrencyLevel(1).expireAfter(10, TimeUnit.SECONDS).resetExpireAfterAccess(true).build());
-        if (chunksCache.keys().containsAll(Arrays.asList(chunks)))
-            return;
-
-        for (InteliPair<Integer, Integer> chunk : chunks)
-            if (!chunksCache.has(chunk)) chunksCache.put(chunk, new HashSet<>());
-    }
-
-    public static synchronized Set<Player> request(String world, InteliPair<Integer, Integer>... chunks) {
-        Set<Player> players = new HashSet<>();
-
-        InteliCache<InteliPair<Integer, Integer>, Set<Player>> worldPlayers = tracker.trackedPlayers.get(world);
-        if (worldPlayers == null) return players;
-
-        for (InteliPair<Integer, Integer> chunk : chunks) {
-            Optional
-                    .ofNullable(worldPlayers.get(chunk))
-                    .ifPresent(players::addAll);
-        }
-
-        return players;
     }
 }

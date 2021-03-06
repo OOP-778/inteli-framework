@@ -1,6 +1,9 @@
 package com.oop.inteliframework.hologram.nms.V1_12_R1;
 
-import net.minecraft.server.v1_12_R1.*;
+import net.minecraft.server.v1_12_R1.DataWatcher;
+import net.minecraft.server.v1_12_R1.Entity;
+import net.minecraft.server.v1_12_R1.EntityItem;
+import net.minecraft.server.v1_12_R1.ItemStack;
 
 import java.util.LinkedList;
 import java.util.List;

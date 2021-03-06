@@ -1,12 +1,10 @@
 package com.oop.inteliframework.commons.util;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
-@Getter
 @AllArgsConstructor
-@EqualsAndHashCode
-@ToString
-@Setter
+@Data
 public class InteliPair<K, V> {
 
     private K key;

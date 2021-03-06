@@ -3,34 +3,30 @@ package com.oop.inteliframework.testplugin;
 import com.oop.inteliframework.hologram.Hologram;
 import com.oop.inteliframework.hologram.HologramController;
 import com.oop.inteliframework.hologram.builder.HologramBuilder;
-import com.oop.inteliframework.scoreboard.IScoreboard;
+import com.oop.inteliframework.recipe.RecipesController;
+import com.oop.inteliframework.recipe.shaped.ShapedRecipeBuilder;
+import com.oop.inteliframework.recipe.shapeless.ShapelessRecipe;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class TestPlugin extends JavaPlugin implements Listener {
     private HologramController hologramController;
     private Hologram hologram;
-
-    private IScoreboard scoreboard;
+    private RecipesController controller;
 
     @Override
     public void onEnable() {
         Bukkit.getPluginManager().registerEvents(this, this);
-        // Enable it if you need catch some packets! :)
         //Bukkit.getPluginManager().registerEvents(new PacketCatcher(), this);
         hologramController = HologramController
                 .builder()
@@ -38,50 +34,40 @@ public class TestPlugin extends JavaPlugin implements Listener {
                 .executorService(Executors.newScheduledThreadPool(2))
                 .build();
 
-        List<String> lines = new ArrayList<>(
-                Arrays.asList(
-                        "#1e7037----------------------qqqq",
-                        "#70571e----------------------qqq",
-                        "#2a2563----------------------",
-                        "#360d35eqqqqqqqqqqqqqqqqqqqqqqqewe",
-                        "#a6a14cqwrqwerwqetrwetrwetr",
-                        "#20b6d4tregjiwoejrgowegrgwergregqewerqwergtwertwetwte",
-                        "#52703ftretowerjowegwnegor",
-                        "#1a3b40wreoijwopgjoguroiweurgoiwehrgoiuhwerogihwoerghiweougrhweogrw"
-                        )
+        controller = RecipesController.getInstance();
+
+        Bukkit.getPluginManager().registerEvents(controller, this);
+
+        controller.register(
+                ShapelessRecipe.builder()
+                        .required(2, new ItemStack(Material.DIRT))
+                        .required(2, new ItemStack(Material.APPLE))
+                        .required(new ItemStack(Material.IRON_AXE))
+                        .required(5, new ItemStack(Material.IRON_INGOT))
+                        .required(2, new ItemStack(Material.STONE))
+                        .result(new ItemStack(Material.ANVIL))
+                        .build()
         );
 
-        scoreboard = new IScoreboard();
-        scoreboard.setTitleSupplier(player -> lines.get(ThreadLocalRandom.current().nextInt(lines.size() - 1)));
-        scoreboard.getLines().add(player -> "&cHey!awgaqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqwgwgawg");
-        scoreboard.getLines().add(player -> "&c2!wgagwafqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqaw");
-        scoreboard.getLines().add(player -> "&c25!awqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqgagwagwagaw");
-        scoreboard.getLines().add(player -> lines.get(ThreadLocalRandom.current().nextInt(lines.size() - 1)));
-        scoreboard.getLines().add(player -> lines.get(ThreadLocalRandom.current().nextInt(lines.size() - 1)));
-        scoreboard.getLines().add(player -> lines.get(ThreadLocalRandom.current().nextInt(lines.size() - 1)));
-        scoreboard.getLines().add(player -> lines.get(ThreadLocalRandom.current().nextInt(lines.size() - 1)));
-        scoreboard.getLines().add(player -> lines.get(ThreadLocalRandom.current().nextInt(lines.size() - 1)));
-        scoreboard.getLines().add(player -> lines.get(ThreadLocalRandom.current().nextInt(lines.size() - 1)));
-        scoreboard.getLines().add(player -> lines.get(ThreadLocalRandom.current().nextInt(lines.size() - 1)));
-        scoreboard.getLines().add(player -> lines.get(ThreadLocalRandom.current().nextInt(lines.size() - 1)));
-        scoreboard.getLines().add(player -> lines.get(ThreadLocalRandom.current().nextInt(lines.size() - 1)));
+        ItemStack superStack = new ItemStack(Material.DIAMOND_CHESTPLATE);
+        ItemMeta meta = superStack.getItemMeta();
+        meta.setDisplayName("§4§lSuper chestplate");
+        meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 5, true);
+        meta.addEnchant(Enchantment.THORNS, 5, true);
+        superStack.setItemMeta(meta);
 
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                scoreboard.updateAll();
-            }
-        }.runTaskTimerAsynchronously(this, 1, 1);
-    }
+        controller.register(
+                ShapedRecipeBuilder.builder()
+                        .pattern(
+                                "% X %",
+                                "% % %",
+                                "% % %"
+                        )
+                        .item('%', new ItemStack(Material.DIAMOND_BLOCK, 5))
+                        .result(superStack)
+                        .build()
+        );
 
-    @EventHandler
-    public void onJoin(PlayerJoinEvent event) {
-        scoreboard.add(event.getPlayer());
-    }
-
-    @EventHandler
-    public void onQuit(PlayerQuitEvent event) {
-        scoreboard.remove(event.getPlayer());
     }
 
     @EventHandler

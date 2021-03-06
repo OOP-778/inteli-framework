@@ -1,7 +1,7 @@
 package com.oop.inteliframework.scoreboard.adapter;
 
-import com.oop.inteliframework.commons.util.SimpleReflection;
 import com.oop.inteliframework.commons.util.InteliVersion;
+import com.oop.inteliframework.commons.util.SimpleReflection;
 import com.oop.inteliframework.scoreboard.IScoreboard;
 import com.oop.inteliframework.scoreboard.adapter.impl.*;
 import lombok.Getter;
@@ -37,7 +37,7 @@ public abstract class SbAdapter {
 
     static {
 
-        if(InteliVersion.is(8))
+        if (InteliVersion.is(8))
             implementation = new SbAdapter_1_8();
         else if (InteliVersion.is(12))
             implementation = new SbAdapter_1_12();
@@ -77,17 +77,18 @@ public abstract class SbAdapter {
             if (InteliVersion.isBefore(8)) {
                 ENUM_SB_ACTION_CLASS = SimpleReflection.findClass("{nms}.PacketPlayOutScoreboardScore$EnumScoreboardAction");
 
-                ENUM_SB_ACTION_CHANGE = Enum.valueOf((Class<Enum>)ENUM_SB_ACTION_CLASS, "CHANGE");
-                ENUM_SB_ACTION_REMOVE = Enum.valueOf((Class<Enum>)ENUM_SB_ACTION_CLASS, "REMOVE");
-            } if (InteliVersion.isOrAfter(13)) {
+                ENUM_SB_ACTION_CHANGE = Enum.valueOf((Class<Enum>) ENUM_SB_ACTION_CLASS, "CHANGE");
+                ENUM_SB_ACTION_REMOVE = Enum.valueOf((Class<Enum>) ENUM_SB_ACTION_CLASS, "REMOVE");
+            }
+            if (InteliVersion.isOrAfter(13)) {
                 ENUM_SB_ACTION_CLASS_1_13 = SimpleReflection.findClass("{nms}.ScoreboardServer$Action");
 
-                ENUM_SB_ACTION_CHANGE_1_13 = Enum.valueOf((Class<Enum>)ENUM_SB_ACTION_CLASS_1_13, "CHANGE");
-                ENUM_SB_ACTION_REMOVE_1_13 = Enum.valueOf((Class<Enum>)ENUM_SB_ACTION_CLASS_1_13, "REMOVE");
+                ENUM_SB_ACTION_CHANGE_1_13 = Enum.valueOf((Class<Enum>) ENUM_SB_ACTION_CLASS_1_13, "CHANGE");
+                ENUM_SB_ACTION_REMOVE_1_13 = Enum.valueOf((Class<Enum>) ENUM_SB_ACTION_CLASS_1_13, "REMOVE");
             }
 
             ENUM_SB_DISPLAY_CLASS = SimpleReflection.findClass("{nms}.IScoreboardCriteria$EnumScoreboardHealthDisplay");
-            ENUM_SB_HEALTH_INTEGER = Enum.valueOf((Class<Enum>)ENUM_SB_DISPLAY_CLASS, "INTEGER");
+            ENUM_SB_HEALTH_INTEGER = Enum.valueOf((Class<Enum>) ENUM_SB_DISPLAY_CLASS, "INTEGER");
 
             MESSAGE_FROM_STRING = SimpleReflection.getMethod(
                     CRAFT_CHAT_MESSAGE_CLASS,

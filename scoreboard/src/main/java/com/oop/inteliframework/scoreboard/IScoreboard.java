@@ -1,6 +1,5 @@
 package com.oop.inteliframework.scoreboard;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Sets;
 import com.oop.inteliframework.commons.util.InteliVersion;
 import com.oop.inteliframework.scoreboard.adapter.SbAdapter;
@@ -12,6 +11,7 @@ import org.bukkit.entity.Player;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -19,21 +19,16 @@ import java.util.stream.IntStream;
 public class IScoreboard {
     private static final SbAdapter adapter = SbAdapter.implementation;
     private final String id;
-
-    @Setter
-    private Function<Player, String> titleSupplier;
-
     private final LinkedList<LineEntry> lines = new LinkedList<>();
-
     private final String[] lineIdentifiers = IntStream
             .range('A', 'Z' + 1)
             .mapToObj(a -> ChatColor.COLOR_CHAR + (((char) a) + ""))
             .toArray(String[]::new);
-
     // Lines cache
     private final Map<UUID, ScoreboardCache> userCache = new ConcurrentHashMap<>();
-
     private final Set<Player> viewers = Sets.newConcurrentHashSet();
+    @Setter
+    private Function<Player, String> titleSupplier;
 
     public IScoreboard() {
         id = ThreadLocalRandom.current().ints(0, 200)
@@ -49,7 +44,7 @@ public class IScoreboard {
 
     public static String[] splitIntoParts(String input) {
         if (InteliVersion.isOrAfter(13))
-            return new String[] {input};
+            return new String[]{input};
 
         String[] arr = new String[]{"", "", ""};
 
@@ -162,7 +157,7 @@ public class IScoreboard {
                 String oldLine = playerCache.getLines().get(i);
 
                 // If the line wasn't present but now is, or if it has changed
-                if (oldLine == null || !line.equalsIgnoreCase(oldLine)) {
+                if (!line.equalsIgnoreCase(oldLine)) {
                     // Split text into multiple parts at the size of 16
                     // Make sure to keep colors
                     String[] parts = splitIntoParts(line);

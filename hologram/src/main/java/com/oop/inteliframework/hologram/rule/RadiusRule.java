@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 
 public class RadiusRule implements HologramRule {
     private double radius;
+
     public RadiusRule(double radius) {
         this.radius = radius;
     }

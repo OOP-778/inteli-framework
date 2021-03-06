@@ -1,6 +1,9 @@
 package com.oop.inteliframework.hologram.nms.V1_15_R1;
 
-import net.minecraft.server.v1_15_R1.*;
+import net.minecraft.server.v1_15_R1.DataWatcher;
+import net.minecraft.server.v1_15_R1.Entity;
+import net.minecraft.server.v1_15_R1.EntityItem;
+import net.minecraft.server.v1_15_R1.ItemStack;
 import org.bukkit.craftbukkit.v1_15_R1.util.CraftChatMessage;
 
 import java.util.LinkedList;
@@ -25,7 +28,7 @@ public class DataWatcherHelper {
                 .filter(object -> object.a().a() == 2)
                 .findFirst()
                 .ifPresent(object ->
-                    object.a(Optional.of(CraftChatMessage.fromString(displayName)[0]))
+                        object.a(Optional.of(CraftChatMessage.fromString(displayName)[0]))
                 );
     }
 

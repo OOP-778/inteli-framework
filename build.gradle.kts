@@ -45,6 +45,10 @@ configureProject("commons") {
     needMc = true
 }
 
+configureProject("recipe-system") {
+    needMc = true
+}
+
 subprojects {
     repositories {
         jcenter()
@@ -57,7 +61,7 @@ subprojects {
     dependencies {
         config?.let {
             if (it.needMc) {
-                compileOnly("org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT")
+                compileOnly("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
                 implementation("org.apache.commons:commons-lang3:3.11")
             }
 
@@ -159,17 +163,17 @@ fun configureProject(name: String, apply: (ProjectConfig).() -> Unit) {
 }
 
 data class ProjectConfig(
-        val name: String,
-        var outName: String = name,
-        var publish: Boolean = false,
-        var group: String = "com.oop.inteliframework",
-        var artifact: String = name,
-        var out: String = "out",
-        var version: Any,
-        var needMc: Boolean = false,
-        var needNMS: Boolean = false
+    val name: String,
+    var outName: String = name,
+    var publish: Boolean = false,
+    var group: String = "com.oop.inteliframework",
+    var artifact: String = name,
+    var out: String = "out",
+    var version: Any,
+    var needMc: Boolean = false,
+    var needNMS: Boolean = false
 ) {
     constructor(project: String, version: Any) : this(
-            name = project, version = version
+        name = project, version = version
     )
 }

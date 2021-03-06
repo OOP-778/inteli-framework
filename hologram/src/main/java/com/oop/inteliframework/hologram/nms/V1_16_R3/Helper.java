@@ -39,7 +39,7 @@ public class Helper {
             SimpleReflection
                     .getField(packet.getClass(), int.class)
                     .set(packet, id);
-            
+
             return packet;
         } catch (Throwable throwable) {
             throwable.printStackTrace();

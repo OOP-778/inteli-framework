@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.internal.Primitives;
+import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.bukkit.Bukkit;
 
@@ -13,14 +14,13 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Function;
 
+@UtilityClass
 public final class SimpleReflection {
 
     private static final Map<Class<?>, Constructor<?>> CONSTRUCTOR_MAP = new HashMap<>();
     private static final Map<Class<?>, Map<String, Method>> METHOD_MAP = new HashMap<>();
     private static final Map<String, Class<?>> CLASS_MAP = new HashMap<>();
     private static final Map<Class<?>, Map<String, Field>> FIELD_MAP = new HashMap<>();
-
-    private SimpleReflection() {}
 
     public static Constructor<?> getConstructor(Class<?> clazz, Class<?>... parameterTypes) throws Exception {
         if (CONSTRUCTOR_MAP.containsKey(clazz)) return CONSTRUCTOR_MAP.get(clazz);
@@ -115,7 +115,7 @@ public final class SimpleReflection {
         return invokeMethod(instance, packageType.getClass(className), methodName, arguments);
     }
 
-    public static Field getField(Class<?> clazz, String fieldName){
+    public static Field getField(Class<?> clazz, String fieldName) {
         Map<String, Field> stringFieldMap = FIELD_MAP.computeIfAbsent(clazz, clazz2 -> new HashMap<>());
         Field field = stringFieldMap.get(fieldName);
         if (field != null) return field;
@@ -162,7 +162,7 @@ public final class SimpleReflection {
         }
     }
 
-    private static <T> Set<T> merge(T[] ...arrays) {
+    private static <T> Set<T> merge(T[]... arrays) {
         Set<T> set = Sets.newHashSet();
         for (T[] array : arrays) {
             set.addAll(Lists.newArrayList(array));
@@ -171,7 +171,7 @@ public final class SimpleReflection {
         return set;
     }
 
-    public static Object executeMethod(Method method, Object ofWho, Object ...args) {
+    public static Object executeMethod(Method method, Object ofWho, Object... args) {
         try {
             args = checkArgs(method.getParameterTypes(), args);
             return method.invoke(ofWho, args);
@@ -181,7 +181,7 @@ public final class SimpleReflection {
         }
     }
 
-    public static Object initializeObject(Constructor constructor, Object ...args) {
+    public static Object initializeObject(Constructor constructor, Object... args) {
         try {
             args = checkArgs(constructor.getParameterTypes(), args);
             return constructor.newInstance(args);
@@ -219,7 +219,24 @@ public final class SimpleReflection {
     }
 
     public static Field getField(String className, Package packageType, String fieldName) throws Exception {
-        return getField(packageType.getClass(className),  fieldName);
+        return getField(packageType.getClass(className), fieldName);
+    }
+
+    public static Method getTypedMethod(Class<?> clazz, String methodName, Class<?> returnType, Class<?>... params) {
+        for (final Method method : clazz.getDeclaredMethods()) {
+            if ((methodName == null || method.getName().equals(methodName))
+                    && (returnType == null || method.getReturnType().equals(returnType))
+                    && Arrays.equals(method.getParameterTypes(), params)) {
+                method.setAccessible(true);
+                return method;
+            }
+        }
+
+        // Search in every superclass
+        if (clazz.getSuperclass() != null)
+            return getMethod(clazz.getSuperclass(), methodName, params);
+
+        throw new IllegalStateException(StringFormat.format("Unable to find method {} ({}).", methodName, Arrays.asList(params)));
     }
 
     public enum Package {
@@ -283,18 +300,18 @@ public final class SimpleReflection {
 
     public static class Player {
 
-        private static Class<?>
-            CRAFT_PLAYER_CLASS,
-            ENTITY_PLAYER_CLASS,
-            PLAYER_CONNECTION_CLASS,
-            PACKET_CLASS;
+        private static final Class<?>
+                CRAFT_PLAYER_CLASS,
+                ENTITY_PLAYER_CLASS,
+                PLAYER_CONNECTION_CLASS,
+                PACKET_CLASS;
 
-        private static Method
-            SEND_PACKET_METHOD,
-            GET_HANDLE_METHOD;
+        private static final Method
+                SEND_PACKET_METHOD,
+                GET_HANDLE_METHOD;
 
-        private static Field
-            PLAYER_CONNECTION_FIELD;
+        private static final Field
+                PLAYER_CONNECTION_FIELD;
 
         static {
             try {
@@ -366,22 +383,5 @@ public final class SimpleReflection {
 
             return stringObjectFunction.apply(what.toString());
         }
-    }
-
-    public static Method getTypedMethod(Class<?> clazz, String methodName, Class<?> returnType, Class<?>... params) {
-        for (final Method method : clazz.getDeclaredMethods()) {
-            if ((methodName == null || method.getName().equals(methodName))
-                    && (returnType == null || method.getReturnType().equals(returnType))
-                    && Arrays.equals(method.getParameterTypes(), params)) {
-                method.setAccessible(true);
-                return method;
-            }
-        }
-
-        // Search in every superclass
-        if (clazz.getSuperclass() != null)
-            return getMethod(clazz.getSuperclass(), methodName, params);
-
-        throw new IllegalStateException(StringFormat.format("Unable to find method {} ({}).", methodName, Arrays.asList(params)));
     }
 }

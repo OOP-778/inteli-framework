@@ -1,13 +1,18 @@
 package com.oop.inteliframework.commons.util;
 
+import lombok.experimental.UtilityClass;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 
+@UtilityClass
 public class InteliVersion {
     private static String stringVersion;
     private static int intVersion;
 
-    public InteliVersion() {
+    static {
+        String fullVersion = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
+        stringVersion = StringUtils.replace(fullVersion, "_", " ");
+        intVersion = Integer.parseInt(StringUtils.replace(fullVersion.split("_")[1].split("_R")[0], "v", ""));
     }
 
     public static boolean is(int version2) {
@@ -32,11 +37,5 @@ public class InteliVersion {
 
     public static int getIntVersion() {
         return intVersion;
-    }
-
-    static {
-        String fullVersion = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
-        stringVersion = StringUtils.replace(fullVersion, "_", " ");
-        intVersion = Integer.parseInt(StringUtils.replace(fullVersion.split("_")[1].split("_R")[0], "v", ""));
     }
 }

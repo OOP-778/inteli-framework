@@ -42,7 +42,7 @@ public class SbAdapter_1_12 extends SbAdapter {
         setField(packet, "b", scoreboard.getId());
 
         setField(packet, "d", scoreAction == ScoreAction.REMOVE ? ENUM_SB_ACTION_REMOVE : ENUM_SB_ACTION_CHANGE);
-        setField(packet, "a", scoreboard.getLineIdentifiers()[line-1]);
+        setField(packet, "a", scoreboard.getLineIdentifiers()[line - 1]);
 
         for (Player player : players)
             getPacketSender().accept(player, packet);
