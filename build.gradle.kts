@@ -74,7 +74,7 @@ configureProject("adapters") {
 configureProject("test-plugin") {
     needMc = true
     needNMS = true
-    out = "/run/media/oop-778/BRABARAR/Serrvers/OOP/1.16/plugins/"
+    out = "out"
 }
 
 configureProject("commons") {
