@@ -4,6 +4,7 @@ import com.oop.inteliframework.commons.util.StringFormat;
 import com.oop.inteliframework.scoreboard.InteliScoreboard;
 import com.oop.inteliframework.scoreboard.ScoreboardCache;
 import com.oop.inteliframework.scoreboard.adapter.SbAdapter;
+import lombok.NonNull;
 import org.bukkit.entity.Player;
 
 import java.util.Collections;
@@ -47,14 +48,14 @@ public class SbAdapter_1_8 extends SbAdapter {
         setField(packet, "b", scoreboard.getId());
 
         setField(packet, "d", scoreAction == ScoreAction.REMOVE ? ENUM_SB_ACTION_REMOVE : ENUM_SB_ACTION_CHANGE);
-        setField(packet, "a", StringFormat.colored(scoreboard.getLineIdentifiers()[line]));
+        setField(packet, "a", StringFormat.colored(InteliScoreboard.lineIdentifiers[line]));
 
         for (Player player : players)
             getPacketSender().accept(player, packet);
     }
 
     @Override
-    protected void _sendTeam(InteliScoreboard scoreboard, String identifier, String[] parts, TeamAction teamAction, Player... players) throws Throwable {
+    protected void _sendTeam(InteliScoreboard scoreboard, @NonNull String identifier, String[] parts, TeamAction teamAction, Player... players) throws Throwable {
         Object packet = SB_TEAM_PACKET_CONSTRUCTOR.newInstance();
         setField(packet, "a", identifier);
         setField(packet, "h", teamAction.ordinal());
@@ -63,7 +64,8 @@ public class SbAdapter_1_8 extends SbAdapter {
             if (teamAction == TeamAction.CREATE)
                 setField(packet, "g", Collections.singleton(identifier));
 
-            setField(packet, "c", parts[0]);
+            if (parts[0] != null)
+                setField(packet, "c", parts[0]);
 
             if (parts[1] != null)
                 setField(packet, "d", parts[1]);

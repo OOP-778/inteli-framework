@@ -44,7 +44,7 @@ public class SbAdapter_1_16 extends SbAdapter {
 
         setField(packet, "d", scoreAction == ScoreAction.REMOVE ? ENUM_SB_ACTION_REMOVE_1_13 : ENUM_SB_ACTION_CHANGE_1_13);
         setField(packet, "a",
-                StringFormat.colored(scoreboard.getLineIdentifiers()[line])
+                StringFormat.colored(InteliScoreboard.lineIdentifiers[line])
         );
 
         for (Player player : players)

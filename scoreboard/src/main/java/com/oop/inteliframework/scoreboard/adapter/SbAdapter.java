@@ -74,7 +74,7 @@ public abstract class SbAdapter {
             Method CONNECTION_SEND_PACKET = SimpleReflection.getMethod(PLAYER_CONNECTION_CLASS, "sendPacket", SimpleReflection.findClass("{nms}.Packet"));
             Field PLAYER_CONNECTION = SimpleReflection.getField(ENTITY_PLAYER_CLASS, "playerConnection");
 
-            if (InteliVersion.isBefore(8)) {
+            if (InteliVersion.isOrAfter(8) && InteliVersion.isBefore(13)) {
                 ENUM_SB_ACTION_CLASS = SimpleReflection.findClass("{nms}.PacketPlayOutScoreboardScore$EnumScoreboardAction");
 
                 ENUM_SB_ACTION_CHANGE = Enum.valueOf((Class<Enum>)ENUM_SB_ACTION_CLASS, "CHANGE");
