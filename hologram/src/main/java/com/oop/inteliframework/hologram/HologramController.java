@@ -3,7 +3,6 @@ package com.oop.inteliframework.hologram;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.oop.inteliframework.commons.util.InteliPair;
-import com.oop.inteliframework.hologram.animation.AnimationHelper;
 import com.oop.inteliframework.hologram.animation.AnimationProvider;
 import com.oop.inteliframework.hologram.animation.ContentAnimation;
 import com.oop.inteliframework.hologram.nms.WrappedArmorStand;
@@ -16,22 +15,22 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class HologramController {
     private static final Map<String, HologramController> controllerMap = new ConcurrentHashMap<>();
     public static Logger LOGGER = Logger.getLogger("InteliHolograms");
+    private final TreeMap<String, AnimationProvider> animationProviders = new TreeMap<>(Maps.newConcurrentMap());
     private ScheduledExecutorService executor;
-
     private JavaPlugin plugin;
     private Map<String, Map<InteliPair<Integer, Integer>, Set<Hologram>>> holograms = new ConcurrentHashMap<>();
-
     private List<Hologram> cache;
     private volatile boolean updated = true;
-
-    private final TreeMap<String, AnimationProvider> animationProviders = new TreeMap<>(Maps.newConcurrentMap());
 
     private HologramController(
             JavaPlugin plugin,

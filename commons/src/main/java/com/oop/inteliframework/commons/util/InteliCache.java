@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
-public class InteliCache<K, V> {
+public final class InteliCache<K, V> {
 
     @Getter
     private final int concurrencyLevel;

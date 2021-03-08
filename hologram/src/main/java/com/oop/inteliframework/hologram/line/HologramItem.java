@@ -2,7 +2,6 @@ package com.oop.inteliframework.hologram.line;
 
 import com.oop.inteliframework.commons.util.InteliCache;
 import com.oop.inteliframework.hologram.HologramLine;
-import com.oop.inteliframework.hologram.animation.ContentAnimation;
 import com.oop.inteliframework.hologram.util.UpdateableObject;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -14,14 +13,13 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class HologramItem extends HologramLine<HologramItem, ItemStack> {
-    private UpdateableObject<Function<Player, ItemStack>> itemStackSupplier;
-
     private final InteliCache<UUID, Integer> itemCache = InteliCache
             .builder()
             .concurrencyLevel(0)
             .expireAfter(2, TimeUnit.SECONDS)
             .resetExpireAfterAccess(true)
             .build();
+    private UpdateableObject<Function<Player, ItemStack>> itemStackSupplier;
 
     public HologramItem(Function<Player, ItemStack> itemStackSupplier) {
         this.itemStackSupplier = new UpdateableObject<>(itemStackSupplier);

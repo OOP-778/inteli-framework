@@ -1,8 +1,7 @@
-
+import java.io.FileOutputStream
 import java.nio.channels.Channels
 import java.nio.channels.FileChannel
 import java.nio.channels.ReadableByteChannel
-import java.io.FileOutputStream
 
 
 rootProject.name = "inteli-framework"
@@ -25,17 +24,19 @@ fun downloadFile(url: String, out: java.io.File) {
         // Define server endpoint
         val robotsUrl: java.net.URL = java.net.URL(url)
         val urlConnection: java.net.HttpURLConnection = robotsUrl.openConnection() as java.net.HttpURLConnection
-        urlConnection.setRequestMethod("GET")
-        urlConnection.setDoInput(true)
-        urlConnection.addRequestProperty("User-Agent",
-                "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)")
+        urlConnection.requestMethod = "GET"
+        urlConnection.doInput = true
+        urlConnection.addRequestProperty(
+            "User-Agent",
+            "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)"
+        )
 
         // Get a readable channel from url connection
-        readableChannelForHttpResponseBody = Channels.newChannel(urlConnection.getInputStream())
+        readableChannelForHttpResponseBody = Channels.newChannel(urlConnection.inputStream)
 
         // Create the file channel to save file
         val fosForDownloadedFile = FileOutputStream(out)
-        fileChannelForDownloadedFile = fosForDownloadedFile.getChannel()
+        fileChannelForDownloadedFile = fosForDownloadedFile.channel
 
         // Save the body of the HTTP response to local file
         fileChannelForDownloadedFile.transferFrom(readableChannelForHttpResponseBody, 0, Long.MAX_VALUE)
@@ -66,9 +67,8 @@ include("commons")
 include("hologram")
 include("test-plugin")
 include("adapters")
+include("recipe")
 include("menu")
-include("item")
 include("command")
 include("command-bukkit")
 include("packet-injector")
-include("message")

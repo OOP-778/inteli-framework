@@ -2,10 +2,7 @@ package com.oop.inteliframework.hologram.nms;
 
 import com.oop.inteliframework.adapters.VersionedAdapter;
 import com.oop.inteliframework.adapters.VersionedAdapters;
-import com.oop.inteliframework.commons.util.StringFormat;
-import com.oop.inteliframework.hologram.HologramController;
 import com.oop.inteliframework.hologram.HologramLine;
-import lombok.SneakyThrows;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -47,11 +44,11 @@ public interface WrappedArmorStand extends VersionedAdapter {
 
     void setMarker(boolean marker);
 
-    void update(Player ...players);
+    void update(Player... players);
 
     void spawn(Player player);
 
-    void remove(Player ...players);
+    void remove(Player... players);
 
     void setLocation(Location location);
 

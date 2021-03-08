@@ -197,18 +197,18 @@ public class HologramView {
     }
 
     public void animate() {
-        lines.modify(lines -> lines.stream().filter(line -> line instanceof HologramText).forEach(line -> ((HologramText)line).animate()));
+        lines.modify(lines -> lines.stream().filter(line -> line instanceof HologramText).forEach(line -> ((HologramText) line).animate()));
     }
 
     protected void setLocation(Location location) {
         this.baseLocation.set(location);
     }
 
-    public void addRule(HologramRule ...rule) {
+    public void addRule(HologramRule... rule) {
         rules.addAll(Arrays.asList(rule));
     }
 
-    public void addLines(HologramLine<?, ?> ...line) {
+    public void addLines(HologramLine<?, ?>... line) {
         lines.use(lines -> lines.addAll(Arrays.asList(line)));
     }
 

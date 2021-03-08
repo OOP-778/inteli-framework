@@ -65,7 +65,6 @@ public class ImplWrappedArmorStand implements WrappedArmorStand {
         entity.setInvisible(true);
 
 
-
     }
 
     @Override
