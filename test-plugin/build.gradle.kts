@@ -3,6 +3,8 @@ dependencies {
     implementation(project(":menu"))
     implementation(project(":commons"))
     implementation(project(":config"))
+    implementation(project(":command-bukkit"))
+    implementation(project(":command"))
 
     implementation("com.oop.orangeengine:item:5.3")
     implementation("com.oop.orangeengine:engine:5.3")

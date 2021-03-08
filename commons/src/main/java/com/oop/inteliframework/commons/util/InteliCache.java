@@ -82,11 +82,10 @@ public class InteliCache<K, V> {
         if (pair == null) {
             put(key, value);
             return value;
-
-        } else {
-            pair.setKey(merger.apply(pair.getKey(), value));
-            return pair.getKey();
         }
+
+        pair.setKey(merger.apply(pair.getKey(), value));
+        return pair.getKey();
     }
 
     public Set<K> keys() {

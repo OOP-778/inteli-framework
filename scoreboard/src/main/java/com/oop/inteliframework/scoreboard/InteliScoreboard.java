@@ -2,9 +2,15 @@ package com.oop.inteliframework.scoreboard;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Sets;
+import com.oop.inteliframework.commons.util.ConcurrentObject;
+import com.oop.inteliframework.commons.util.InsertableList;
 import com.oop.inteliframework.commons.util.InteliVersion;
 import com.oop.inteliframework.scoreboard.adapter.SbAdapter;
+import com.oop.inteliframework.scoreboard.adapter.SbAdapter.ObjectiveAction;
+import com.oop.inteliframework.scoreboard.adapter.SbAdapter.ScoreAction;
+import com.oop.inteliframework.scoreboard.adapter.SbAdapter.TeamAction;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -21,11 +27,12 @@ public class InteliScoreboard {
     private final String id;
 
     @Setter
+    @NonNull
     private Function<Player, String> titleSupplier;
 
-    private final LinkedList<LineEntry> lines = new LinkedList<>();
+    private final ConcurrentObject<InsertableList<LineEntry>> linesObject = new ConcurrentObject<>(new InsertableList<>());
 
-    private final String[] lineIdentifiers = IntStream
+    public static final String[] lineIdentifiers = IntStream
             .range('A', 'Z' + 1)
             .mapToObj(a -> ChatColor.COLOR_CHAR + (((char) a) + ""))
             .toArray(String[]::new);
@@ -35,16 +42,13 @@ public class InteliScoreboard {
 
     private final Set<Player> viewers = Sets.newConcurrentHashSet();
 
-    public InteliScoreboard() {
-        id = ThreadLocalRandom.current().ints(0, 200)
-                .limit(5)
+    public InteliScoreboard(String name) {
+        if (name.length() > 10)
+            name = name.substring(0, 10);
+        this.id = name + ThreadLocalRandom.current().ints(0, 200)
+                .limit(2)
                 .mapToObj(String::valueOf)
                 .collect(Collectors.joining());
-    }
-
-    public InteliScoreboard(Player player) {
-        this();
-        add(player);
     }
 
     public static String[] splitIntoParts(String input) {
@@ -137,12 +141,30 @@ public class InteliScoreboard {
         viewers.add(player);
     }
 
+    public void remove() {
+        for (Player viewer : viewers)
+            remove(viewer);
+    }
+
     public void remove(Player player) {
-        if (viewers.contains(player)) return;
+        if (!viewers.contains(player)) return;
         viewers.remove(player);
-        userCache.remove(player.getUniqueId());
 
         adapter.sendObjective(this, SbAdapter.ObjectiveAction.REMOVE, player);
+        linesObject.modify(lines -> {
+            ScoreboardCache playerCache = userCache.computeIfAbsent(player.getUniqueId(), k -> new ScoreboardCache());
+            for (int i = 0; i < lines.size(); i++) {
+                if (!player.isOnline()) return;
+
+                String oldLine = playerCache.getLines().get(i);
+                if (oldLine != null) {
+                    adapter.sendTeam(this, lineIdentifiers[i], new String[0], TeamAction.REMOVE, player);
+                    adapter.sendScore(this, i, ScoreAction.REMOVE, player);
+                }
+            }
+
+            userCache.remove(player.getUniqueId());
+        });
     }
 
     public void update(Player... players) {
@@ -156,31 +178,37 @@ public class InteliScoreboard {
                 adapter.sendObjective(this, SbAdapter.ObjectiveAction.UPDATE, player);
             }
 
-            for (int i = 0; i < lines.size(); i++) {
-                LineEntry lineEntry = lines.get(i);
-                String line = lineEntry.supply(player);
-                String oldLine = playerCache.getLines().get(i);
+            linesObject.modify(lines -> {
+                for (int i = 0; i < lines.size(); i++) {
+                    if (!player.isOnline()) return;
 
-                // If the line wasn't present but now is, or if it has changed
-                if (oldLine == null || !line.equalsIgnoreCase(oldLine)) {
-                    // Split text into multiple parts at the size of 16
-                    // Make sure to keep colors
-                    String[] parts = splitIntoParts(line);
+                    LineEntry lineEntry = lines.get(i);
+                    String line = lineEntry.supply(player);
+                    String oldLine = playerCache.getLines().get(i);
 
-                    playerCache.getLines().merge(i, line, (n, n2) -> line);
-                    if (oldLine != null)
-                        adapter.sendTeam(this, getLineIdentifiers()[i], parts, SbAdapter.TeamAction.UPDATE, player);
-                    else
-                        adapter.sendTeam(this, getLineIdentifiers()[i], parts, SbAdapter.TeamAction.CREATE, player);
+                    // If the line wasn't present but now is, or if it has changed
+                    if (oldLine == null || !line.equalsIgnoreCase(oldLine)) {
+                        // Split text into multiple parts at the size of 16
+                        // Make sure to keep colors
+                        String[] parts = splitIntoParts(line);
 
-                    adapter.sendScore(this, i, SbAdapter.ScoreAction.CHANGE, player);
-                    playerCache.getLines().replace(i, line);
+                        String finalLine = line;
+                        playerCache.getLines().merge(i, line, (n, n2) -> finalLine);
+                        if (oldLine != null)
+                            adapter.sendTeam(this, lineIdentifiers[i], parts, SbAdapter.TeamAction.UPDATE, player);
+                        else
+                            adapter.sendTeam(this, lineIdentifiers[i], parts, SbAdapter.TeamAction.CREATE, player);
+
+                        adapter.sendScore(this, i, SbAdapter.ScoreAction.CHANGE, player);
+                        playerCache.getLines().replace(i, line);
+                    }
                 }
-            }
+            });
         }
     }
 
     public void updateAll() {
-        update(viewers.toArray(new Player[0]));
+        for (Player viewer : viewers)
+            update(viewer);
     }
 }
