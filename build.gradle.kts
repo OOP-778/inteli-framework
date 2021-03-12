@@ -1,8 +1,3 @@
-
-import java.io.FileOutputStream
-
-import java.io.BufferedInputStream
-import java.net.URL
 plugins {
     java
     id("com.github.johnrengelman.shadow") version "6.1.0"
@@ -10,6 +5,7 @@ plugins {
 }
 
 version = "1.0"
+
 subprojects {
     apply {
         plugin("java")
@@ -23,73 +19,66 @@ loadProjects()
 
 configureProject("config") {
     needMc = true
-    publish = true
-    version = "0.1"
 }
 
 configureProject("hologram") {
     needMc = true
     needNMS = true
-    publish = true
-    version = "0.1"
-}
-
-configureProject("message") {
-    needMc = true
-    needNMS = false
-    publish = true
-    version = "0.1"
 }
 
 configureProject("scoreboard") {
     needMc = true
     needNMS = true
-    publish = true
-    version = "0.1"
-}
-
-configureProject("menu") {
-    needMc = true
-    publish = true
-    version = "0.1"
-}
-
-configureProject("command-bukkit") {
-    needMc = true
-    publish = true
-    version = "0.1"
-}
-
-configureProject("item") {
-    needMc = true
-    publish = true
-    version = "0.1"
 }
 
 configureProject("adapters") {
     needMc = true
-    version = "0.1"
 }
 
 configureProject("test-plugin") {
     needMc = true
     needNMS = true
-    out = "out"
+    out = "E:\\Coding\\1.8_Server\\plugins\\"
 }
 
 configureProject("commons") {
     needMc = true
-    publish = true
-    version = "0.1"
+}
+
+configureProject("recipe-system") {
+    needMc = true
+}
+
+configureProject("item") {
+    needMc = true
+    needNbtApi = true
+    mcVersion = MCVersion.V1_16
+}
+
+configureProject("task") {
+    needMc = true
+    needUnitTesting = true
+    needPluginModule = true
+}
+
+configureProject("plugin") {
+    needMc = true
+    needUnitTesting = true
+}
+
+configureProject("command") {
+    needMc = true
+}
+
+configureProject("command-bukkit") {
+    needMc = true
+}
+
+configureProject("message") {
+    needMc = true
 }
 
 configureProject("packet-injector") {
-    needMc = true
-    publish = true
-    version = "0.1"
-}
-
-configureProject("recipe") {
     needMc = true
 }
 
@@ -97,9 +86,8 @@ subprojects {
     repositories {
         jcenter()
         maven { setUrl("https://repo.codemc.org/repository/nms/") }
-        maven { setUrl("https://repo.codemc.org/repository/maven-public/") }
         maven { setUrl("https://oss.sonatype.org/content/repositories/snapshots") }
-        mavenLocal()
+        maven { setUrl("https://repo.codemc.org/repository/maven-public/") }
     }
 
     val config = props[name]
@@ -107,17 +95,29 @@ subprojects {
     dependencies {
         config?.let {
             if (it.needMc) {
-                compileOnly("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
+                compileOnly("org.spigotmc:spigot-api:${it.mcVersion.versionName}")
                 implementation("org.apache.commons:commons-lang3:3.11")
             }
+
+            if (it.needNbtApi)
+                implementation("de.tr7zw:item-nbt-api:2.7.1")
+
+            if (it.needUnitTesting)
+                testImplementation("junit:junit:4.13")
+
+            if (it.needPluginModule)
+                compileOnly(project(":plugin"))
 
             if (it.needNMS)
                 compileOnly(fileTree("../lib/"))
         }
 
+
+        implementation("org.jetbrains:annotations:20.1.0")
         compileOnly("org.projectlombok:lombok:1.18.8")
         annotationProcessor("org.projectlombok:lombok:1.18.8")
     }
+
     tasks {
         register("cleanOut") {
             val directory = File("$projectDir/out/")
@@ -197,6 +197,7 @@ tasks {
         }
     }
 }
+
 // << UTILS START >>
 fun loadProjects() {
     for (children in childProjects.values)
@@ -208,17 +209,30 @@ fun configureProject(name: String, apply: (ProjectConfig).() -> Unit) {
 }
 
 data class ProjectConfig(
-    val name: String,
-    var outName: String = name,
-    var publish: Boolean = false,
-    var group: String = "com.oop.inteliframework",
-    var artifact: String = name,
-    var out: String = "out",
-    var version: Any,
-    var needMc: Boolean = false,
-    var needNMS: Boolean = false
+        val name: String,
+        var outName: String = name,
+        var publish: Boolean = false,
+        var group: String = "com.oop.inteliframework",
+        var artifact: String = name,
+        var out: String = "out",
+        var version: Any,
+        var needMc: Boolean = false,
+        var mcVersion: MCVersion = MCVersion.V1_8,
+        var needNMS: Boolean = false,
+        var needNbtApi: Boolean = false,
+        var needUnitTesting: Boolean = false,
+        var needPluginModule: Boolean = false
 ) {
     constructor(project: String, version: Any) : this(
-        name = project, version = version
+            name = project, version = version
     )
+}
+
+enum class MCVersion(val versionName: String) {
+    V1_8("1.8.8-R0.1-SNAPSHOT"),
+    V1_12("1.12.2-R0.1-SNAPSHOT"),
+    V1_13("1.13.2-R0.1-SNAPSHOT"),
+    V1_14("1.14.4-R0.1-SNAPSHOT"),
+    V1_15("1.15.2-R0.1-SNAPSHOT"),
+    V1_16("1.16.5-R0.1-SNAPSHOT")
 }
