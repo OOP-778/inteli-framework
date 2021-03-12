@@ -41,4 +41,7 @@ public class CommandData {
     public <T> Optional<T> getAsOptional(String name, Class<T> type) {
         return Optional.ofNullable((T) stored.get(name));
     }
+    public Set<String> keys() {
+        return stored.keySet();
+    }
 }
