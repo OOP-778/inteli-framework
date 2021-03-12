@@ -23,14 +23,19 @@ public class Injector {
   private final Map<Type, Collection<BiPredicate<Player, Object>>> packetListeners =
       new IdentityHashMap<>();
 
-    public Injector(String name) {
-        HANDLER = "packet_handler";
-        INJECTOR = name + "packet_handler";
-    }
+  public Injector(String name) {
+    HANDLER = "packet_handler";
+    INJECTOR = name + "packet_handler";
+  }
 
-    private boolean handle(Player player, Object packet) {
-    return packetListeners.getOrDefault(packet.getClass(), emptyList()).stream()
-        .allMatch(listener -> listener.test(player, packet));
+  private boolean handle(Player player, Object packet) {
+    try {
+      return packetListeners.getOrDefault(packet.getClass(), emptyList()).stream()
+          .allMatch(listener -> listener.test(player, packet));
+    } catch (Throwable throwable) {
+      throwable.printStackTrace();
+    }
+    return true;
   }
 
   public Registration inject(Player player) {
@@ -38,7 +43,6 @@ public class Injector {
         new ChannelDuplexHandler() {
           @Override
           public void channelRead(ChannelHandlerContext context, Object packet) throws Exception {
-            System.out.println(packet.getClass());
             if (handle(player, packet)) super.channelRead(context, packet);
           }
 
@@ -58,9 +62,7 @@ public class Injector {
   }
 
   public void unregister(Player player) {
-      Optional
-              .ofNullable(registationMap.get(player.getUniqueId()))
-              .ifPresent(Registration::close);
+    Optional.ofNullable(registationMap.get(player.getUniqueId())).ifPresent(Registration::close);
   }
 
   public void unregisterAll() {
@@ -99,15 +101,15 @@ public class Injector {
   public static class PlayerConnectionHelper {
 
     private static final Class<?> CRAFT_PLAYER_CLASS;
-      private static final Class<?> ENTITY_PLAYER_CLASS;
-      private static final Class<?> PLAYER_CONNECTION_CLASS;
-      private static final Class<?> PACKET_CLASS;
-      private static final Class<?> NETWORK_MANAGER_CLASS;
+    private static final Class<?> ENTITY_PLAYER_CLASS;
+    private static final Class<?> PLAYER_CONNECTION_CLASS;
+    private static final Class<?> PACKET_CLASS;
+    private static final Class<?> NETWORK_MANAGER_CLASS;
     private static final Method SEND_PACKET_METHOD;
-      private static final Method GET_HANDLE_METHOD;
+    private static final Method GET_HANDLE_METHOD;
     private static final Field PLAYER_CONNECTION_FIELD;
-      private static final Field NETWORK_MANAGER_FIELD;
-      private static final Field CHANNEL_FIELD;
+    private static final Field NETWORK_MANAGER_FIELD;
+    private static final Field CHANNEL_FIELD;
 
     static {
       try {
