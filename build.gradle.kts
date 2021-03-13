@@ -38,7 +38,6 @@ configureProject("adapters") {
 configureProject("test-plugin") {
     needMc = true
     needNMS = true
-    out = "E:\\Coding\\1.8_Server\\plugins\\"
 }
 
 configureProject("commons") {
@@ -59,6 +58,7 @@ configureProject("task") {
     needMc = true
     needUnitTesting = true
     needPluginModule = true
+    needBungee = true
 }
 
 configureProject("plugin") {
@@ -82,6 +82,10 @@ configureProject("packet-injector") {
     needMc = true
 }
 
+configureProject("menu") {
+    needMc = true
+}
+
 subprojects {
     repositories {
         jcenter()
@@ -98,6 +102,12 @@ subprojects {
                 compileOnly("org.spigotmc:spigot-api:${it.mcVersion.versionName}")
                 implementation("org.apache.commons:commons-lang3:3.11")
             }
+
+            if (it.needBungee)
+                compileOnly("net.md-5:bungeecord-api:1.16-R0.5-SNAPSHOT")
+
+            if (it.kotlinized)
+                compileOnly(kotlin("jvm"))
 
             if (it.needNbtApi)
                 implementation("de.tr7zw:item-nbt-api:2.7.1")
@@ -221,7 +231,9 @@ data class ProjectConfig(
         var needNMS: Boolean = false,
         var needNbtApi: Boolean = false,
         var needUnitTesting: Boolean = false,
-        var needPluginModule: Boolean = false
+        var needPluginModule: Boolean = false,
+        var kotlinized: Boolean = false,
+        var needBungee: Boolean = false
 ) {
     constructor(project: String, version: Any) : this(
             name = project, version = version
