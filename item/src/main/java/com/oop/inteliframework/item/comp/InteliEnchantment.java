@@ -324,7 +324,7 @@ public enum InteliEnchantment {
     if (split.length == 0) split = StringUtils.split(enchantment, ' ');
 
     Optional<InteliEnchantment> enchantOpt = matchInteliEnchantment(split[0]);
-    if (enchantOpt.isEmpty()) return item;
+    if (!enchantOpt.isPresent()) return item;
     Enchantment enchant = enchantOpt.get().parseEnchantment();
     if (enchant == null) return item;
 
