@@ -1,29 +1,22 @@
 package com.oop.inteliframework.item.type;
 
-import static com.oop.inteliframework.commons.util.StringFormat.colored;
-import static com.oop.inteliframework.commons.util.StringFormat.colorizeCollection;
-
-import com.oop.inteliframework.commons.util.StringFormat;
 import com.oop.inteliframework.item.api.SimpleInteliMeta;
 import com.oop.inteliframework.item.comp.InteliEnchantment;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import lombok.Getter;
 import lombok.NonNull;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
-@Getter
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import static com.oop.inteliframework.commons.util.StringFormat.colored;
+
 public abstract class AbstractInteliItemMeta<M extends ItemMeta, T extends AbstractInteliItemMeta>
     implements SimpleInteliMeta<M, T, InteliLore> {
   private final @NonNull Function<T, T> cloner;
@@ -33,6 +26,8 @@ public abstract class AbstractInteliItemMeta<M extends ItemMeta, T extends Abstr
   public AbstractInteliItemMeta(final @NonNull M meta, final @NonNull Function<T, T> cloner) {
     this.meta = meta;
     this.cloner = cloner;
+
+    this.lore = new InteliLore(meta.hasLore() ? meta.getLore() : new ArrayList<>());
   }
 
   @Override
@@ -59,12 +54,13 @@ public abstract class AbstractInteliItemMeta<M extends ItemMeta, T extends Abstr
 
   @Override
   public T lore(@NonNull String... lines) {
-    getMeta().setLore(colorizeCollection(Arrays.asList(lines)));
+    // getMeta().setLore(ArrayFormat.colored(Arrays.asList(lines)));
     return (T) this;
   }
 
   @Override
   public @NonNull M asBukkitMeta() {
+    meta.setLore(lore.lore());
     return meta;
   }
 
@@ -127,10 +123,7 @@ public abstract class AbstractInteliItemMeta<M extends ItemMeta, T extends Abstr
   }
 
   @Override
-  public T loreSupplier(@NonNull Consumer<InteliLore> supplier) {
-    if (lore == null)
-      lore(new InteliLore());
-
+  public T applyLore(@NonNull Consumer<InteliLore> supplier) {
     supplier.accept(lore);
     return (T) this;
   }
@@ -144,10 +137,5 @@ public abstract class AbstractInteliItemMeta<M extends ItemMeta, T extends Abstr
   @Override
   public @Nullable InteliLore lore() {
     return lore;
-  }
-
-  public M getMeta() {
-    meta.setLore(lore.lore());
-    return meta;
   }
 }

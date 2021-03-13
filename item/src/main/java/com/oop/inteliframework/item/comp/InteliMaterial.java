@@ -28,20 +28,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.oop.inteliframework.commons.util.InteliCache;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 import lombok.NonNull;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
@@ -51,6 +37,11 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * <b>InteliMaterial</b> - Data Values/Pre-flattening<br>
@@ -1306,7 +1297,7 @@ public enum InteliMaterial {
   private static final Set<String> DUPLICATED;
 
   private static final InteliCache<Integer, InteliMaterial> COMBINED_ID_TO_INTELI_MATERIAL_CACHE =
-      InteliCache.<Integer, InteliMaterial>builder()
+      InteliCache.builder()
           .expireAfter(5, TimeUnit.MINUTES)
           .resetExpireAfterAccess(true)
           .concurrencyLevel(1)

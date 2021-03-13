@@ -3,32 +3,28 @@ package com.oop.inteliframework.item.type;
 import com.oop.inteliframework.item.api.SimpleInteliItem;
 import com.oop.inteliframework.item.comp.InteliMaterial;
 import de.tr7zw.changeme.nbtapi.NBTItem;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-@Getter
+import java.util.function.Consumer;
+import java.util.function.Function;
+
 public abstract class AbstractInteliItem<
         M extends AbstractInteliItemMeta, T extends AbstractInteliItem>
     implements SimpleInteliItem<M, AbstractInteliItem<M, T>> {
   @Getter(AccessLevel.NONE)
-  private @NonNull final ItemStack itemStack;
-
-  @Getter(AccessLevel.NONE)
   private @Nullable final Function<T, T> cloner;
-
-  private @NonNull NBTItem nbtItem;
+  @Getter(AccessLevel.NONE)
+  private @NonNull ItemStack itemStack;
   private @NonNull M meta;
 
   public AbstractInteliItem(
       final @NonNull ItemStack itemStack, final @Nullable Function<T, T> cloner) {
     this.itemStack = itemStack;
     this.cloner = cloner;
-    nbtItem = new NBTItem(itemStack);
   }
 
   @Override
@@ -45,7 +41,7 @@ public abstract class AbstractInteliItem<
   public T meta(@NonNull M meta) {
     this.meta = meta;
 
-    itemStack.setItemMeta(meta.getMeta());
+    itemStack.setItemMeta(meta.asBukkitMeta());
     return (T) this;
   }
 
@@ -60,14 +56,11 @@ public abstract class AbstractInteliItem<
   }
 
   @Override
-  public T nbtSupplier(@NonNull Consumer<NBTItem> supplier) {
-    supplier.accept(nbtItem);
-    return (T) this;
-  }
+  public T applyNBT(@NonNull Consumer<NBTItem> consumer) {
+    NBTItem nbtItem = new NBTItem(itemStack);
+    consumer.accept(nbtItem);
 
-  @Override
-  public T nbt(@NonNull NBTItem item) {
-    nbtItem = item;
+    this.itemStack = nbtItem.getItem();
     return (T) this;
   }
 
@@ -84,13 +77,14 @@ public abstract class AbstractInteliItem<
   }
 
   @Override
-  public T metaSupplier(@NonNull Consumer<M> supplier) {
+  public T applyMeta(@NonNull Consumer<M> supplier) {
+    if (meta == null) meta = _createMeta();
+
     supplier.accept(meta);
+
+    itemStack.setItemMeta(meta.asBukkitMeta());
     return (T) this;
   }
 
-  @Override
-  public @NonNull NBTItem nbt() {
-    return nbtItem;
-  }
+  protected abstract M _createMeta();
 }

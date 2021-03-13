@@ -8,7 +8,7 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 public class InteliLeatherMeta extends AbstractInteliItemMeta<LeatherArmorMeta, InteliLeatherMeta> {
   public InteliLeatherMeta(@NonNull LeatherArmorMeta meta) {
-    super(meta, s -> new InteliLeatherMeta(s.getMeta().clone()));
+    super(meta, s -> new InteliLeatherMeta(s.asBukkitMeta().clone()));
   }
 
   public InteliLeatherMeta() {
@@ -20,7 +20,7 @@ public class InteliLeatherMeta extends AbstractInteliItemMeta<LeatherArmorMeta, 
   }
 
   public InteliLeatherMeta color(Color color) {
-    getMeta().setColor(color);
+    asBukkitMeta().setColor(color);
     return this;
   }
 }

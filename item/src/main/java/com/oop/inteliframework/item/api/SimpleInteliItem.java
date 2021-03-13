@@ -3,10 +3,11 @@ package com.oop.inteliframework.item.api;
 import com.oop.inteliframework.item.comp.InteliMaterial;
 import com.oop.inteliframework.item.type.AbstractInteliItem;
 import de.tr7zw.changeme.nbtapi.NBTItem;
-import java.util.function.Consumer;
 import lombok.NonNull;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Consumer;
 
 /**
  * Simple builder for items.
@@ -46,15 +47,7 @@ public interface SimpleInteliItem<M extends SimpleInteliMeta, T extends SimpleIn
    * @param supplier Will supply changes to current nbt item
    * @throws NullPointerException If supplier is null
    */
-  T nbtSupplier(final @NonNull Consumer<NBTItem> supplier);
-
-  /**
-   * Will reset nbt item
-   *
-   * @param item New nbt item ({@link NBTItem}) (WARNING! It'll reset all applied data!)
-   * @throws NullPointerException If item is null
-   */
-  T nbt(final @NonNull NBTItem item);
+  T applyNBT(final @NonNull Consumer<NBTItem> supplier);
 
   /**
    * Sets item durability
@@ -75,14 +68,7 @@ public interface SimpleInteliItem<M extends SimpleInteliMeta, T extends SimpleIn
    *
    * @param supplier Will supply meta changes
    */
-  T metaSupplier(final @NonNull Consumer<M> supplier);
-
-  /**
-   * @return {@link NBTItem} as NBTAPI item
-   * @throws NullPointerException If nbt-item is null
-   */
-  @NonNull
-  NBTItem nbt();
+  T applyMeta(final @NonNull Consumer<M> supplier);
 
   /**
    * Create a copy of item

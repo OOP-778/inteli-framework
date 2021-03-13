@@ -1,8 +1,9 @@
 package com.oop.inteliframework.item.api;
 
-import java.util.function.Supplier;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Supplier;
 
 /**
  * Simple interface which allow you to make module nameable

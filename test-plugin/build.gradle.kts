@@ -5,7 +5,8 @@ dependencies {
     implementation(project(":config"))
     implementation(project(":command-bukkit"))
     implementation(project(":command"))
+    implementation(project(":plugin"))
+    implementation(project(":item"))
+    implementation(project(":task"))
 
-    implementation("com.oop.orangeengine:item:5.3")
-    implementation("com.oop.orangeengine:engine:5.3")
 }

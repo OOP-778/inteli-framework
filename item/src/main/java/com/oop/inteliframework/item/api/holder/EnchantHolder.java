@@ -2,9 +2,10 @@ package com.oop.inteliframework.item.api.holder;
 
 import com.oop.inteliframework.item.api.SimpleInteliMeta;
 import com.oop.inteliframework.item.comp.InteliEnchantment;
-import java.util.Map;
 import lombok.NonNull;
 import org.bukkit.enchantments.Enchantment;
+
+import java.util.Map;
 
 /** Hold all and control item enchants */
 public interface EnchantHolder<T extends SimpleInteliMeta> {

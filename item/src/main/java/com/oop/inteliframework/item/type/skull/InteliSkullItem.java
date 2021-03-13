@@ -6,9 +6,12 @@ import com.oop.inteliframework.item.type.AbstractInteliItem;
 import de.tr7zw.changeme.nbtapi.NBTCompound;
 import de.tr7zw.changeme.nbtapi.NBTCompoundList;
 import de.tr7zw.changeme.nbtapi.NBTListCompound;
-import java.util.UUID;
 import lombok.NonNull;
+import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.SkullMeta;
+
+import java.util.UUID;
 
 public class InteliSkullItem extends AbstractInteliItem<InteliSkullMeta, InteliSkullItem> {
   private final String defaultTexture =
@@ -24,7 +27,7 @@ public class InteliSkullItem extends AbstractInteliItem<InteliSkullMeta, InteliS
 
   public InteliSkullItem texture(String texture) {
     this.texture = texture == null ? defaultTexture : texture;
-    nbtSupplier(
+    applyNBT(
         nbt -> {
           NBTCompound skull = nbt.addCompound("SkullOwner");
           UUID id = UUID.randomUUID();
@@ -46,5 +49,14 @@ public class InteliSkullItem extends AbstractInteliItem<InteliSkullMeta, InteliS
   private int[] _16_fromUUID(UUID uuid) {
     long MSB = uuid.getMostSignificantBits(), LSB = uuid.getLeastSignificantBits();
     return new int[] {(int) (MSB >> 32), (int) MSB, (int) (LSB >> 32), (int) LSB};
+  }
+
+  @Override
+  protected InteliSkullMeta _createMeta() {
+    return new InteliSkullMeta(
+        (SkullMeta)
+            (asBukkitStack().hasItemMeta()
+                ? Bukkit.getItemFactory().getItemMeta(asBukkitStack().getType())
+                : asBukkitStack().getItemMeta()));
   }
 }

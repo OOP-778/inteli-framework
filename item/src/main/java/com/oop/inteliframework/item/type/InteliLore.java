@@ -2,19 +2,20 @@ package com.oop.inteliframework.item.type;
 
 import com.oop.inteliframework.commons.util.StringFormat;
 import com.oop.inteliframework.item.api.SimpleInteliLore;
-import java.util.ArrayList;
+import lombok.NonNull;
+
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import lombok.NonNull;
-
-import static com.oop.inteliframework.commons.util.StringFormat.colorizeCollection;
 
 public class InteliLore implements SimpleInteliLore<InteliLore> {
-  private @NonNull List<String> lore = new ArrayList<>();
+  private @NonNull List<String> lore;
+
+  public InteliLore(List<String> lore) {
+    this.lore = lore;
+  }
 
   @Override
   public InteliLore append(@NonNull String... lines) {
@@ -30,32 +31,30 @@ public class InteliLore implements SimpleInteliLore<InteliLore> {
 
   @Override
   public InteliLore replace(int lineNumber, @NonNull Function<String, String> supplier) {
-    lore = lore.stream()
-        .filter(e -> e.equals(lore.get(lineNumber)))
-        .map(supplier)
-        .collect(Collectors.toList());
+    lore =
+        lore.stream()
+            .filter(e -> e.equals(lore.get(lineNumber)))
+            .map(supplier)
+            .collect(Collectors.toList());
     return this;
   }
 
   @Override
-  public InteliLore replace(@NonNull Predicate<String> filter,
-      @NonNull Function<String, String> supplier) {
-    lore = lore.stream()
-        .filter(filter)
-        .map(supplier)
-        .collect(Collectors.toList());
+  public InteliLore replace(
+      @NonNull Predicate<String> filter, @NonNull Function<String, String> supplier) {
+    lore = lore.stream().filter(filter).map(supplier).collect(Collectors.toList());
     return this;
   }
 
   @Override
-  public InteliLore supplier(@NonNull Consumer<List<String>> supplier) {
+  public InteliLore apply(@NonNull Consumer<List<String>> supplier) {
     supplier.accept(lore);
     return this;
   }
 
   @Override
   public InteliLore lore(@NonNull List<String> newLore) {
-    lore = colorizeCollection(newLore);
+    // lore = ArrayFormat.colored(newLore);
     return this;
   }
 
@@ -63,5 +62,4 @@ public class InteliLore implements SimpleInteliLore<InteliLore> {
   public @NonNull List<String> lore() {
     return lore;
   }
-
 }

@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class InteliPotionMeta extends AbstractInteliItemMeta<PotionMeta, InteliPotionMeta> {
   public InteliPotionMeta(@NonNull PotionMeta meta) {
-    super(meta, s -> new InteliPotionMeta(s.getMeta().clone()));
+    super(meta, s -> new InteliPotionMeta(s.asBukkitMeta().clone()));
   }
 
   public InteliPotionMeta() {
@@ -24,29 +24,29 @@ public class InteliPotionMeta extends AbstractInteliItemMeta<PotionMeta, InteliP
   }
 
   public InteliPotionMeta basePotionData(@NotNull PotionData data) {
-    getMeta().setBasePotionData(data);
+    asBukkitMeta().setBasePotionData(data);
     return this;
   }
 
   public InteliPotionMeta customEffect(
       @NotNull InteliPotion effect, int duration, int amplifier, boolean overwrite) {
-    getMeta().addCustomEffect(effect.parsePotion(duration, amplifier), overwrite);
+    asBukkitMeta().addCustomEffect(effect.parsePotion(duration, amplifier), overwrite);
     return this;
   }
 
   public InteliPotionMeta removeCustomEffect(@NotNull InteliPotion type) {
-    getMeta().removeCustomEffect(type.parsePotionEffectType());
+    asBukkitMeta().removeCustomEffect(type.parsePotionEffectType());
     return this;
   }
 
   @Deprecated
   public InteliPotionMeta mainEffect(@NotNull InteliPotion type) {
-    getMeta().setMainEffect(type.parsePotionEffectType());
+    asBukkitMeta().setMainEffect(type.parsePotionEffectType());
     return this;
   }
 
   public InteliPotionMeta color(@Nullable Color color) {
-    getMeta().setColor(color);
+    asBukkitMeta().setColor(color);
     return this;
   }
 }

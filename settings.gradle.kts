@@ -1,9 +1,3 @@
-import java.io.FileOutputStream
-import java.nio.channels.Channels
-import java.nio.channels.FileChannel
-import java.nio.channels.ReadableByteChannel
-
-
 rootProject.name = "inteli-framework"
 gradle.rootProject {
     beforeEvaluate {
@@ -67,9 +61,13 @@ include("commons")
 include("hologram")
 include("test-plugin")
 include("adapters")
-include("recipe")
+include("task")
 include("item")
-include("menu")
+include("plugin")
 include("command")
 include("command-bukkit")
+include("recipe")
 include("packet-injector")
+include("message")
+include("menu")
+include("task-bukkit")

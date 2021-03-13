@@ -7,7 +7,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 public class InteliItemMeta extends AbstractInteliItemMeta<ItemMeta, InteliItemMeta> {
   public InteliItemMeta(@NonNull ItemMeta meta) {
-    super(meta, s -> new InteliItemMeta(s.getMeta().clone()));
+    super(meta, s -> new InteliItemMeta(s.asBukkitMeta().clone()));
   }
 
   public InteliItemMeta() {

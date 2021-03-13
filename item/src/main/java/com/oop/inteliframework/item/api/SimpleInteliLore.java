@@ -1,15 +1,13 @@
 package com.oop.inteliframework.item.api;
 
+import lombok.NonNull;
+
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
-import lombok.NonNull;
 
-/**
- * Lore adapter
- * */
+/** Lore adapter */
 public interface SimpleInteliLore<T extends SimpleInteliLore> {
 
   /**
@@ -37,26 +35,24 @@ public interface SimpleInteliLore<T extends SimpleInteliLore> {
    * @param supplier Lore supplier (Will replace all founded lines)
    * @throws NullPointerException If linesPredicate or replacer null
    */
-  T replace(final @NonNull Predicate<String> filter, final @NonNull Function<String, String> supplier);
+  T replace(
+      final @NonNull Predicate<String> filter, final @NonNull Function<String, String> supplier);
 
   /**
    * @param supplier Lore supplier (Help with replacing)
    * @throws NullPointerException If supplier is null
    */
-  T supplier(final @NonNull Consumer<List<String>> supplier);
+  T apply(final @NonNull Consumer<List<String>> supplier);
 
   /**
-   * Will reset current lore and
-   * apply new one
+   * Will reset current lore and apply new one
    *
    * @param newLore New lore
    * @throws NullPointerException If newLore is null
-   * */
+   */
   T lore(final @NonNull List<String> newLore);
 
-  /**
-   * @return Built lore
-   * */
-  @NonNull List<String> lore();
-
+  /** @return Built lore */
+  @NonNull
+  List<String> lore();
 }

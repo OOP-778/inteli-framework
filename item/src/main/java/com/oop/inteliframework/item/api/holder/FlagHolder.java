@@ -1,9 +1,10 @@
 package com.oop.inteliframework.item.api.holder;
 
 import com.oop.inteliframework.item.api.SimpleInteliMeta;
-import java.util.Set;
 import lombok.NonNull;
 import org.bukkit.inventory.ItemFlag;
+
+import java.util.Set;
 
 /** Hold all and control item flags */
 public interface FlagHolder<T extends SimpleInteliMeta> {

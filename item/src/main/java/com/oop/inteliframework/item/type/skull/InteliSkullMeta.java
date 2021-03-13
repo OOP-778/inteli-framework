@@ -7,12 +7,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.SkullMeta;
 
 public class InteliSkullMeta extends AbstractInteliItemMeta<SkullMeta, InteliSkullMeta> {
-  private final String defaultTexture =
-      "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYmFkYzA0OGE3Y2U3OGY3ZGFkNzJhMDdkYTI3ZDg1YzA5MTY4ODFlNTUyMmVlZWQxZTNkYWYyMTdhMzhjMWEifX19";
-  private String texture;
-
   public InteliSkullMeta(@NonNull SkullMeta meta) {
-    super(meta, s -> new InteliSkullMeta(s.getMeta().clone()));
+    super(meta, s -> new InteliSkullMeta(s.asBukkitMeta().clone()));
   }
 
   public InteliSkullMeta() {
@@ -24,7 +20,7 @@ public class InteliSkullMeta extends AbstractInteliItemMeta<SkullMeta, InteliSku
   }
 
   public InteliSkullMeta uuid(Player player) {
-    SkullMeta itemMeta = getMeta();
+    SkullMeta itemMeta = asBukkitMeta();
     itemMeta.setOwner(player.getName());
     return this;
   }

@@ -8,7 +8,7 @@ import org.bukkit.inventory.meta.FireworkMeta;
 
 public class InteliFireworkMeta extends AbstractInteliItemMeta<FireworkMeta, InteliFireworkMeta> {
   public InteliFireworkMeta(@NonNull FireworkMeta meta) {
-    super(meta, s -> new InteliFireworkMeta(s.getMeta().clone()));
+    super(meta, s -> new InteliFireworkMeta(s.asBukkitMeta().clone()));
   }
 
   public InteliFireworkMeta() {
@@ -24,17 +24,17 @@ public class InteliFireworkMeta extends AbstractInteliItemMeta<FireworkMeta, Int
   }
 
   public InteliFireworkMeta effects(FireworkEffect... effects) {
-    getMeta().addEffects(effects);
+    asBukkitMeta().addEffects(effects);
     return this;
   }
 
   public InteliFireworkMeta power(int power) {
-    getMeta().setPower(power);
+    asBukkitMeta().setPower(power);
     return this;
   }
 
   public InteliFireworkMeta removeEffect(int effectNumber) {
-    getMeta().removeEffect(effectNumber);
+    asBukkitMeta().removeEffect(effectNumber);
     return this;
   }
 }
