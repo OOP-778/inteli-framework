@@ -12,8 +12,8 @@ gradle.rootProject {
 }
 
 fun downloadFile(url: String, out: java.io.File) {
-    var readableChannelForHttpResponseBody: ReadableByteChannel? = null
-    var fileChannelForDownloadedFile: FileChannel? = null
+    var readableChannelForHttpResponseBody: java.nio.channels.ReadableByteChannel? = null
+    var fileChannelForDownloadedFile: java.nio.channels.FileChannel? = null
     try {
         // Define server endpoint
         val robotsUrl: java.net.URL = java.net.URL(url)
@@ -26,10 +26,10 @@ fun downloadFile(url: String, out: java.io.File) {
         )
 
         // Get a readable channel from url connection
-        readableChannelForHttpResponseBody = Channels.newChannel(urlConnection.inputStream)
+        readableChannelForHttpResponseBody = java.nio.channels.Channels.newChannel(urlConnection.inputStream)
 
         // Create the file channel to save file
-        val fosForDownloadedFile = FileOutputStream(out)
+        val fosForDownloadedFile = java.io.FileOutputStream(out)
         fileChannelForDownloadedFile = fosForDownloadedFile.channel
 
         // Save the body of the HTTP response to local file
