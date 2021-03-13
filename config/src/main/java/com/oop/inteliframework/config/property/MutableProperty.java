@@ -1,7 +1,7 @@
 package com.oop.inteliframework.config.property;
 
 /**
- * Used for mutable properties that can be changed
+ * Used for mutable properties that can be changed and nullable
  *
  * @param <T> the type of the object that property holds
  */

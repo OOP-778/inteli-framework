@@ -123,21 +123,21 @@ public class ParentNode extends BaseNode implements Iterable<Node> {
   public List<String> dump() {
     List<String> dumped = new LinkedList<>();
     for (String comment : comments()) {
-      dumped.add("#" + comment);
+      dumped.add("# " + comment);
     }
     dumped.add("== " + path() + " ==");
 
     List<Node> nodes = new LinkedList<>(nodes().values());
-    nodes.sort(Comparator.comparing(node -> !node.isParentable()));
+    nodes.sort(Comparator.comparing(Node::isParentable));
 
-    for (Node node : this) {
+    for (Node node : nodes) {
       if (node.isParentable()) {
         dumped.addAll(node.asParent().get().dump());
 
       } else {
         ValueNode valueNode = node.asValue().get();
         for (String comment : valueNode.comments()) {
-          dumped.add("#" + comment);
+          dumped.add("# " + comment);
         }
         dumped.add(format("Key={}, Value={}", node.path(), valueNode.value()));
       }

@@ -24,6 +24,10 @@ public class ValueNode extends BaseNode {
         this.value = value;
     }
 
+    public ValueNode(String key, @NonNull Object object) {
+        this(key, null, object);
+    }
+
     @Override
     public boolean isParentable() {
         return false;

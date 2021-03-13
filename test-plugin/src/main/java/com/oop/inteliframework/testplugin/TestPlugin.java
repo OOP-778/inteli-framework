@@ -18,6 +18,8 @@ import com.oop.intelimenus.menu.simple.MenuBuilder;
 import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.material.OMaterial;
 import net.minecraft.server.v1_13_R1.PacketPlayOutCommands;
+import net.minecraft.server.v1_8_R1.PacketPlayInTabComplete;
+import net.minecraft.server.v1_8_R3.PacketPlayOutTabComplete;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -53,7 +55,7 @@ public class TestPlugin extends JavaPlugin implements Listener {
             .labeled("hellotest")
             .addChild(
                 Arguments.numberArg()
-                    .labeled("numba")
+                    .labeled("number")
                     .tabComplete(
                         ((executor, element, commandData) -> {
                           return Arrays.asList("1", "2", "3", "4", "5");
@@ -65,19 +67,32 @@ public class TestPlugin extends JavaPlugin implements Listener {
                                 ((executor, commandData) -> {
                                   System.out.println("HELLO!: " + commandData.hasKey("--silent"));
                                 }))
-                            .filters()
-                            .add(
-                                "showFilter",
-                                (executor, data) -> {
-                                  Double numba = data.getAs("numba", Double.class);
-                                  return numba > 1;
-                                })
-                            .element()
                             .addChild(
                                     new NoValueArgument()
                                         .labeled("--silent")
                             )
                     )
+                        .addChild(
+                                new Command()
+                                        .labeled("gay")
+                                        .addAlias("gay2")
+                                        .onExecute(
+                                                ((executor, commandData) -> {
+                                                    System.out.println("HELLO!: " + commandData.hasKey("--silent"));
+                                                }))
+                                        .addChild(
+                                                new NoValueArgument()
+                                                        .labeled("--silent")
+                                        )
+                                        .addChild(
+                                                new NoValueArgument()
+                                                        .labeled("--silent2")
+                                        )
+                                        .addChild(
+                                                new NoValueArgument()
+                                                        .labeled("--silent21")
+                                        )
+                        )
             )
     );
 
@@ -87,10 +102,6 @@ public class TestPlugin extends JavaPlugin implements Listener {
     MenuLoader menuLoader = new MenuLoader();
     menuLoader.setItemProvider(material -> OMaterial.matchMaterial(material).parseItem());
 
-    Paths.copyFileFromJar(
-        "menu.yml", getDataFolder(), CopyOption.COPY_IF_NOT_EXIST, TestPlugin.class);
-    configuration =
-        new MenuConfiguration(new PlainConfig(new File(getDataFolder(), "menu.yml")), menuLoader);
 
     menus.registerMenuUtil(
         new MenuUtil() {

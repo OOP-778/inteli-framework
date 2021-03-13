@@ -1,6 +1,10 @@
-import com.oop.inteliframework.config.util.Paths;
-import com.oop.inteliframework.config.util.Paths.CopyOption;
+import com.oop.inteliframework.config.InteliConfigModule;
+import com.oop.inteliframework.config.node.Node;
+import com.oop.inteliframework.config.node.ParentNode;
+import com.oop.inteliframework.config.property.PropertyHelper;
+
 import java.io.File;
+import java.util.UUID;
 
 public class Test {
     public static void main(String[] args) {
@@ -8,16 +12,21 @@ public class Test {
             "/run/media/brian/Misc/Work/inteli-framework/config/src/main/resources/");
         //PlainConfig nodes = new PlainConfig(file);
 
-        Paths
-            .copyResourcesFromJar(
-                "",
-                f -> f.contains("menus"),
-                Test.class,
-                new File("/run/media/brian/Misc/Work/inteli-framework/config"),
-                CopyOption.REPLACE_IF_EXIST
-            );
+        ParentNode main = new ParentNode("Hello!", null);
 
-        TestSubSection testSubSection = new TestSubSection();
+        InteliConfigModule.propertyHandlerMap.put(UUID.class, new UUIDHandler());
+
+        TestConfig config = new TestConfig();
+        ParentNode smth = PropertyHelper.handleConfigurableSerialization(
+                main,
+                config,
+                true
+        );
+    for (String s : smth.dump()) {
+        System.out.println(s);
+      //
+    }
+
 //        Node node = testSubSection.toNode();
 //
 //        // Base
