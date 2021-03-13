@@ -38,14 +38,14 @@ configureProject("adapters") {
 configureProject("test-plugin") {
     needMc = true
     needNMS = true
-    out = "E:\\Coding\\1.8_Server\\plugins\\"
+    out = "out"
 }
 
 configureProject("commons") {
     needMc = true
 }
 
-configureProject("recipe-system") {
+configureProject("recipe") {
     needMc = true
 }
 
@@ -53,6 +53,8 @@ configureProject("item") {
     needMc = true
     needNbtApi = true
     mcVersion = MCVersion.V1_16
+    version = 1.0
+    publish = true
 }
 
 configureProject("task") {
@@ -111,7 +113,6 @@ subprojects {
             if (it.needNMS)
                 compileOnly(fileTree("../lib/"))
         }
-
 
         implementation("org.jetbrains:annotations:20.1.0")
         compileOnly("org.projectlombok:lombok:1.18.8")
