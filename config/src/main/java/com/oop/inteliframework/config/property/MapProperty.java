@@ -40,7 +40,7 @@ public class MapProperty<K, V, M extends Map> implements Property<M> {
 
     @Override
     public Node toNode(String key) {
-        ParentNode node = new ParentNode(key, null);
+        ParentNode node = new ParentNode(key);
         if (isPrimitive(keyClass) && isPrimitive(valueClass)) {
             for (Map.Entry entry : (Set<Map.Entry<K, V>>) map.entrySet()) {
                 node.nodes()
