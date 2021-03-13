@@ -1,6 +1,4 @@
 package com.oop.intelimenus.config.menu;
-
-import com.google.common.base.Predicate;
 import com.oop.intelimenus.button.IButton;
 import com.oop.intelimenus.button.state.StateComponent;
 import com.oop.intelimenus.button.state.StateRequestComponent;
@@ -12,6 +10,8 @@ import com.oop.intelimenus.trigger.TriggerComponent;
 import com.oop.intelimenus.trigger.types.ButtonClickTrigger;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
+
 import lombok.NonNull;
 
 public interface ConfigMenu<T> extends ComponentHolder<T> {
@@ -52,7 +52,7 @@ public interface ConfigMenu<T> extends ComponentHolder<T> {
 
     // Listen for an specific button click
     default void onAction(Predicate<DataComponent> predicate,
-        Consumer<ButtonClickTrigger> consumer) {
+                          Consumer<ButtonClickTrigger> consumer) {
         applyComponent(TriggerComponent.class, comp -> comp.addTrigger(
             ButtonClickTrigger.class,
             trigger -> trigger.onTrigger(
