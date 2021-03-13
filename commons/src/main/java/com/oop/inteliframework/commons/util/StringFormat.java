@@ -5,9 +5,12 @@ import lombok.experimental.UtilityClass;
 import org.bukkit.ChatColor;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @UtilityClass
 public final class StringFormat {
@@ -63,5 +66,12 @@ public final class StringFormat {
         }
         in = ChatColor.translateAlternateColorCodes('&', in);
         return in;
+    }
+
+    public static <T extends Collection<String>> List<String> colorizeCollection(T collection) {
+        return collection
+                .stream()
+                .map(StringFormat::colored)
+                .collect(Collectors.toList());
     }
 }
