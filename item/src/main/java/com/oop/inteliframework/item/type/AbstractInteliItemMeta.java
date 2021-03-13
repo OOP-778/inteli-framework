@@ -1,8 +1,8 @@
 package com.oop.inteliframework.item.type;
 
 import static com.oop.inteliframework.commons.util.StringFormat.colored;
+import static com.oop.inteliframework.commons.util.StringFormat.colorizeCollection;
 
-import com.oop.inteliframework.commons.util.ArrayFormat;
 import com.oop.inteliframework.commons.util.StringFormat;
 import com.oop.inteliframework.item.api.SimpleInteliMeta;
 import com.oop.inteliframework.item.comp.InteliEnchantment;
@@ -59,7 +59,7 @@ public abstract class AbstractInteliItemMeta<M extends ItemMeta, T extends Abstr
 
   @Override
   public T lore(@NonNull String... lines) {
-    getMeta().setLore(ArrayFormat.colored(Arrays.asList(lines)));
+    getMeta().setLore(colorizeCollection(Arrays.asList(lines)));
     return (T) this;
   }
 

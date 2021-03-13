@@ -1,6 +1,5 @@
 package com.oop.inteliframework.item.type;
 
-import com.oop.inteliframework.commons.util.ArrayFormat;
 import com.oop.inteliframework.commons.util.StringFormat;
 import com.oop.inteliframework.item.api.SimpleInteliLore;
 import java.util.ArrayList;
@@ -11,6 +10,8 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import lombok.NonNull;
+
+import static com.oop.inteliframework.commons.util.StringFormat.colorizeCollection;
 
 public class InteliLore implements SimpleInteliLore<InteliLore> {
   private @NonNull List<String> lore = new ArrayList<>();
@@ -54,7 +55,7 @@ public class InteliLore implements SimpleInteliLore<InteliLore> {
 
   @Override
   public InteliLore lore(@NonNull List<String> newLore) {
-    lore = ArrayFormat.colored(newLore);
+    lore = colorizeCollection(newLore);
     return this;
   }
 
