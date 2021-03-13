@@ -120,27 +120,30 @@ public class ParentNode extends BaseNode implements Iterable<Node> {
     return nodes.values().spliterator();
   }
 
-  public void dump() {
+  public List<String> dump() {
+    List<String> dumped = new LinkedList<>();
     for (String comment : comments()) {
-      System.out.println("#" + comment);
+      dumped.add("#" + comment);
     }
-    System.out.println("== " + path() + " ==");
+    dumped.add("== " + path() + " ==");
 
     List<Node> nodes = new LinkedList<>(nodes().values());
     nodes.sort(Comparator.comparing(node -> !node.isParentable()));
 
     for (Node node : this) {
       if (node.isParentable()) {
-        node.asParent().get().dump();
+        dumped.addAll(node.asParent().get().dump());
 
       } else {
         ValueNode valueNode = node.asValue().get();
         for (String comment : valueNode.comments()) {
-          System.out.println("#" + comment);
+          dumped.add("#" + comment);
         }
-        System.out.println(format("Key={}, Value={}", node.path(), valueNode.value()));
+        dumped.add(format("Key={}, Value={}", node.path(), valueNode.value()));
       }
     }
+
+    return dumped;
   }
 
   public boolean isPresent(String path) {
