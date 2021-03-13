@@ -1,7 +1,8 @@
 package com.oop.inteliframework.command.bukkit;
 
-import com.oop.inteliframework.command.registry.CommandRegistry;
 import com.oop.inteliframework.command.element.command.Command;
+import com.oop.inteliframework.command.registry.CommandRegistry;
+import com.oop.inteliframework.commons.util.InteliPair;
 import com.oop.inteliframework.commons.util.SimpleReflection;
 import lombok.NonNull;
 import lombok.SneakyThrows;
@@ -36,6 +37,17 @@ public class BukkitCommandMap {
   }
 
   @SneakyThrows
+  public void unregisterAll() {
+    List<String> lookingFor = new ArrayList<>();
+    for (Command value : registry.getElementTreeMap().values()) {
+      lookingFor.add(value.labeled());
+      lookingFor.addAll(value.aliases());
+    }
+
+    unregisterAll(label -> lookingFor.stream().anyMatch(label::contains));
+  }
+
+  @SneakyThrows
   public void unregisterAll(Predicate<String> filter) {
     Map<String, org.bukkit.command.Command> knownCommands =
         (Map<String, org.bukkit.command.Command>)
@@ -49,25 +61,28 @@ public class BukkitCommandMap {
   }
 
   public void register(Command command) {
-      org.bukkit.command.Command bukkitCommand = new org.bukkit.command.Command(
-              command.labeled(),
-              "",
-              "",
-              new LinkedList<>(command.aliases())
-      ) {
-        @Override
-        public boolean execute(CommandSender sender, String commandLabel, String[] args) {
-          registry.execute(new BukkitCommandExecutor(sender), commandLabel + " " + String.join(" ", args));
-          return true;
-        }
+    org.bukkit.command.Command bukkitCommand =
+        new org.bukkit.command.Command(
+            command.labeled(), "", "", new LinkedList<>(command.aliases())) {
+          @Override
+          public boolean execute(CommandSender sender, String commandLabel, String[] args) {
+            registry.execute(
+                new BukkitCommandExecutor(sender),
+                command.labeled() + " " + String.join(" ", args));
+            return true;
+          }
 
-        @Override
-        public List<String> tabComplete(CommandSender sender, String alias, String[] args) throws IllegalArgumentException {
-          if (!(sender instanceof ConsoleCommandSender)) return new ArrayList<>();
-          return registry.tabComplete(new BukkitCommandExecutor(sender), alias);
-        }
-      };
+          @Override
+          public List<String> tabComplete(CommandSender sender, String alias, String[] args)
+              throws IllegalArgumentException {
+            if (!(sender instanceof ConsoleCommandSender)) return new ArrayList<>();
+            String input = String.join("", args);
 
-      commandMap.register(command.labeled(), bukkitCommand);
+            return registry.tabComplete(
+                new BukkitCommandExecutor(sender), input);
+          }
+        };
+
+    commandMap.register(command.labeled(), bukkitCommand);
   }
 }
