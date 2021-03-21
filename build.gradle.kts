@@ -26,6 +26,12 @@ configureProject("hologram") {
     needNMS = true
 }
 
+configureProject("menu") {
+    needMc = true
+    publish = true
+    version = "1.0"
+}
+
 configureProject("scoreboard") {
     needMc = true
     needNMS = true
@@ -37,8 +43,9 @@ configureProject("adapters") {
 
 configureProject("test-plugin") {
     needMc = true
+    needNbtApi = true
     needNMS = true
-    out = "out"
+    out = "/run/media/oop-778/BRABARAR/Serrvers/OOP/1.8.8/plugins/"
 }
 
 configureProject("commons") {
@@ -60,7 +67,7 @@ configureProject("item") {
 configureProject("task") {
     needMc = true
     needUnitTesting = true
-    needPluginModule = true
+    needPlatform = true
 }
 
 configureProject("plugin") {
@@ -87,6 +94,7 @@ configureProject("packet-injector") {
 subprojects {
     repositories {
         jcenter()
+        mavenCentral()
         maven { setUrl("https://repo.codemc.org/repository/nms/") }
         maven { setUrl("https://oss.sonatype.org/content/repositories/snapshots") }
         maven { setUrl("https://repo.codemc.org/repository/maven-public/") }
@@ -107,11 +115,11 @@ subprojects {
             if (it.needUnitTesting)
                 testImplementation("junit:junit:4.13")
 
-            if (it.needPluginModule)
-                compileOnly(project(":plugin"))
-
             if (it.needNMS)
                 compileOnly(fileTree("../lib/"))
+
+            if (it.needPlatform)
+                compileOnly(project(":platform"))
         }
 
         implementation("org.jetbrains:annotations:20.1.0")
@@ -222,7 +230,7 @@ data class ProjectConfig(
         var needNMS: Boolean = false,
         var needNbtApi: Boolean = false,
         var needUnitTesting: Boolean = false,
-        var needPluginModule: Boolean = false
+        var needPlatform: Boolean = false
 ) {
     constructor(project: String, version: Any) : this(
             name = project, version = version

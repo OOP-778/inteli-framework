@@ -5,8 +5,6 @@ dependencies {
     implementation(project(":config"))
     implementation(project(":command-bukkit"))
     implementation(project(":command"))
-    implementation(project(":plugin"))
     implementation(project(":item"))
     implementation(project(":task"))
-
 }
