@@ -5,6 +5,8 @@ import com.oop.inteliframework.commons.util.Preconditions;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+
+import com.oop.inteliframework.config.node.api.ValueNode;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -13,34 +15,14 @@ import org.jetbrains.annotations.Nullable;
 
 @Accessors(fluent = true)
 @EqualsAndHashCode(callSuper = true)
-public class ValueNode extends BaseNode {
+public class BaseValueNode extends BaseNode implements ValueNode {
 
     @NonNull
     @Getter
     private final Object value;
 
-    public ValueNode(String key, @Nullable ParentNode parent, @NonNull Object value) {
-        super(key, parent);
+    public BaseValueNode(@NonNull Object value) {
         this.value = value;
-    }
-
-    public ValueNode(String key, @NonNull Object object) {
-        this(key, null, object);
-    }
-
-    @Override
-    public boolean isParentable() {
-        return false;
-    }
-
-    @Override
-    public Optional<ParentNode> asParent() {
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<ValueNode> asValue() {
-        return Optional.of(this);
     }
 
     public <T> List<T> getAsListOf(Class<T> type) {

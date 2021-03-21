@@ -3,11 +3,12 @@ package com.oop.inteliframework.config.property.custom;
 import com.oop.inteliframework.commons.util.Preconditions;
 import com.oop.inteliframework.config.Configurable;
 import com.oop.inteliframework.config.InteliConfigModule;
-import com.oop.inteliframework.config.node.Node;
+import com.oop.inteliframework.config.node.api.Node;
 import com.oop.inteliframework.config.property.MutableProperty;
 import com.oop.inteliframework.config.property.Property;
 import com.oop.inteliframework.config.property.PropertyHelper;
 import com.oop.inteliframework.config.util.ReflectionHelper;
+import com.oop.inteliframework.plugin.InteliPlatform;
 import lombok.NonNull;
 
 import static com.oop.inteliframework.commons.util.StringFormat.format;
@@ -29,7 +30,11 @@ public class ObjectProperty<T> implements Property<T> {
     } else {
       // Find custom property handler if it's not instance of Configurable
       Preconditions.checkArgument(
-          InteliConfigModule.propertyHandlerMap.get(clazz) != null,
+          InteliPlatform.getInstance()
+              .moduleByClass(InteliConfigModule.class)
+              .get()
+              .handlerByClass(clazz)
+              .isPresent(),
           format("Failed to find property handler for class {}!", clazz.getSimpleName()));
     }
   }
@@ -44,15 +49,11 @@ public class ObjectProperty<T> implements Property<T> {
 
   @Override
   public Node toNode(String key) {
-    if (Configurable.class.isAssignableFrom(clazz)) {
-      return PropertyHelper.handleConfigurableSerialization(
-              null,
-              (Configurable) object,
-              false
-      );
-    }
+//    if (Configurable.class.isAssignableFrom(clazz)) {
+//      return PropertyHelper.handleConfigurableSerialization(null, (Configurable) object, false);
+//    }
 
-    PropertyHandler propertyHandler = InteliConfigModule.propertyHandlerMap.get(clazz);
+    PropertyHandler propertyHandler = InteliPlatform.getInstance().moduleByClass(InteliConfigModule.class).get().handlerByClass(object.getClass()).get();
     return propertyHandler.toNode(key, object);
   }
 

@@ -3,9 +3,9 @@ package com.oop.intelimenus.config;
 import com.google.common.base.Preconditions;
 import com.oop.inteliframework.commons.util.InteliPair;
 import com.oop.inteliframework.config.configuration.PlainConfig;
-import com.oop.inteliframework.config.node.Node;
-import com.oop.inteliframework.config.node.NodeIteratorType;
-import com.oop.inteliframework.config.node.ParentNode;
+import com.oop.inteliframework.config.node.api.Node;
+import com.oop.inteliframework.config.node.api.iterator.NodeIterator;
+import com.oop.inteliframework.config.node.BaseParentNode;
 import com.oop.intelimenus.button.IButton;
 import com.oop.intelimenus.button.state.StateComponent;
 import com.oop.intelimenus.config.modifiers.MenuModifier;
@@ -45,7 +45,7 @@ public class MenuConfiguration {
             title = menuConfig.getAsValueOrThrow("title", "Title not found!").getAs(String.class);
 
             // Initialize modifiers
-            for (Node section : menuConfig.list(NodeIteratorType.PARENTABLE)) {
+            for (Node section : menuConfig.list(NodeIterator.PARENT)) {
                 MenuModifier handler = loader.getModifier(section.key());
                 if (handler != null) {
                     handler.handle(section.asParentSafe(), this);
@@ -53,10 +53,10 @@ public class MenuConfiguration {
             }
 
             // Initialize Buttons
-            ParentNode buttons = (ParentNode) menuConfig.findAt("buttons")
-                .filter(Node::isParentable)
+            BaseParentNode buttons = (BaseParentNode) menuConfig.findAt("buttons")
+                .filter(Node::isParent)
                 .orElseThrow(() -> new IllegalStateException("Failed to find buttons section"));
-            for (Node buttonSection : buttons.list(NodeIteratorType.PARENTABLE)) {
+            for (Node buttonSection : buttons.list(NodeIterator.PARENT)) {
                 loadButton(buttonSection.asParentSafe());
             }
 
@@ -67,14 +67,14 @@ public class MenuConfiguration {
         }
     }
 
-    private void throwButtonLoadError(ParentNode section, String error) {
+    private void throwButtonLoadError(BaseParentNode section, String error) {
         throw new IllegalStateException(
             "Failed to load a button at: " + section.path() + " cause: " + error);
     }
 
-    private void loadButton(ParentNode buttonSection) {
+    private void loadButton(BaseParentNode buttonSection) {
         // Check if button has multiple states
-        if (!buttonSection.isPresent("material") && buttonSection.list(NodeIteratorType.PARENTABLE).size() == 0) {
+        if (!buttonSection.isPresent("material") && buttonSection.list(NodeIterator.PARENT).size() == 0) {
             throwButtonLoadError(buttonSection, "Material nor states were not found!");
         }
 
@@ -115,8 +115,8 @@ public class MenuConfiguration {
             return;
         }
 
-        Consumer<ParentNode> statesLoader = (statesSection) -> {
-            for (Node stateSection : statesSection.list(NodeIteratorType.PARENTABLE)) {
+        Consumer<BaseParentNode> statesLoader = (statesSection) -> {
+            for (Node stateSection : statesSection.list(NodeIterator.PARENT)) {
                 button
                     .applyComponent(StateComponent.class,
                         states -> states.addState(stateSection.key(), loadState(stateSection.asParentSafe())));
@@ -129,9 +129,9 @@ public class MenuConfiguration {
             .ifPresent(node -> {
                 configButton.setIdentifier(node.asValueSafe().getAs(String.class));
 
-                ParentNode statesSection = (ParentNode) buttonSection
+                BaseParentNode statesSection = (BaseParentNode) buttonSection
                     .findAt("states")
-                    .filter(Node::isParentable)
+                    .filter(Node::isParent)
                     .orElseThrow(() -> new IllegalStateException("Failed to find states section"));
 
                 statesLoader.accept(statesSection);
@@ -141,7 +141,7 @@ public class MenuConfiguration {
             });
     }
 
-    private MenuItemBuilder loadState(ParentNode stateSection) {
+    private MenuItemBuilder loadState(BaseParentNode stateSection) {
         MenuItemBuilder itemBuilder = MenuItemBuilder
             .of(loader.getItemProvider().apply(stateSection.getAsValueOrThrow("material", "Material must be present!").getAs(String.class)));
 

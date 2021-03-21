@@ -1,8 +1,10 @@
 package com.oop.inteliframework.config.configuration.handler;
 
-import com.oop.inteliframework.config.node.Node;
+import com.oop.inteliframework.config.node.api.Node;
 import java.io.File;
 import java.io.InputStream;
+
+import com.oop.inteliframework.config.node.api.ParentNode;
 import lombok.NonNull;
 
 /**
@@ -16,7 +18,7 @@ public interface ConfigurationHandler {
      * @param stream stream that you're trying to load
      * @return node that it loaded
      */
-    Node load(@NonNull InputStream stream);
+    ParentNode load(@NonNull InputStream stream);
 
     /**
      * Save node into a stream
@@ -24,7 +26,7 @@ public interface ConfigurationHandler {
      * @param node node that you're trying to save
      * @param file file that node is gonna be written into
      */
-    void save(@NonNull Node node, @NonNull File file);
+    void save(@NonNull ParentNode node, @NonNull File file);
 
     /**
      * If the handler accepts specified filename

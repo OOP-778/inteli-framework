@@ -5,6 +5,8 @@ import com.oop.inteliframework.commons.util.SimpleReflection;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
+
 import lombok.SneakyThrows;
 
 public class Helper {
@@ -47,5 +49,9 @@ public class Helper {
     public static <T> T use(T object, Runnable consumer) {
         consumer.run();
         return object;
+    }
+
+    public static <T> T useAndProduce(T object, Function<T, T> producer) {
+        return producer.apply(object);
     }
 }

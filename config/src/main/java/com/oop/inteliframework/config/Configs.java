@@ -4,7 +4,7 @@ import static com.oop.inteliframework.commons.util.CollectionHelper.addAndReturn
 
 import com.oop.inteliframework.commons.util.InteliPair;
 import com.oop.inteliframework.config.configuration.PlainConfig;
-import com.oop.inteliframework.config.node.ParentNode;
+import com.oop.inteliframework.config.node.BaseParentNode;
 import com.oop.inteliframework.config.util.Paths;
 import java.io.File;
 import java.nio.file.Files;
@@ -23,6 +23,7 @@ import lombok.NonNull;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.StringUtils;
 
+//TODO: Remake this shiet
 public class Configs {
 
     private final TreeMap<String, PlainConfig> plainConfigs = new TreeMap<>(
@@ -165,7 +166,7 @@ public class Configs {
     public static class LoadOptions<T> {
 
         private Predicate<String> fileNameFilter = in -> true;
-        private @NonNull Function<ParentNode, T> provider;
+        private @NonNull Function<BaseParentNode, T> provider;
         private @NonNull InteliPair<Boolean, Paths.CopyOption> importFromResources = new InteliPair<>(
             false, Paths.CopyOption.COPY_IF_NOT_EXIST);
     }

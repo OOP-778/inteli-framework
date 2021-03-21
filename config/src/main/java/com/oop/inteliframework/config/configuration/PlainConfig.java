@@ -5,8 +5,8 @@ import static com.oop.inteliframework.commons.util.StringFormat.format;
 import com.oop.inteliframework.commons.util.Preconditions;
 import com.oop.inteliframework.config.configuration.handler.ConfigurationHandler;
 import com.oop.inteliframework.config.configuration.handler.ConfigurationHandlers;
-import com.oop.inteliframework.config.node.Node;
-import com.oop.inteliframework.config.node.ParentNode;
+import com.oop.inteliframework.config.node.api.Node;
+import com.oop.inteliframework.config.node.BaseParentNode;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -18,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Accessors(fluent = true)
-public class PlainConfig extends ParentNode {
+public class PlainConfig extends BaseParentNode {
 
     @Setter
     private ConfigurationHandler handler;
@@ -28,7 +28,6 @@ public class PlainConfig extends ParentNode {
     private File file;
 
     public PlainConfig(@NonNull File file) {
-        super(file.getName(), null);
         this.file = file;
 
         handler = ConfigurationHandlers
@@ -39,8 +38,8 @@ public class PlainConfig extends ParentNode {
         try {
             Node loaded = handler.load(new FileInputStream(file));
             Preconditions
-                .checkArgument(loaded instanceof ParentNode, "Loaded node must be parentable!");
-            merge((ParentNode) loaded);
+                .checkArgument(loaded instanceof BaseParentNode, "Loaded node must be parentable!");
+            merge((BaseParentNode) loaded);
 
             //dump();
         } catch (Throwable throwable) {
@@ -51,8 +50,6 @@ public class PlainConfig extends ParentNode {
     }
 
     public PlainConfig(String filename, @NonNull InputStream stream) {
-        super(filename, null);
-
         handler = ConfigurationHandlers
             .findHandler(filename)
             .orElseThrow(() -> new IllegalStateException(
@@ -61,17 +58,12 @@ public class PlainConfig extends ParentNode {
         try {
             Node loaded = handler.load(stream);
             Preconditions
-                .checkArgument(loaded instanceof ParentNode, "Loaded node must be parentable!");
-            merge((ParentNode) loaded);
+                .checkArgument(loaded instanceof BaseParentNode, "Loaded node must be parentable!");
+            merge((BaseParentNode) loaded);
         } catch (Throwable throwable) {
             throw new IllegalStateException(
                 format("Failed to load file with name: {} with handler: {}", filename,
                     handler.name()), throwable);
         }
-    }
-
-    @Override
-    public @NotNull String key() {
-        return "";
     }
 }

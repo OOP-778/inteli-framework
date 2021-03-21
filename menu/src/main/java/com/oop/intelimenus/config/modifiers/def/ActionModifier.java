@@ -2,9 +2,9 @@ package com.oop.intelimenus.config.modifiers.def;
 
 import com.google.common.base.Preconditions;
 import com.oop.inteliframework.commons.util.InteliOptional;
-import com.oop.inteliframework.config.node.Node;
-import com.oop.inteliframework.config.node.NodeIteratorType;
-import com.oop.inteliframework.config.node.ParentNode;
+import com.oop.inteliframework.config.node.api.Node;
+import com.oop.inteliframework.config.node.api.iterator.NodeIterator;
+import com.oop.inteliframework.config.node.BaseParentNode;
 import com.oop.intelimenus.button.builder.TriggerBuilder;
 import com.oop.intelimenus.config.ConfigButton;
 import com.oop.intelimenus.config.MenuConfiguration;
@@ -12,7 +12,6 @@ import com.oop.intelimenus.config.modifiers.MenuModifier;
 import com.oop.intelimenus.trigger.types.ButtonClickTrigger;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -20,7 +19,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
 public class ActionModifier extends MenuModifier {
-    private final Map<String, BiConsumer<ConfigButton, ParentNode>> actionTypes = new HashMap<>();
+    private final Map<String, BiConsumer<ConfigButton, BaseParentNode>> actionTypes = new HashMap<>();
 
     public ActionModifier() {
         registerAction("command", (button, section) -> {
@@ -89,9 +88,9 @@ public class ActionModifier extends MenuModifier {
     }
 
     @Override
-    public void handle(ParentNode section, MenuConfiguration configuration) {
+    public void handle(BaseParentNode section, MenuConfiguration configuration) {
         // Identifiers
-        for (Node actionSection : section.list(NodeIteratorType.PARENTABLE)) {
+        for (Node actionSection : section.list(NodeIterator.PARENT)) {
             Predicate<ConfigButton> predicate;
             String key = actionSection.key();
 
@@ -105,18 +104,18 @@ public class ActionModifier extends MenuModifier {
             }
 
             // If this contains single action
-            if (actionSection.asParent().get().list(NodeIteratorType.PARENTABLE).size() == 0) {
-                load(predicate, (ParentNode) actionSection, configuration);
+            if (actionSection.asParent().get().list(NodeIterator.PARENT).size() == 0) {
+                load(predicate, (BaseParentNode) actionSection, configuration);
 
             } else {
-                for (Node value : actionSection.asParent().get().list(NodeIteratorType.PARENTABLE)) {
-                    load(predicate, (ParentNode) value, configuration);
+                for (Node value : actionSection.asParent().get().list(NodeIterator.PARENT)) {
+                    load(predicate, (BaseParentNode) value, configuration);
                 }
             }
         }
     }
 
-    private void load(Predicate<ConfigButton> predicate, ParentNode actionSection,
+    private void load(Predicate<ConfigButton> predicate, BaseParentNode actionSection,
         MenuConfiguration configuration) {
         Preconditions.checkArgument(actionSection.isPresent("type"),
             "The action section doesn't have a type!");
@@ -124,7 +123,7 @@ public class ActionModifier extends MenuModifier {
             .map(node -> node.asValue().get().getAs(String.class))
             .orElse(null);
 
-        BiConsumer<ConfigButton, ParentNode> actionHandler = actionTypes
+        BiConsumer<ConfigButton, BaseParentNode> actionHandler = actionTypes
             .get(type.toLowerCase());
         Preconditions.checkArgument(actionHandler != null,
             "Failed to find action by type: " + type.toLowerCase());
@@ -134,7 +133,7 @@ public class ActionModifier extends MenuModifier {
         });
     }
 
-    public void registerAction(String type, BiConsumer<ConfigButton, ParentNode> consumer) {
+    public void registerAction(String type, BiConsumer<ConfigButton, BaseParentNode> consumer) {
         actionTypes.put(type.toLowerCase(), consumer);
     }
 }

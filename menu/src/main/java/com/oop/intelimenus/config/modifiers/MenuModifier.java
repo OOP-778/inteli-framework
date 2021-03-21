@@ -1,6 +1,6 @@
 package com.oop.intelimenus.config.modifiers;
 
-import com.oop.inteliframework.config.node.ParentNode;
+import com.oop.inteliframework.config.node.BaseParentNode;
 import com.oop.intelimenus.config.MenuConfiguration;
 
 public abstract class MenuModifier {
@@ -9,5 +9,5 @@ public abstract class MenuModifier {
     public abstract String getIdentifier();
 
     // Handle section
-    public abstract void handle(ParentNode section, MenuConfiguration configuration);
+    public abstract void handle(BaseParentNode section, MenuConfiguration configuration);
 }

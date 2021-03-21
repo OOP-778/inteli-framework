@@ -1,6 +1,6 @@
 package com.oop.inteliframework.config;
 
-import com.oop.inteliframework.config.node.Node;
+import com.oop.inteliframework.config.node.api.Node;
 
 /**
  * Handles config section stuff, must have at least one property field
