@@ -20,11 +20,13 @@ public abstract class AbstractInteliItem<
   @Getter(AccessLevel.NONE)
   private @NonNull ItemStack itemStack;
   private @NonNull M meta;
+  private NBTItem nbt;
 
   public AbstractInteliItem(
       final @NonNull ItemStack itemStack, final @Nullable Function<T, T> cloner) {
     this.itemStack = itemStack;
     this.cloner = cloner;
+    this.nbt = new NBTItem(itemStack);
   }
 
   @Override
@@ -52,15 +54,13 @@ public abstract class AbstractInteliItem<
 
   @Override
   public @NonNull ItemStack asBukkitStack() {
+    nbt.mergeCustomNBT(itemStack);
     return itemStack;
   }
 
   @Override
   public T applyNBT(@NonNull Consumer<NBTItem> consumer) {
-    NBTItem nbtItem = new NBTItem(itemStack);
-    consumer.accept(nbtItem);
-
-    this.itemStack = nbtItem.getItem();
+    consumer.accept(nbt);
     return (T) this;
   }
 

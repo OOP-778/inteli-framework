@@ -9,6 +9,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -16,6 +17,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static com.oop.inteliframework.commons.util.StringFormat.colored;
+import static com.oop.inteliframework.commons.util.StringFormat.colorizeCollection;
 
 public abstract class AbstractInteliItemMeta<M extends ItemMeta, T extends AbstractInteliItemMeta>
     implements SimpleInteliMeta<M, T, InteliLore> {
@@ -54,7 +56,7 @@ public abstract class AbstractInteliItemMeta<M extends ItemMeta, T extends Abstr
 
   @Override
   public T lore(@NonNull String... lines) {
-    // getMeta().setLore(ArrayFormat.colored(Arrays.asList(lines)));
+    lore.lore(colorizeCollection(Arrays.asList(lines)));
     return (T) this;
   }
 
