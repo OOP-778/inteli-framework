@@ -7,6 +7,7 @@ import com.oop.inteliframework.hologram.HologramView;
 import com.oop.inteliframework.hologram.line.HologramItem;
 import com.oop.inteliframework.hologram.line.HologramText;
 import com.oop.inteliframework.hologram.rule.HologramRule;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -71,6 +72,7 @@ public class HologramBuilder {
 
     @RequiredArgsConstructor
     @Accessors(chain = true, fluent = true)
+    @Getter
     public static class ViewBuilder extends HologramBuilder {
         private List<HologramRule> viewRules = new ArrayList<>();
         private List<HologramLine<?, ?>> lines = new LinkedList<>();

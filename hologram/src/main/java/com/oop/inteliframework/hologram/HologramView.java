@@ -197,7 +197,7 @@ public class HologramView {
     }
 
     public void animate() {
-        lines.modify(lines -> lines.stream().filter(line -> line instanceof HologramText).forEach(line -> ((HologramText) line).animate()));
+        //lines.modify(lines -> lines.stream().filter(line -> line instanceof HologramText).forEach(line -> ((HologramText) line).animate()));
     }
 
     protected void setLocation(Location location) {

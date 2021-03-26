@@ -1,30 +1,24 @@
 package com.oop.inteliframework.hologram.line;
 
-import com.google.common.collect.Maps;
 import com.oop.inteliframework.commons.util.InteliCache;
-import com.oop.inteliframework.commons.util.InteliPair;
 import com.oop.inteliframework.hologram.HologramLine;
-import com.oop.inteliframework.hologram.animation.AnimationHandler;
 import lombok.NonNull;
 import lombok.Setter;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class HologramText extends HologramLine<HologramText, String> {
-    // Animations
-    private final Map<UUID, AnimationHandler> animations = Maps.newConcurrentMap();
 
     @Setter
     @NonNull
-    private Function<Player, String> textSupplier;
+    protected Function<Player, String> textSupplier;
 
-    private InteliCache<UUID, String> textCache = InteliCache
+    protected InteliCache<UUID, String> textCache = InteliCache
             .builder()
             .concurrencyLevel(0)
             .resetExpireAfterAccess(true)
@@ -60,16 +54,5 @@ public class HologramText extends HologramLine<HologramText, String> {
     @Override
     public void clearData() {
         textCache.clear();
-    }
-
-    public void animate() {
-        for (Player viewer : getHologramView().getViewers()) {
-            AnimationHandler animationHandler = animations.get(viewer.getUniqueId());
-            if (animationHandler == null) continue;
-
-            InteliPair<String, Boolean> update = animationHandler.update();
-            if (update.getValue())
-                getWrappedArmorStand().outputName(viewer, ChatColor.translateAlternateColorCodes('&', update.getKey()));
-        }
     }
 }

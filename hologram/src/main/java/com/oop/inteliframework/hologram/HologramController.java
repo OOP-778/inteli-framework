@@ -3,8 +3,6 @@ package com.oop.inteliframework.hologram;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.oop.inteliframework.commons.util.InteliPair;
-import com.oop.inteliframework.hologram.animation.AnimationProvider;
-import com.oop.inteliframework.hologram.animation.ContentAnimation;
 import com.oop.inteliframework.hologram.nms.WrappedArmorStand;
 import lombok.NonNull;
 import lombok.Setter;
@@ -25,7 +23,6 @@ import java.util.stream.Collectors;
 public class HologramController {
     private static final Map<String, HologramController> controllerMap = new ConcurrentHashMap<>();
     public static Logger LOGGER = Logger.getLogger("InteliHolograms");
-    private final TreeMap<String, AnimationProvider> animationProviders = new TreeMap<>(Maps.newConcurrentMap());
     private ScheduledExecutorService executor;
     private JavaPlugin plugin;
     private Map<String, Map<InteliPair<Integer, Integer>, Set<Hologram>>> holograms = new ConcurrentHashMap<>();
@@ -83,10 +80,6 @@ public class HologramController {
                 .stream()
                 .filter(hologram -> player == null)
                 .collect(Collectors.toSet());
-    }
-
-    public InteliPair<String, List<ContentAnimation>> initAnimations(String text) {
-        return new InteliPair<>(text, new ArrayList<>());
     }
 
     @SneakyThrows
