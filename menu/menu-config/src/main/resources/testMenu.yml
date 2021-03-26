@@ -1,0 +1,40 @@
+title: "&cHello!"
+
+# The design of the menu
+# Each character that is not a space represents a slot
+# The count of chars cannot exceed the menu type limits
+layout:
+  - "X X X X X X X X X"
+  - ""
+
+actions:
+  # Identifier or Letter
+  "head":
+    "sound":
+      type: sound
+      sound: CLICK_CHEST
+    "command":
+      type: command
+      command: "something"
+    "internal":
+      type: internal
+      do: "navigate []"
+
+buttons:
+  "H":
+    # How does the menu know what this button belongs to
+    # Used on actions, sounds, templates
+    identifier: "head"
+
+    # Material for the button
+    material: player_head
+
+    # Display name of the button
+    display name: "&cPlayer Name"
+
+    # Lore of the button
+    lore:
+      - "&cBruh"
+
+    # Set glow for the button
+    glow: true
