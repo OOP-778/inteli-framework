@@ -75,6 +75,12 @@ public class InteliOptional<T> {
         }
     }
 
+    public InteliOptional<T> use(Consumer<T> consumer) {
+        if (isPresent())
+            consumer.accept(value);
+        return this;
+    }
+
     public <U> InteliOptional<U> flatMap(Function<? super T, InteliOptional<U>> mapper) {
         Objects.requireNonNull(mapper);
         if (!isPresent())
