@@ -1,5 +1,8 @@
-package com.oop.inteliframework.animation;
+package com.oop.inteliframework.animation.parser;
 
+import com.oop.inteliframework.animation.AnimatedText;
+import com.oop.inteliframework.animation.ContentAnimation;
+import com.oop.inteliframework.animation.InteliAnimationModule;
 import com.oop.inteliframework.animation.provider.AnimationProvider;
 import com.oop.inteliframework.commons.util.InteliPair;
 import com.oop.inteliframework.commons.util.Preconditions;
@@ -58,8 +61,7 @@ public class AnimationParser {
           String key = propSplit[0];
 
           if (propSplit.length == 2) {
-            // TODO: parse value
-            props.put(key, propSplit[1]);
+            props.put(key, PrimitivesParser.tryParse(propSplit[1]));
             continue;
           }
 

@@ -1,13 +1,15 @@
-package com.oop.inteliframework.hologram.animation;
+package com.oop.inteliframework.animation;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import java.util.List;
 
 @Accessors(fluent = true, chain = true)
+@ToString
 public class ContentAnimation {
 
     // All of the frames

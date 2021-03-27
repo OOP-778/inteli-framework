@@ -1,7 +1,7 @@
 package com.oop.inteliframework.hologram.animated;
 
 import com.oop.inteliframework.animation.AnimatedText;
-import com.oop.inteliframework.animation.AnimationParser;
+import com.oop.inteliframework.animation.parser.AnimationParser;
 import com.oop.inteliframework.commons.util.InteliCache;
 import com.oop.inteliframework.commons.util.InteliPair;
 import com.oop.inteliframework.hologram.HologramLine;
