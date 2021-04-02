@@ -86,5 +86,11 @@ public abstract class AbstractInteliItem<
     return (T) this;
   }
 
+  @Override
+  public <O> O provideWithMeta(@NonNull Function<M, O> provider) {
+    if (meta == null) meta = _createMeta();
+    return provider.apply(meta);
+  }
+
   protected abstract M _createMeta();
 }

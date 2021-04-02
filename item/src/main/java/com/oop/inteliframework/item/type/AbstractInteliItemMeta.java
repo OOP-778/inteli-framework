@@ -23,7 +23,7 @@ public abstract class AbstractInteliItemMeta<M extends ItemMeta, T extends Abstr
     implements SimpleInteliMeta<M, T, InteliLore> {
   private final @NonNull Function<T, T> cloner;
   private final @NonNull M meta;
-  private @Nullable InteliLore lore;
+  private InteliLore lore;
 
   public AbstractInteliItemMeta(final @NonNull M meta, final @NonNull Function<T, T> cloner) {
     this.meta = meta;
@@ -137,7 +137,7 @@ public abstract class AbstractInteliItemMeta<M extends ItemMeta, T extends Abstr
   }
 
   @Override
-  public @Nullable InteliLore lore() {
+  public InteliLore lore() {
     return lore;
   }
 }
