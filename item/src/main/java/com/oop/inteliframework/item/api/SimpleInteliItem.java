@@ -8,6 +8,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Simple builder for items.
@@ -69,6 +70,8 @@ public interface SimpleInteliItem<M extends SimpleInteliMeta, T extends SimpleIn
    * @param supplier Will supply meta changes
    */
   T applyMeta(final @NonNull Consumer<M> supplier);
+
+  <O> O provideWithMeta(final @NonNull Function<M, O> provider);
 
   /**
    * Create a copy of item

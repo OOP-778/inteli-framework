@@ -10,6 +10,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static com.oop.inteliframework.commons.util.StringFormat.colorizeCollection;
+
 public class InteliLore implements SimpleInteliLore<InteliLore> {
   private @NonNull List<String> lore;
 
@@ -54,7 +56,7 @@ public class InteliLore implements SimpleInteliLore<InteliLore> {
 
   @Override
   public InteliLore lore(@NonNull List<String> newLore) {
-    // lore = ArrayFormat.colored(newLore);
+    lore = colorizeCollection(newLore);
     return this;
   }
 

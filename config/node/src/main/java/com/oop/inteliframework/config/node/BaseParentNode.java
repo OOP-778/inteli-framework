@@ -224,6 +224,11 @@ public class BaseParentNode extends BaseNode implements ParentNode {
     return isPresentAnd(path, $ -> true);
   }
 
+  @Override
+  public InteliOptional<Node> findAt(String path) {
+    return InteliOptional.ofNullable(_get(path).orElse(null));
+  }
+
   public boolean isPresentAnd(String path, Predicate<Node> and) {
     return _get(path).filter(and).isPresent();
   }

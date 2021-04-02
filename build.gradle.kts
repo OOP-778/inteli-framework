@@ -6,7 +6,7 @@ plugins {
 
 version = "1.0"
 
-subprojects {
+allprojects {
     apply {
         plugin("java")
         plugin("com.github.johnrengelman.shadow")
@@ -17,13 +17,13 @@ subprojects {
 var props: MutableMap<String, ProjectConfig> = hashMapOf()
 loadProjects()
 
-configureProject("config") {
-    needMc = true
-}
-
 configureProject("hologram") {
     needMc = true
     needNMS = true
+}
+
+configureProject("hologram-animation") {
+    needMc = true
 }
 
 configureProject("menu") {
@@ -41,10 +41,10 @@ configureProject("adapters") {
     needMc = true
 }
 
-configureProject("test-plugin") {
+configureProject("test-spigot") {
     needMc = true
-    needNbtApi = true
     needNMS = true
+    needNbtApi = true
     out = "/run/media/oop-778/BRABARAR/Serrvers/OOP/1.8.8/plugins/"
 }
 
@@ -61,11 +61,9 @@ configureProject("item") {
     needNbtApi = true
     mcVersion = MCVersion.V1_16
     version = 1.0
-    publish = true
 }
 
 configureProject("task") {
-    needMc = true
     needUnitTesting = true
     needPlatform = true
 }
@@ -91,7 +89,28 @@ configureProject("packet-injector") {
     needMc = true
 }
 
-subprojects {
+configureProject("message-api") {
+    needPlatform = true
+}
+
+configureProject("menu-config") {
+    needMc = true
+}
+
+configureProject("test-spigot") {
+    publish = false
+}
+
+configureProject("task-bukkit") {
+    needMc = true
+}
+
+configureProject("vanilla") {
+    publish = false
+}
+
+
+allprojects {
     repositories {
         jcenter()
         mavenCentral()
@@ -106,7 +125,6 @@ subprojects {
         config?.let {
             if (it.needMc) {
                 compileOnly("org.spigotmc:spigot-api:${it.mcVersion.versionName}")
-                implementation("org.apache.commons:commons-lang3:3.11")
             }
 
             if (it.needNbtApi)
@@ -209,8 +227,10 @@ tasks {
 
 // << UTILS START >>
 fun loadProjects() {
-    for (children in childProjects.values)
+    for (children in allprojects) {
+        println(children.name)
         props[children.name.toLowerCase()] = ProjectConfig(children.name, version)
+    }
 }
 
 fun configureProject(name: String, apply: (ProjectConfig).() -> Unit) {
@@ -220,7 +240,7 @@ fun configureProject(name: String, apply: (ProjectConfig).() -> Unit) {
 data class ProjectConfig(
         val name: String,
         var outName: String = name,
-        var publish: Boolean = false,
+        var publish: Boolean = true,
         var group: String = "com.oop.inteliframework",
         var artifact: String = name,
         var out: String = "out",

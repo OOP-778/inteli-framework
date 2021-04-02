@@ -1,5 +1,6 @@
 package com.oop.inteliframework.config.node.api;
 
+import com.oop.inteliframework.commons.util.InteliOptional;
 import com.oop.inteliframework.commons.util.InteliPair;
 import com.oop.inteliframework.config.node.api.iterator.NodeIterator;
 import com.oop.inteliframework.config.node.api.policy.NodeDuplicatePolicy;
@@ -127,4 +128,11 @@ public interface ParentNode extends Node, Iterable<Node> {
    * Print out whole structure
    */
   void dump();
+
+  /**
+   * Check if node exists
+   */
+  boolean isPresent(String path);
+
+  InteliOptional<Node> findAt(String path);
 }

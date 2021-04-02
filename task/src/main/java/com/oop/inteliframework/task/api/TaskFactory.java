@@ -32,7 +32,6 @@ public interface TaskFactory<T extends TaskFactory, R extends Task> {
    *
    * @param controllerClass Class which implements {@link TaskController}
    */
-  @Nullable
   default <E extends TaskController> InteliOptional<E> controllerByClass(
       @NonNull Class<E> controllerClass) {
     return InteliOptional.ofNullable(

@@ -56,20 +56,40 @@ fun downloadFile(url: String, out: java.io.File) {
 }
 
 include("scoreboard")
-include("config")
 include("commons")
-include("hologram")
 include("adapters")
-include("task")
 include("item")
 include("platform")
-include("command")
-include("command-bukkit")
 include("recipe")
 include("packet-injector")
-include("message")
-include("menu")
-include("task-bukkit")
 include("test")
 include("test:vanilla")
 include("test:test-spigot")
+
+include("command")
+include("command:bukkit")
+project(":command:bukkit").name = "command-bukkit"
+
+include("message")
+
+include("config")
+include("config:node")
+include("config:property")
+project(":config:node").name = "config-node"
+project(":config:property").name = "config-property"
+
+include("menu")
+include("menu:menu-config")
+include("animation")
+
+include("hologram")
+include("hologram:animation")
+project(":hologram:animation").name = "hologram-animation"
+
+include("dependency")
+include("dependency:common")
+project(":dependency:common").name = "dependency-common"
+
+include("task")
+include("task:bukkit")
+project(":task:bukkit").name = "task-bukkit"

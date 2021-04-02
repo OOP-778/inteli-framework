@@ -1,7 +1,7 @@
 dependencies {
     implementation(project(":commons"))
-    compileOnly(project(":platform"))
-    compile("org.yaml:snakeyaml:1.27")
-    compileOnly("org.jetbrains:annotations:20.0.0")
+    implementation("org.yaml:snakeyaml:1.27")
     implementation("com.google.code.gson:gson:2.8.6")
+    compileOnly("org.apache.commons:commons-lang3:3.12.0")
+    implementation(project(":config:config-node"))
 }
