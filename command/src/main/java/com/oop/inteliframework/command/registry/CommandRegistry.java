@@ -2,22 +2,25 @@ package com.oop.inteliframework.command.registry;
 
 import com.oop.inteliframework.command.CommandData;
 import com.oop.inteliframework.command.ExecutorWrapper;
-import com.oop.inteliframework.command.element.CommandElement;
-import com.oop.inteliframework.command.element.ParentableElement;
+import com.oop.inteliframework.command.api.ParentableElement;
+import com.oop.inteliframework.command.api.TabComplete;
 import com.oop.inteliframework.command.element.argument.Argument;
 import com.oop.inteliframework.command.element.argument.NoValueArgument;
-import com.oop.inteliframework.command.element.argument.ParseResult;
 import com.oop.inteliframework.command.element.command.Command;
-import com.oop.inteliframework.commons.util.CollectionHelper;
+import com.oop.inteliframework.command.error.CommandError;
+import com.oop.inteliframework.command.registry.parser.CommandParseHistory;
+import com.oop.inteliframework.command.style.RegistryStyle;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 
-import java.lang.reflect.Array;
 import java.util.*;
-import java.util.function.BiPredicate;
-import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.oop.inteliframework.command.registry.parser.CommandParser.parse;
+import static com.oop.inteliframework.command.registry.parser.ParserHelper.checkRequirements;
 
 /** Class that handles all the commands registered */
 public class CommandRegistry {
@@ -27,20 +30,9 @@ public class CommandRegistry {
   private final TreeMap<String, Command> elementTreeMap =
       new TreeMap<>(String::compareToIgnoreCase);
 
-  private static int countNonRepeatingSpaces(String input) {
-    int spaces = 0;
-    boolean lastWasSpace = false;
-    for (char character : input.toCharArray()) {
-      if (character == ' ') {
-        if (lastWasSpace) continue;
+  @Setter @Getter @NonNull private RegistryStyle style;
 
-        lastWasSpace = true;
-        spaces++;
-      } else lastWasSpace = false;
-    }
-
-    return spaces;
-  }
+  @Setter @Getter private int tabCompletionSizeLimit = 50;
 
   public void register(Command command) {
     elementTreeMap.put(command.labeled(), command);
@@ -60,126 +52,100 @@ public class CommandRegistry {
   // Execute our command
   public boolean execute(ExecutorWrapper executor, String input) {
     // If command contains slash, get rid of it
-    input = removeSlash(input);
+    input = normalize(input);
 
-    Queue<String> waitingParsing = new LinkedList<>(Arrays.asList(StringUtils.split(input, ' ')));
-    waitingParsing.removeIf(string -> string.trim().isEmpty());
+    String[] s = StringUtils.split(input, ' ');
+    if (s.length == 0) return false;
 
-    if (waitingParsing.isEmpty()) return false;
+    Optional<Command> lookupCommand = findCommand(s[0]);
+    if (!lookupCommand.isPresent()) return false;
 
-    String label = waitingParsing.poll();
-    for (Command value : elementTreeMap.values()) {
-      List<String> possibleLabels = new ArrayList<>();
-      possibleLabels.add(value.labeled());
-      possibleLabels.addAll(value.aliases());
-
-      // Try to match possible labels with the label
-      if (possibleLabels.stream().anyMatch(label::equalsIgnoreCase)) {
-        execute(executor, waitingParsing, value, new CommandData());
-        return true;
-      }
+    s = Arrays.copyOfRange(s, 1, s.length);
+    if (s.length == 0) {
+      return true;
     }
 
-    return false;
-  }
+    CommandData data = new CommandData();
+    CommandParseHistory parse =
+        parse(executor, lookupCommand.get(), data, new LinkedList<>(Arrays.asList(s)), true);
 
-  protected void execute(ExecutorWrapper executorWrapper, Command command, CommandData data) {
-    if (command.executer() != null) command.executer().execute(executorWrapper, data);
-  }
-
-  protected void execute(
-      ExecutorWrapper executor,
-      Queue<String> waitingParsing,
-      CommandElement<?> currentElement,
-      CommandData commandData) {
-    if (waitingParsing.isEmpty()) {
-      if (currentElement == null) return;
-
-      if (currentElement instanceof Command) {
-        execute(executor, (Command) currentElement, commandData);
-        return;
-      }
-
-      // TODO: Help Message
-      return;
+    // Too much arguments or wrong arguments
+    if (!parse.getResultedInto().isEmpty()) {
+      style.handleError(parse.getResultedInto().toArray(new CommandError[0]), this, parse);
+      return true;
     }
 
-    // Handle filters
-    Function<CommandElement<?>, Boolean> filtersCheck =
-        (element) -> {
-          Map<String, BiPredicate<ExecutorWrapper, CommandData>> values =
-              element.filters().values();
-          // TODO: No access handling
-          return values.isEmpty()
-              || values.values().stream().allMatch(filter -> filter.test(executor, commandData));
-        };
-
-    if (currentElement instanceof ParentableElement) {
-      String label = waitingParsing.peek();
-      for (CommandElement<?> element :
-          ((ParentableElement<?>) currentElement).children().values()) {
-        if (element instanceof Command) {
-          List<String> possibleLabels = new ArrayList<>();
-          possibleLabels.add(element.labeled());
-          possibleLabels.addAll(((Command) element).aliases());
-
-          // Try to match possible labels with the label
-          if (possibleLabels.stream().anyMatch(label::equalsIgnoreCase)) {
-            waitingParsing.poll();
-
-            if (!filtersCheck.apply(element)) return;
-
-            execute(executor, waitingParsing, element, commandData);
-            return;
-          }
-        }
-
-        if (element instanceof Argument) {
-          ParseResult<?> parseResult = ((Argument<?>) element).parser().parse(waitingParsing);
-
-          if (!filtersCheck.apply(element)) return;
-
-          if (parseResult.getMessage() != null) {
-            if (((Argument<?>) element).optional()) continue;
-
-            // TODO: Incorrect argument handling
-            return;
-          }
-
-          Object parsedObject = parseResult.getObject();
-          commandData.add(element.labeled(), parsedObject);
-
-          execute(executor, waitingParsing, element, commandData);
-          return;
-        }
-
-        if (element instanceof NoValueArgument) {
-          waitingParsing.poll();
-
-          if (label.equalsIgnoreCase(element.labeled())) {
-            if (!filtersCheck.apply(element)) return;
-
-            commandData.add(element.labeled(), true);
-            execute(executor, waitingParsing, currentElement, commandData);
-            return;
-          }
-        }
-      }
+    if (parse.getLastElement() instanceof Command) {
+      if (((Command) parse.getLastElement()).executer() != null)
+        ((Command) parse.getLastElement()).executer().execute(executor, data);
     }
 
-    // TODO: Help handling
+    return true;
   }
 
-  public String removeSlash(String input) {
-    return input.startsWith("/") ? input.substring(1) : input;
+  public String normalize(String input) {
+    String removedSlash = input.startsWith("/") ? input.substring(1) : input;
+    if (StringUtils.contains(input, ":")) {
+      String[] split = StringUtils.split(input, ":");
+      if (split.length == 1) removedSlash = split[0];
+      else removedSlash = split[1];
+    }
+    return removedSlash;
+  }
+
+  protected List<String> checkSize(List<String> completion) {
+    if (completion.size() > tabCompletionSizeLimit) {
+      return Arrays.asList(
+          Arrays.copyOfRange(completion.toArray(new String[0]), 0, tabCompletionSizeLimit));
+    }
+
+    return completion;
+  }
+
+  protected List<String> _tabComplete(@NonNull CommandParseHistory history, boolean isAfter) {
+    if (!isAfter && history.getLastElement().tabComplete().isPresent()) {
+      return ((TabComplete) history.getLastElement().tabComplete().get())
+          .complete(history.getExecutor(), history.getLastElement(), history.getData());
+    }
+
+    if (history.getLastElement() instanceof ParentableElement) {
+      return ((ParentableElement<?>) history.getLastElement())
+          .children().values().stream()
+              .flatMap(
+                  c -> {
+                    if (checkRequirements(c, history) != null) return Stream.empty();
+
+                    List<String> possible = new ArrayList<>();
+                    if (c instanceof Command) possible.addAll(((Command) c).aliases());
+
+                    if (c instanceof Argument) {
+                      if (c.tabComplete().isPresent()) {
+                        possible.addAll(
+                            ((TabComplete) c.tabComplete().get())
+                                .complete(history.getExecutor(), c, history.getData()));
+
+                      } else possible.add("<" + c.labeled() + ">");
+
+                    } else if (c instanceof NoValueArgument) {
+                      if (!history.getData().hasKey(c.labeled())) {
+                        history.getData().add(c.labeled(), true);
+                        possible.add(c.labeled());
+                      }
+                    } else possible.add(c.labeled());
+
+                    return possible.stream();
+                  })
+              .distinct()
+              .collect(Collectors.toList());
+    } else return new ArrayList<>();
   }
 
   /** Tab Complete Section */
-  public <P extends ParentableElement<P>> List<String> tabComplete(ExecutorWrapper executor, String input) {
-    input = removeSlash(input);
+  public <P extends ParentableElement<P>> List<String> tabComplete(
+      ExecutorWrapper executor, String input) {
+    CommandData data = new CommandData();
 
-    // For commands that goes with plugin:etc
-    if (StringUtils.contains(input, ":")) input = StringUtils.split(input, ":")[1];
+    input = normalize(input);
 
     String[] s = StringUtils.split(input, ' ');
     if (s.length == 0) return new ArrayList<>();
@@ -187,149 +153,47 @@ public class CommandRegistry {
     Optional<Command> lookupCommand = findCommand(s[0]);
     if (!lookupCommand.isPresent()) return new ArrayList<>();
 
+    input = StringUtils.replaceOnce(input, s[0], "");
     s = Arrays.copyOfRange(s, 1, s.length);
-    CommandData commandData = new CommandData();
 
-    int spacesCount = countNonRepeatingSpaces(input);
+    boolean isAfterArgument = StringUtils.endsWith(input, " ");
+    if (s.length == 0 && !isAfterArgument) return new ArrayList<>();
+    if (s.length == 0)
+      return checkSize(
+          _tabComplete(
+              new CommandParseHistory(
+                  new CommandData(),
+                  executor,
+                  new LinkedList<>(),
+                  new LinkedList<>(),
+                  new HashSet<>(),
+                  lookupCommand.get()),
+              true));
 
-    // Handle filters
-    Function<CommandElement<?>, Boolean> filtersCheck =
-            (element) -> {
-              Map<String, BiPredicate<ExecutorWrapper, CommandData>> values =
-                      element.filters().values();
-              // TODO: No access handling
-              return values.isEmpty()
-                      || values.values().stream().allMatch(filter -> filter.test(executor, commandData));
-            };
+    LinkedList<String> linked =
+        isAfterArgument
+            ? new LinkedList<>(Arrays.asList(s))
+            : new LinkedList<>(Arrays.asList(Arrays.copyOfRange(s, 0, s.length - 1)));
 
-    // If we're one space away from last argument
-    System.out.println("args size: " + s.length + ", spaces: " + spacesCount);
-    Queue<String> parseQueue;
-//    if (spacesCount == s.length)
-      parseQueue = new LinkedList<>(Arrays.asList(s));
-//    else
-//      parseQueue = new LinkedList<>(Arrays.asList(Arrays.copyOfRange(s, 0, s.length-1)));
+    CommandParseHistory parse = parse(executor, lookupCommand.get(), data, linked, false);
 
-    if (parseQueue.isEmpty()) {
-      return lookupCommand.get().children().values()
-              .stream()
-              .flatMap(c -> {
-                List<String> possible = new ArrayList<>();
-                if (c instanceof Command)
-                  possible.addAll(((Command) c).aliases());
-
-                if (c instanceof Argument) {
-                  possible.add("<" + c.labeled() + ">");
-
-                } else
-                  possible.add(c.labeled());
-
-                return possible.stream();
-              })
-              .distinct()
-              .collect(Collectors.toList());
-    }
-
-    CommandElement lastElementParsed = parse(executor, lookupCommand.get(), commandData, parseQueue);
-    if (lastElementParsed == null) {
+    // We parsed last element before last argument, so we try to validate last arg based of it
+    if (!parse.getResultedInto().isEmpty()) {
+      style.handleError(parse.getResultedInto().toArray(new CommandError[0]), this, parse);
       return new ArrayList<>();
     }
 
-    List<String> possibleTabCompletions = new ArrayList<>();
-    if (lastElementParsed instanceof ParentableElement) {
-      for (CommandElement<?> value :
-              ((ParentableElement<?>) lastElementParsed).children().values()) {
-        if (!filtersCheck.apply(value)) continue;
+    List<String> apply = _tabComplete(parse, !StringUtils.endsWith(input, " ") || isAfterArgument);
 
-        if (value instanceof Command)
-          possibleTabCompletions.addAll(((Command) value).aliases());
-
-        else if (value instanceof NoValueArgument) {
-          if (!commandData.hasKey(value.labeled()))
-            possibleTabCompletions.add(value.labeled());
-
-        } else
-          possibleTabCompletions.add(value.labeled());
-      }
-    }
-
-    if (spacesCount == s.length) {
+    if (!isAfterArgument) {
       String[] finalS = s;
-      possibleTabCompletions.removeIf(it -> !it.contains(finalS[finalS.length-1]));
+      apply.removeIf(
+          complete ->
+              !complete
+                  .toLowerCase(Locale.ROOT)
+                  .contains(finalS[finalS.length - 1].toLowerCase(Locale.ROOT)));
     }
 
-    System.out.println(Arrays.toString(commandData.keys().toArray()));
-    return possibleTabCompletions;
-  }
-
-  private CommandElement parse(
-      @NonNull ExecutorWrapper executor,
-      @NonNull CommandElement currentElement,
-      @NonNull CommandData commandData,
-      @NonNull Queue<String> waitingParsing) {
-    if (waitingParsing.isEmpty()) {
-      return currentElement;
-    }
-
-    // Handle filters
-    Function<CommandElement<?>, Boolean> filtersCheck =
-        (element) -> {
-          Map<String, BiPredicate<ExecutorWrapper, CommandData>> values =
-              element.filters().values();
-          // TODO: No access handling
-          return values.isEmpty()
-              || values.values().stream().allMatch(filter -> filter.test(executor, commandData));
-        };
-
-    if (currentElement instanceof ParentableElement) {
-      String label = waitingParsing.peek();
-      for (CommandElement<?> element :
-          ((ParentableElement<?>) currentElement).children().values()) {
-
-        if (element instanceof Command) {
-          List<String> possibleLabels = new ArrayList<>();
-          possibleLabels.add(element.labeled());
-          possibleLabels.addAll(((Command) element).aliases());
-
-          // Try to match possible labels with the label
-          if (possibleLabels.stream().anyMatch(label::equalsIgnoreCase)) {
-            waitingParsing.poll();
-
-            if (!filtersCheck.apply(element)) continue;
-            return parse(executor, element, commandData, waitingParsing);
-          }
-        }
-
-        if (element instanceof Argument) {
-          ParseResult<?> parseResult = ((Argument<?>) element).parser().parse(waitingParsing);
-          if (!filtersCheck.apply(element)) continue;
-
-          if (parseResult.getMessage() != null) {
-            if (((Argument<?>) element).optional()) continue;
-
-            // TODO: Incorrect argument handling
-            continue;
-          }
-
-          Object parsedObject = parseResult.getObject();
-          commandData.add(element.labeled(), parsedObject);
-
-          return parse(executor, element, commandData, waitingParsing);
-        }
-
-        if (element instanceof NoValueArgument) {
-          waitingParsing.poll();
-
-          if (label.equalsIgnoreCase(element.labeled())) {
-            if (!filtersCheck.apply(element)) continue;
-
-            commandData.add(element.labeled(), true);
-            return parse(executor, currentElement, commandData, waitingParsing);
-          }
-        }
-      }
-    }
-
-    return null;
+    return checkSize(apply);
   }
 }

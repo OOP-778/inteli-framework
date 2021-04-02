@@ -5,6 +5,7 @@ repositories {
 dependencies {
     implementation(project(":packet-injector"))
     implementation(project(":commons"))
-    implementation(project(":command:command-api"))
+    compileOnly(project(":command"))
+    compileOnly(project(":platform"))
     compileOnly("com.mojang:brigadier:1.0.17")
 }

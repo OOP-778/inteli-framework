@@ -2,7 +2,6 @@ package com.oop.inteliframework.command.bukkit;
 
 import com.oop.inteliframework.command.element.command.Command;
 import com.oop.inteliframework.command.registry.CommandRegistry;
-import com.oop.inteliframework.commons.util.InteliPair;
 import com.oop.inteliframework.commons.util.SimpleReflection;
 import lombok.NonNull;
 import lombok.SneakyThrows;

@@ -4,12 +4,12 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.oop.inteliframework.command.element.command.Command;
 import com.oop.inteliframework.command.registry.CommandRegistry;
-import com.oop.inteliframework.commons.util.InteliPair;
 import com.oop.inteliframework.commons.util.InteliVersion;
 import com.oop.inteliframework.commons.util.SimpleReflection;
 import com.oop.inteliframework.packetinjector.Injector;
+import com.oop.inteliframework.plugin.InteliPlatform;
+import com.oop.inteliframework.plugin.PlatformStarter;
 import lombok.SneakyThrows;
-import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -21,7 +21,10 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class BukkitCommandRegistry extends CommandRegistry implements Listener {
@@ -42,12 +45,15 @@ public class BukkitCommandRegistry extends CommandRegistry implements Listener {
   private final Injector injector;
   private final JavaPlugin registerer;
 
-  public BukkitCommandRegistry(JavaPlugin plugin) {
+  public BukkitCommandRegistry() {
+    JavaPlugin plugin = (JavaPlugin) InteliPlatform.getInstance()
+            .starter();
+
     Bukkit.getPluginManager().registerEvents(this, plugin);
     this.registerer = plugin;
     this.commandMap = new BukkitCommandMap(this);
 
-    injector = new Injector(plugin.getName());
+    injector = new Injector(plugin.getName() + "-commands");
 
     // On tab complete receive
     injector.onFiltered(
@@ -61,7 +67,9 @@ public class BukkitCommandRegistry extends CommandRegistry implements Listener {
           List<String> strings = tabComplete(new BukkitCommandExecutor(player), content);
           if (strings.isEmpty()) return true;
 
-          Injector.PlayerConnectionHelper.sendPacket(player, constructSuggestions(content, strings));
+          Object o = constructSuggestions(content, strings);
+          Injector.PlayerConnectionHelper.sendPacket(
+              player, o);
           return false;
         });
 
@@ -109,16 +117,16 @@ public class BukkitCommandRegistry extends CommandRegistry implements Listener {
   /** We extract the current string from tab completion */
   @SneakyThrows
   private String extractContent(Object packet) {
-    return (String) SimpleReflection.getField(PACKET_PLAY_IN_TAB_COMPLETE, String.class).get(packet);
+    return (String)
+        SimpleReflection.getField(PACKET_PLAY_IN_TAB_COMPLETE, String.class).get(packet);
   }
 
   /** Construct suggestions packet */
   @SneakyThrows
   public Object constructSuggestions(String input, List<String> suggestions) {
     if (InteliVersion.isBefore(13)) {
-      return SimpleReflection
-              .getConstructor(PACKET_PLAY_OUT_TAB_COMPLETE, String[].class)
-              .newInstance((Object) suggestions.toArray(new String[0]));
+      return SimpleReflection.getConstructor(PACKET_PLAY_OUT_TAB_COMPLETE, String[].class)
+          .newInstance((Object) suggestions.toArray(new String[0]));
     }
 
     SuggestionsBuilder suggestionsBuilder = new SuggestionsBuilder(input, input.length());
