@@ -11,25 +11,23 @@ import java.util.function.Consumer;
 
 @UtilityClass
 public class SimpleTaskFactory {
-
   private final InteliTaskController classicTaskController =
       InteliPlatform.getInstance()
-          .moduleByClass(InteliTaskFactory.class)
-          .get()
+          .safeModuleByClass(InteliTaskFactory.class)
           .controllerByClass(InteliTaskController.class)
-          .get();
+          .orElseThrow(() -> new IllegalStateException("Failed to find default task controller!"));
 
   public @NonNull InteliTask timer(
       final @NonNull Consumer<InteliTask> body, final long delay, final @NonNull TimeUnit unit) {
-    return new InteliTask(classicTaskController).body(body).delay(unit, delay);
+    return new InteliTask(classicTaskController).repeatable(true).body(body).delay(unit, delay);
   }
 
   public @NonNull InteliTask timer(final @NonNull Consumer<InteliTask> body, final long delay) {
     return timer(body, delay, TimeUnit.MILLISECONDS);
   }
 
-  public @NonNull InteliTask schedule(
+  public @NonNull InteliTask later(
       final @NonNull Consumer<InteliTask> body, final long delay, final @NonNull TimeUnit unit) {
-    return new InteliTask(classicTaskController).repeatable(true).body(body).delay(unit, delay);
+    return new InteliTask(classicTaskController).body(body).delay(unit, delay);
   }
 }
