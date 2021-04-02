@@ -50,13 +50,6 @@ public interface Task<T extends Task> {
   T cancel();
 
   /**
-   * Run task synchronously
-   *
-   * @param sync Run synchronously, if false, task will be executed asynchronously (non blockable).
-   */
-  T sync(final boolean sync);
-
-  /**
    * Delay
    *
    * @param delay Delay between task execution
@@ -80,9 +73,6 @@ public interface Task<T extends Task> {
 
   /** @return Is task cancelled */
   boolean cancelled();
-
-  /** @return Is task running synchronously */
-  boolean sync();
 
   /** @return Is task running multiple times */
   boolean repeatable();
@@ -110,7 +100,7 @@ public interface Task<T extends Task> {
   int incAndGetTimes();
 
   /** @return Task id */
-  int taskId();
+  long taskId();
 
   /** @return Delay between execution */
   long delay();

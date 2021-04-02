@@ -19,15 +19,15 @@ public interface TaskController<T extends TaskController, R extends Task> {
   T runTask(final @NonNull R taskProvider);
 
   /** @param taskId Task id */
-  T cancelTask(final int taskId);
+  T cancelTask(final long taskId);
 
   /**
    * @param taskId Task id
    * @return Task as {@link InteliOptional}
    */
-  InteliOptional<R> taskById(final int taskId);
+  InteliOptional<R> taskById(final long taskId);
 
   /** @return All running tasks with id's */
   @NonNull
-  Map<Integer, R> runningTasks();
+  Map<Long, R> runningTasks();
 }

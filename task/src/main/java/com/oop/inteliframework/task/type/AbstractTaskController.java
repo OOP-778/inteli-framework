@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public abstract class AbstractTaskController<T extends AbstractTaskController>
     implements TaskController<T, InteliTask> {
 
-  private final Map<Integer, InteliTask> tasks = new ConcurrentHashMap<>();
+  private final Map<Long, InteliTask> tasks = new ConcurrentHashMap<>();
 
   @Override
   public T runTask(InteliTask taskProvider) {
@@ -19,23 +19,23 @@ public abstract class AbstractTaskController<T extends AbstractTaskController>
   }
 
   @Override
-  public T cancelTask(int taskId) {
+  public T cancelTask(long taskId) {
     tasks.remove(taskId);
     _cancelTask(taskId);
     return (T) this;
   }
 
   @Override
-  public InteliOptional<InteliTask> taskById(int taskId) {
+  public InteliOptional<InteliTask> taskById(long taskId) {
     return InteliOptional.ofNullable(tasks.get(taskId));
   }
 
   @Override
-  public Map<Integer, InteliTask> runningTasks() {
+  public Map<Long, InteliTask> runningTasks() {
     return tasks;
   }
 
   protected abstract void _runTask(InteliTask taskProvider);
 
-  protected abstract void _cancelTask(int taskId);
+  protected abstract void _cancelTask(long taskId);
 }
