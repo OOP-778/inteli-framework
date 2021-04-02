@@ -33,11 +33,11 @@ public class InteliTaskController extends AbstractTaskController<InteliTaskContr
   protected void _runTask(InteliTask taskProvider) {
     final Runnable runnable = taskProvider.runnable();
 
-    if (!taskProvider.repeatable()) {
+    if (taskProvider.repeatable()) {
       if (taskProvider.delay() != -1)
-        scheduler.schedule(runnable, taskProvider.delay(), TimeUnit.MILLISECONDS);
+        scheduler.scheduleAtFixedRate(runnable, 0, taskProvider.delay(),TimeUnit.MILLISECONDS);
     } else if (taskProvider.delay() != -1) {
-      scheduler.scheduleAtFixedRate(runnable, 0, taskProvider.delay(), TimeUnit.MILLISECONDS);
+      scheduler.schedule(runnable, taskProvider.delay(), TimeUnit.MILLISECONDS);
     } else scheduler.execute(runnable);
   }
 

@@ -1,6 +1,8 @@
 package com.oop.inteliframework.task.type;
 
 import com.oop.inteliframework.task.api.Task;
+
+import com.oop.inteliframework.task.api.TaskController;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -13,24 +15,23 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-@Getter
 @Setter
+@Getter
 @Accessors(fluent = true, chain = true)
 public class InteliTask implements Task<InteliTask> {
 
-  private final int taskId = ThreadLocalRandom.current().nextInt(1000);
+  private long taskId = ThreadLocalRandom.current().nextInt(1000000);
   private final AtomicInteger counter = new AtomicInteger(-1);
-  private final AbstractTaskController taskController;
+  private final TaskController taskController;
   private boolean cancelled = false;
   private int runTimes = -1;
   private long delay = -1;
   private @NonNull Consumer<InteliTask> body;
   private @Nullable Predicate<InteliTask> stopIf;
   private @Nullable Consumer<InteliTask> afterComplete;
-  private boolean sync = false;
   private boolean repeatable = false;
 
-  public InteliTask(AbstractTaskController taskController) {
+  public InteliTask(TaskController taskController) {
     this.taskController = taskController;
   }
 
