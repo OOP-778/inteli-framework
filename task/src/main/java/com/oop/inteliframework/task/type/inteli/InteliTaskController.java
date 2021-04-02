@@ -42,7 +42,7 @@ public class InteliTaskController extends AbstractTaskController<InteliTaskContr
   }
 
   @Override
-  protected void _cancelTask(int taskId) {
+  protected void _cancelTask(long taskId) {
     InteliTask task = taskById(taskId).orElse(null);
     if (task != null) {
       task.cancel();
