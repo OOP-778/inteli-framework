@@ -4,5 +4,5 @@ import java.util.Queue;
 
 @FunctionalInterface
 public interface ArgumentParser<T> {
-    ParseResult<T> parse(Queue<String> argsQueue);
+  ParseResult<T> parse(Queue<String> argsQueue);
 }
