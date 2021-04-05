@@ -17,6 +17,11 @@ public interface Property<T> {
     SerializedProperty toNode();
 
     /**
+     * Load from node to property
+     */
+    void fromNode(Node node);
+
+    /**
      * Get the property value
      *
      * @return property value

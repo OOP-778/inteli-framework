@@ -5,8 +5,10 @@ import com.oop.inteliframework.config.property.annotations.Comment;
 import com.oop.inteliframework.config.property.annotations.Named;
 import com.oop.inteliframework.config.property.annotations.NodeKey;
 import com.oop.inteliframework.config.property.property.PrimitiveProperty;
+import lombok.ToString;
 
 @Comment({"Hello! I'm gae"})
+@ToString
 public class SimpleSection implements Configurable {
 
   @NodeKey()

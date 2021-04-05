@@ -4,9 +4,12 @@ import com.oop.inteliframework.commons.util.InteliPair;
 import com.oop.inteliframework.commons.util.Preconditions;
 import com.oop.inteliframework.config.node.BaseParentNode;
 import com.oop.inteliframework.config.node.BaseValueNode;
-import com.oop.inteliframework.config.property.Configurable;
+import com.oop.inteliframework.config.node.api.Node;
+import com.oop.inteliframework.config.node.api.ParentNode;
+import com.oop.inteliframework.config.node.api.iterator.NodeIterator;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import lombok.ToString;
 
 import java.util.Map;
 import java.util.Set;
@@ -14,11 +17,13 @@ import java.util.function.Function;
 
 import static com.oop.inteliframework.commons.util.Helper.use;
 import static com.oop.inteliframework.commons.util.StringFormat.format;
+import static com.oop.inteliframework.config.property.loader.Loader.loaderFrom;
 import static com.oop.inteliframework.config.property.util.Helper.cloneMap;
 import static com.oop.inteliframework.config.property.util.Helper.isPrimitive;
-import static com.oop.inteliframework.config.property.util.Serializer.serializerFor;
+import static com.oop.inteliframework.config.property.serializer.Serializer.serializerFor;
 
 @AllArgsConstructor
+@ToString
 public class MapProperty<K, V, M extends Map> implements Property<M> {
 
   @NonNull private final Class<K> keyClass;
@@ -39,6 +44,29 @@ public class MapProperty<K, V, M extends Map> implements Property<M> {
                 map.put(entry.getKey(), entry.getValue());
               }
             }));
+  }
+
+  @Override
+  public void fromNode(Node node) {
+    Preconditions
+            .checkArgument(
+                    node instanceof ParentNode,
+                    "MapProperty can only load from ParentNode!"
+            );
+
+    Function<Node, K> keyLoader;
+    Function<Node, V> valueLoader;
+    keyLoader = loaderFrom(keyClass);
+    valueLoader = loaderFrom(valueClass);
+
+    for (Map.Entry<String, Node> nodeEntry :
+        node.asParent().map(NodeIterator.ALL).entrySet()) {
+
+      K key = keyLoader.apply(new BaseValueNode(nodeEntry.getKey()));
+      V value = valueLoader.apply(nodeEntry.getValue());
+
+      map.put(key, value);
+    }
   }
 
   @Override

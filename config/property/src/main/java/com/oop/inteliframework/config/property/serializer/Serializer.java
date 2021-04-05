@@ -1,4 +1,4 @@
-package com.oop.inteliframework.config.property.util;
+package com.oop.inteliframework.config.property.serializer;
 
 import com.oop.inteliframework.config.node.BaseParentNode;
 import com.oop.inteliframework.config.node.BaseValueNode;
@@ -18,6 +18,7 @@ import lombok.SneakyThrows;
 
 import java.lang.reflect.Field;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -26,15 +27,24 @@ import static com.oop.inteliframework.config.property.util.Helper.isPrimitive;
 
 public class Serializer {
   public static <T> Function<T, SerializedProperty> serializerFor(@NonNull T object) {
-    return (Function<T, SerializedProperty>) serializerFor(object.getClass());
+    return (Function<T, SerializedProperty>) serializerFor(object.getClass(), true);
+  }
+
+  public static <T> Function<T, SerializedProperty> serializerFor(@NonNull T object, boolean detectKey) {
+    return (Function<T, SerializedProperty>) serializerFor(object.getClass(), detectKey);
   }
 
   public static <T> Function<T, SerializedProperty> serializerFor(Class<T> clazz) {
+    return serializerFor(clazz, true);
+  }
+
+  public static <T> Function<T, SerializedProperty> serializerFor(Class<T> clazz, boolean detectKey) {
     if (isPrimitive(clazz)) return value -> new SerializedProperty(null, new BaseValueNode(value));
 
     // If it's a possible section
     if (Configurable.class.isAssignableFrom(clazz)) {
-      return (Function<T, SerializedProperty>) serializerForConfigurable((Class<Configurable>) clazz, true);
+      return (Function<T, SerializedProperty>)
+          serializerForConfigurable((Class<Configurable>) clazz, detectKey);
     }
 
     // Find custom object serializer
@@ -51,15 +61,18 @@ public class Serializer {
   }
 
   public static <T extends Configurable> Function<T, SerializedProperty> serializerForConfigurable(
-      Class<T> configurableClass,
-      boolean detectKey
-  ) {
+      Class<T> configurableClass, boolean detectKey) {
     // Validation
     InteliPlatform.getInstance()
         .safeModuleByClass(InteliPropertyModule.class)
         .validate(configurableClass);
 
-    LinkedList<Field> propertiesOf = getPropertiesOf(configurableClass);
+    List<Field> propertiesOf =
+        InteliPlatform.getInstance()
+            .safeModuleByClass(InteliPropertyModule.class)
+            .getClassesCache()
+            .getFields(configurableClass);
+
     return object -> {
       LinkedList<Field> fieldsCopy = new LinkedList<>(propertiesOf);
 
@@ -79,7 +92,10 @@ public class Serializer {
           }
 
           SerializedProperty serializedProperty = o.toNode();
-          String nodeName = serializedProperty.getSuggestedKey() != null ? serializedProperty.getSuggestedKey() : named != null ? named.value() : field.getName();
+          String nodeName =
+              serializedProperty.getSuggestedKey() != null
+                  ? serializedProperty.getSuggestedKey()
+                  : named != null ? named.value() : field.getName();
 
           if (comment != null) serializedProperty.getNode().appendComments(comment.value());
 
@@ -111,18 +127,5 @@ public class Serializer {
     }
 
     return annotation.value();
-  }
-
-  public static LinkedList<Field> getPropertiesOf(Class<?> clazz) {
-    final LinkedList<Field> fields = new LinkedList<>();
-    for (Field field : clazz.getDeclaredFields()) {
-      if (!Property.class.isAssignableFrom(field.getType())) {
-        continue;
-      }
-
-      field.setAccessible(true);
-      fields.add(field);
-    }
-    return fields;
   }
 }

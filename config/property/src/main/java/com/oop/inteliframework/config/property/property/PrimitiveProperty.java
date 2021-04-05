@@ -3,7 +3,9 @@ package com.oop.inteliframework.config.property.property;
 import com.oop.inteliframework.commons.util.Preconditions;
 import com.oop.inteliframework.config.node.BaseValueNode;
 import com.oop.inteliframework.config.node.api.Node;
+import com.oop.inteliframework.config.node.api.ValueNode;
 import lombok.NonNull;
+import lombok.ToString;
 
 import static com.oop.inteliframework.config.property.util.Helper.isPrimitive;
 
@@ -12,6 +14,7 @@ import static com.oop.inteliframework.config.property.util.Helper.isPrimitive;
  *
  * @param <T> the type of object that property holds
  */
+@ToString
 public class PrimitiveProperty<T> implements Property<T> {
 
     protected T object;
@@ -65,6 +68,15 @@ public class PrimitiveProperty<T> implements Property<T> {
     @Override
     public SerializedProperty toNode() {
        return SerializedProperty.of(new BaseValueNode(object));
+    }
+
+    @Override
+    public void fromNode(Node node) {
+        Preconditions.checkArgument(
+                node instanceof ValueNode,
+                "Primitive property only accepts ValueNodes!"
+        );
+        this.object = ((ValueNode) node).getAs(type);
     }
 
     @Override

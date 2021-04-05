@@ -6,7 +6,7 @@ import com.oop.inteliframework.config.node.BaseParentNode;
 import com.oop.inteliframework.config.node.api.ParentNode;
 import com.oop.inteliframework.config.property.property.SerializedProperty;
 import com.oop.inteliframework.config.property.util.ReflectionUtil;
-import com.oop.inteliframework.config.property.util.Serializer;
+import com.oop.inteliframework.config.property.serializer.Serializer;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.SneakyThrows;

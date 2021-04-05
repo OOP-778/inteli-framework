@@ -7,11 +7,15 @@ import com.oop.inteliframework.config.property.InteliPropertyModule;
 import com.oop.inteliframework.config.property.property.MutableProperty;
 import com.oop.inteliframework.config.property.property.Property;
 import com.oop.inteliframework.config.property.property.SerializedProperty;
-import com.oop.inteliframework.config.property.util.Serializer;
+import com.oop.inteliframework.config.property.serializer.Serializer;
 import com.oop.inteliframework.plugin.InteliPlatform;
 import lombok.NonNull;
 
+import java.lang.reflect.Field;
+import java.util.List;
+
 import static com.oop.inteliframework.commons.util.StringFormat.format;
+import static com.oop.inteliframework.config.property.loader.Loader.loaderFrom;
 
 public class ObjectProperty<T> implements Property<T> {
   protected Class<T> clazz;
@@ -21,10 +25,16 @@ public class ObjectProperty<T> implements Property<T> {
     this.clazz = clazz;
     this.object = object;
 
+    List<Field> clazzFields =
+        InteliPlatform.getInstance()
+            .safeModuleByClass(InteliPropertyModule.class)
+            .getClassesCache()
+            .getFields(clazz);
+
     // We need to check if it's configurable and find at least one property
     if (Configurable.class.isAssignableFrom(clazz)) {
       Preconditions.checkArgument(
-          !Serializer.getPropertiesOf(clazz).isEmpty(),
+          !clazzFields.isEmpty(),
           format("Configurable class {} doesn't contain any properties!", clazz.getSimpleName()));
 
     } else {
@@ -49,12 +59,32 @@ public class ObjectProperty<T> implements Property<T> {
 
   @Override
   public SerializedProperty toNode() {
-//    if (Configurable.class.isAssignableFrom(clazz)) {
-//      return PropertyHelper.handleConfigurableSerialization(null, (Configurable) object, false);
-//    }
+    if (Configurable.class.isAssignableFrom(clazz)) {
+      return Serializer.serializerFor(clazz).apply(object);
+    }
 
-    PropertyHandler propertyHandler = InteliPlatform.getInstance().moduleByClass(InteliPropertyModule.class).get().handlerByClass(object.getClass()).get();
+    PropertyHandler<T> propertyHandler =
+        InteliPlatform.getInstance()
+            .moduleByClass(InteliPropertyModule.class)
+            .get()
+            .handlerByClass((Class<T>) object.getClass())
+            .get();
     return propertyHandler.toNode(object);
+  }
+
+  @Override
+  public void fromNode(Node node) {
+    if (Configurable.class.isAssignableFrom(clazz)) {
+      this.object = loaderFrom(clazz).apply(node);
+    }
+
+    PropertyHandler<T> propertyHandler =
+            InteliPlatform.getInstance()
+                    .moduleByClass(InteliPropertyModule.class)
+                    .get()
+                    .handlerByClass((Class<T>) object.getClass())
+                    .get();
+    this.object = propertyHandler.fromNode(node);
   }
 
   @Override
