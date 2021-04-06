@@ -55,7 +55,13 @@ public class Injector {
 
     final Channel channel = PlayerConnectionHelper.getChannel(player);
     channel.pipeline().addBefore(HANDLER, INJECTOR, handler);
-    Registration registration = () -> channel.pipeline().remove(handler);
+    Registration registration =
+        () -> {
+          try {
+            channel.pipeline().remove(handler);
+          } catch (Throwable ignored) {
+          }
+        };
     registationMap.put(player.getUniqueId(), registration);
 
     return registration;
