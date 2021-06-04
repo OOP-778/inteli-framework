@@ -4,5 +4,5 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public interface Recipe {
-    ItemStack getResult(Player player);
+  ItemStack getResult(Player player);
 }

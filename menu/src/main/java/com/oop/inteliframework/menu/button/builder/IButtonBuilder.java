@@ -1,12 +1,13 @@
 package com.oop.inteliframework.menu.button.builder;
 
-import com.oop.inteliframework.menu.button.IButton;
+import com.oop.inteliframework.item.type.AbstractInteliItem;
+import com.oop.inteliframework.item.type.item.InteliItem;
 import com.oop.inteliframework.menu.animation.Animation;
 import com.oop.inteliframework.menu.animation.AnimationComponent;
 import com.oop.inteliframework.menu.attribute.Attribute;
 import com.oop.inteliframework.menu.attribute.AttributeComponent;
+import com.oop.inteliframework.menu.button.IButton;
 import com.oop.inteliframework.menu.button.state.StateComponent;
-import com.oop.inteliframework.menu.interfaces.MenuItemBuilder;
 import com.oop.inteliframework.menu.trigger.TriggerComponent;
 import com.oop.inteliframework.menu.trigger.types.ButtonClickTrigger;
 import org.bukkit.Material;
@@ -50,17 +51,17 @@ public class IButtonBuilder {
     return this;
   }
 
-  public IButtonBuilder addState(String stateId, MenuItemBuilder builder) {
+  public IButtonBuilder addState(String stateId, AbstractInteliItem<?, ?> item) {
     button.applyComponent(
         StateComponent.class,
         stateComponent -> {
-          stateComponent.addState(stateId, builder);
+          stateComponent.addState(stateId, item);
         });
     return this;
   }
 
   public IButtonBuilder addState(String stateId, ItemStack itemStack) {
-    return addState(stateId, MenuItemBuilder.of(itemStack));
+    return addState(stateId, new InteliItem(itemStack));
   }
 
   public IButtonBuilder addState(String stateId, Material material) {

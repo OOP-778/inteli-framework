@@ -1,7 +1,6 @@
 package com.oop.inteliframework.task.type;
 
 import com.oop.inteliframework.task.api.Task;
-
 import com.oop.inteliframework.task.api.TaskController;
 import lombok.Getter;
 import lombok.NonNull;
@@ -20,9 +19,9 @@ import java.util.function.Predicate;
 @Accessors(fluent = true, chain = true)
 public class InteliTask implements Task<InteliTask> {
 
-  private long taskId = ThreadLocalRandom.current().nextInt(1000000);
   private final AtomicInteger counter = new AtomicInteger(-1);
   private final TaskController taskController;
+  private long taskId = ThreadLocalRandom.current().nextInt(1000000);
   private boolean cancelled = false;
   private int runTimes = -1;
   private long delay = -1;

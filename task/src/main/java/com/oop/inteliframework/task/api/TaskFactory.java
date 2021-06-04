@@ -1,10 +1,10 @@
 package com.oop.inteliframework.task.api;
 
 import com.oop.inteliframework.commons.util.InteliOptional;
+import com.oop.inteliframework.plugin.module.InteliModule;
 import com.oop.inteliframework.task.InteliTaskFactory;
 import com.oop.inteliframework.task.type.InteliTask;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -14,15 +14,14 @@ import java.util.List;
  * @see InteliTaskFactory
  * @see InteliTask
  */
-public interface TaskFactory<T extends TaskFactory, R extends Task> {
+public interface TaskFactory<T extends TaskFactory> extends InteliModule {
 
   /**
    * Register new task controller
    *
    * @param controller Task controller
    */
-  default <E extends TaskController> T registerController(
-      @NonNull TaskController<E, R> controller) {
+  default <E extends TaskController> T registerController(@NonNull E controller) {
     registeredControllers().add(controller);
     return (T) this;
   }
@@ -44,5 +43,7 @@ public interface TaskFactory<T extends TaskFactory, R extends Task> {
 
   /** @return All registered task controllers. */
   @NonNull
-  List<TaskController<?, R>> registeredControllers();
+  List<TaskController> registeredControllers();
+
+  <T1 extends TaskController> void removeController(Class<T1> clazz);
 }

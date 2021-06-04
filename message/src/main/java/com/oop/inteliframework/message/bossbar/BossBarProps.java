@@ -7,22 +7,17 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 import net.kyori.adventure.bossbar.BossBar;
 
-@Builder
+@Builder (toBuilder = true)
 @Getter
 @Accessors(fluent = true)
 @ToString
 public class BossBarProps {
 
-    @NonNull
-    private final BossBar.Overlay overlay;
+  @NonNull @Builder.Default() private BossBar.Overlay overlay = BossBar.Overlay.PROGRESS;
 
-    @NonNull
-    private final BossBar.Color color;
+  @NonNull @Builder.Default() private BossBar.Color color = BossBar.Color.RED;
 
-    @Builder.Default()
-    private final float percentage = 1;
+  @Builder.Default() private float percentage = 1;
 
-    @Builder.Default()
-    private final long stay = 100;
-
+  @Builder.Default() private long stay = 100;
 }

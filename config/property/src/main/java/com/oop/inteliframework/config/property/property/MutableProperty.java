@@ -7,7 +7,7 @@ package com.oop.inteliframework.config.property.property;
  */
 public interface MutableProperty<T, P> extends Property<T> {
 
-    P set(T object);
+  P set(T object);
 
-    boolean isPresent();
+  boolean isPresent();
 }

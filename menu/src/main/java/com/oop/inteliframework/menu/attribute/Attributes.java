@@ -2,8 +2,8 @@ package com.oop.inteliframework.menu.attribute;
 
 import com.oop.inteliframework.menu.button.ButtonModifier;
 import com.oop.inteliframework.menu.button.IButton;
-import com.oop.inteliframework.menu.trigger.TriggerComponent;
 import com.oop.inteliframework.menu.menu.paged.InteliPagedMenu;
+import com.oop.inteliframework.menu.trigger.TriggerComponent;
 import com.oop.inteliframework.menu.trigger.types.ButtonClickTrigger;
 import com.oop.inteliframework.menu.util.LimitedMutableMap;
 

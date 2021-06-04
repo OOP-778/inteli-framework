@@ -1,6 +1,7 @@
 package com.oop.inteliframework.config.node;
 
 import com.oop.inteliframework.commons.util.InteliOptional;
+import com.oop.inteliframework.commons.util.InteliPair;
 import com.oop.inteliframework.config.node.api.Node;
 import com.oop.inteliframework.config.node.api.ParentNode;
 import com.oop.inteliframework.config.node.api.ValueNode;
@@ -170,7 +171,7 @@ public class BaseParentNode extends BaseNode implements ParentNode {
     }
   }
 
-  protected Optional<Node> _get(String path) {
+  protected Optional<InteliPair<Node, BaseParentNode>> _get(String path) {
     String[] splitPath = StringUtils.split(path, ".");
     Queue<String> pathQueue = new LinkedList<>(Arrays.asList(splitPath));
     BaseParentNode currentParent = this;
@@ -187,7 +188,7 @@ public class BaseParentNode extends BaseNode implements ParentNode {
       }
 
       // If was last entry
-      return Optional.ofNullable(currentParent.nodes.get(key));
+      return Optional.of(new InteliPair<>(currentParent.nodes.get(key), currentParent));
     }
 
     return Optional.empty();
@@ -195,19 +196,28 @@ public class BaseParentNode extends BaseNode implements ParentNode {
 
   @Override
   public Node get(String key, String notFoundMessage) {
-    return _get(key).orElseThrow(() -> new IllegalStateException(notFoundMessage));
+    return _get(key)
+        .map(InteliPair::getKey)
+        .orElseThrow(() -> new IllegalStateException(notFoundMessage));
   }
 
   @Override
   public Node getOrAssign(String key, Supplier<Node> ifNotFound) {
-    Optional<Node> optNode = _get(key);
-    return optNode.orElseGet(
-        () -> InteliOptional.of(ifNotFound.get()).use(node -> assignNode(key, node)).get());
+    Optional<InteliPair<Node, BaseParentNode>> optNode = _get(key);
+    return optNode
+        .map(InteliPair::getKey)
+        .orElseGet(
+            () -> InteliOptional.of(ifNotFound.get()).use(node -> assignNode(key, node)).get());
+  }
+
+  @Override
+  public Node getOrDefault(String path, Node node) {
+    return _get(path).map(InteliPair::getKey).orElse(node);
   }
 
   @Override
   public void ifPresent(String path, Consumer<Node> nodeConsumer) {
-    _get(path).ifPresent(nodeConsumer);
+    _get(path).map(InteliPair::getKey).ifPresent(nodeConsumer);
   }
 
   @Override
@@ -226,11 +236,27 @@ public class BaseParentNode extends BaseNode implements ParentNode {
 
   @Override
   public InteliOptional<Node> findAt(String path) {
-    return InteliOptional.ofNullable(_get(path).orElse(null));
+    return InteliOptional.ofNullable(_get(path).map(InteliPair::getKey).orElse(null));
+  }
+
+  @Override
+  public Optional<Node> remove(String path) {
+    String[] split = StringUtils.split(path, ".");
+    if (split.length <= 1) {
+      return Optional.ofNullable(nodes.remove(split[0]));
+    }
+
+    Optional<InteliPair<Node, BaseParentNode>> optional = _get(path);
+    if (!optional.isPresent()) {
+      return Optional.empty();
+    }
+
+    InteliPair<Node, BaseParentNode> pair = optional.get();
+    return Optional.of(pair.getValue().nodes.remove(split[split.length - 1]));
   }
 
   public boolean isPresentAnd(String path, Predicate<Node> and) {
-    return _get(path).filter(and).isPresent();
+    return _get(path).map(InteliPair::getKey).filter(and).isPresent();
   }
 
   public Node set(String path, Object object) {

@@ -10,5 +10,4 @@ public abstract class MenuModifier {
 
   // Handle section
   public abstract void handle(ParentNode section, MenuConfiguration configuration);
-
 }

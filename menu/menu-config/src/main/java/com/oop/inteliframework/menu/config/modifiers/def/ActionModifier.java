@@ -7,9 +7,9 @@ import com.oop.inteliframework.config.node.api.Node;
 import com.oop.inteliframework.config.node.api.ParentNode;
 import com.oop.inteliframework.config.node.api.iterator.NodeIterator;
 import com.oop.inteliframework.menu.button.builder.TriggerBuilder;
+import com.oop.inteliframework.menu.config.ConfigButton;
 import com.oop.inteliframework.menu.config.MenuConfiguration;
 import com.oop.inteliframework.menu.config.modifiers.MenuModifier;
-import com.oop.inteliframework.menu.config.ConfigButton;
 import com.oop.inteliframework.menu.trigger.types.ButtonClickTrigger;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -50,8 +50,6 @@ public class ActionModifier extends MenuModifier {
                   .map(node -> node.asValue().getAs(String.class))
                   .orElse(null);
 
-          System.out.println("one");
-
           TriggerBuilder.of(ButtonClickTrigger.class)
               .onTrigger(
                   trigger -> {
@@ -87,8 +85,8 @@ public class ActionModifier extends MenuModifier {
             TriggerBuilder.of(ButtonClickTrigger.class)
                 .onTrigger(
                     trigger -> {
-                      trigger.getMenu().refreshAction();
                       trigger.setCancelled(true);
+                      trigger.getMenu().refreshAction();
                     })
                 .apply(button.getButton());
           }

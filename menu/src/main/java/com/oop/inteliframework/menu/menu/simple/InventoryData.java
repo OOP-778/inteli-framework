@@ -1,8 +1,8 @@
 package com.oop.inteliframework.menu.menu.simple;
 
+import com.oop.inteliframework.item.type.AbstractInteliItem;
 import com.oop.inteliframework.menu.attribute.AttributeComponent;
 import com.oop.inteliframework.menu.attribute.Attributes;
-import com.oop.inteliframework.menu.interfaces.MenuItemBuilder;
 import com.oop.inteliframework.menu.slot.InteliSlot;
 import com.oop.inteliframework.menu.util.InventoryUtil;
 import lombok.Getter;
@@ -37,11 +37,11 @@ public class InventoryData implements com.oop.inteliframework.menu.interfaces.In
   @Override
   public void updateTitle(String newTitle) {
     if (!menu.isCurrentlyOpen()) {
-      System.out.println("setting new title for menu without open: " + newTitle);
       inventory = copy(newTitle);
-    } else {
-      InventoryUtil.updateTitle(inventory, menu.getViewer().orElse(null), newTitle);
+      return;
     }
+
+    InventoryUtil.updateTitle(inventory, menu.getViewer().orElse(null), newTitle);
   }
 
   @Override
@@ -53,19 +53,20 @@ public class InventoryData implements com.oop.inteliframework.menu.interfaces.In
     boolean hasOpened = menu.isCurrentlyOpen();
     for (int slot : slots) {
       ItemStack itemStack;
-      Optional<MenuItemBuilder> optional = menu.requestItem(slot);
+      Optional<AbstractInteliItem<?, ?>> optional = menu.requestItem(slot);
       if (!optional.isPresent()) {
         itemStack = new ItemStack(Material.AIR);
       } else {
         menu.preSetItem(optional.get());
-        itemStack = optional.get().getItem();
+        itemStack = optional.get().asBukkitStack();
       }
 
       if (hasOpened) {
         InventoryUtil.updateItem(menu.getViewer().orElse(null), slot, itemStack);
-      } else {
-        inventory.setItem(slot, itemStack);
+        continue;
       }
+
+      inventory.setItem(slot, itemStack);
     }
   }
 

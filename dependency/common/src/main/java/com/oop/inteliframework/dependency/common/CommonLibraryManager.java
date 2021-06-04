@@ -5,6 +5,7 @@ import com.oop.inteliframework.dependency.LibraryManager;
 import com.oop.inteliframework.dependency.classloader.URLClassLoaderHelper;
 import com.oop.inteliframework.dependency.logging.adapters.LogAdapter;
 import com.oop.inteliframework.dependency.relocation.Relocation;
+import com.oop.inteliframework.plugin.module.InteliModule;
 
 import java.io.File;
 import java.net.URLClassLoader;
@@ -14,9 +15,9 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class CommonLibraryManager extends LibraryManager {
-  private final URLClassLoaderHelper classLoader;
+public class CommonLibraryManager extends LibraryManager implements InteliModule {
   protected final List<Library> libraries = new ArrayList<>();
+  private final URLClassLoaderHelper classLoader;
 
   public CommonLibraryManager(LogAdapter logAdapter, URLClassLoader classLoader, File directory) {
     super(logAdapter, directory.toPath());
@@ -25,8 +26,16 @@ public class CommonLibraryManager extends LibraryManager {
     addMavenCentral();
     addJCenter();
 
-    libraries.add(Library.builder().classesPath("com.google").from("com.google.guava:guava:30.1-jre").build());
-    libraries.add((Library.builder().classesPath("org.apache.commons.lang3").from("org.apache.commons:commons-lang3:3.12.0").build()));
+    libraries.add(
+        Library.builder()
+            .classesPath("com.google")
+            .from("com.google.guava:guava:30.1-jre")
+            .build());
+    libraries.add(
+        (Library.builder()
+            .classesPath("org.apache.commons.lang3")
+            .from("org.apache.commons:commons-lang3:3.12.0")
+            .build()));
   }
 
   @Override
@@ -45,7 +54,8 @@ public class CommonLibraryManager extends LibraryManager {
     return this;
   }
 
-  public CommonLibraryManager relocate(Predicate<Library> libraryPredicate, Function<Library, Relocation> relocationFunction) {
+  public CommonLibraryManager relocate(
+      Predicate<Library> libraryPredicate, Function<Library, Relocation> relocationFunction) {
     for (Library library : libraries) {
       if (!libraryPredicate.test(library)) continue;
 

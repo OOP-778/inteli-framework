@@ -10,8 +10,8 @@ import java.util.Map;
 @AllArgsConstructor
 @Getter
 public class FoundRecipe {
-    private Recipe recipe;
+  private Recipe recipe;
 
-    // Map containing slot, (in recipe ItemStack, inv ItemStack)
-    private Map<Integer, InteliPair<ItemStack, ItemStack>> inventoryData;
+  // Map containing slot, (in recipe ItemStack, inv ItemStack)
+  private Map<Integer, InteliPair<ItemStack, ItemStack>> inventoryData;
 }

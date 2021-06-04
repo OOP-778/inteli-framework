@@ -1,7 +1,6 @@
 package com.oop.inteliframework.config.node.api;
 
 import com.oop.inteliframework.commons.util.InteliOptional;
-import com.oop.inteliframework.commons.util.InteliPair;
 import com.oop.inteliframework.config.node.api.iterator.NodeIterator;
 import com.oop.inteliframework.config.node.api.policy.NodeDuplicatePolicy;
 import lombok.NonNull;
@@ -10,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -117,6 +117,12 @@ public interface ParentNode extends Node, Iterable<Node> {
   Node getOrAssign(String key, @NonNull Supplier<Node> supplier);
 
   /**
+   * @param path the default node
+   * @return the node at the key or the default node
+   */
+  Node getOrDefault(String path, Node node);
+
+  /**
    * Consume node at path if present
    *
    * @param path path
@@ -124,15 +130,17 @@ public interface ParentNode extends Node, Iterable<Node> {
    */
   void ifPresent(String path, Consumer<Node> nodeConsumer);
 
-  /**
-   * Print out whole structure
-   */
+  /** Print out whole structure */
   void dump();
 
-  /**
-   * Check if node exists
-   */
+  /** Check if node exists */
   boolean isPresent(String path);
 
+  /** Find an node at specific path */
   InteliOptional<Node> findAt(String path);
+
+  /** Remove a node at specific path */
+  Optional<Node> remove(String path);
+
+
 }

@@ -9,14 +9,14 @@ import java.util.TreeMap;
 
 @Getter
 public class InteliAnimationModule implements InteliModule {
-    private final TreeMap<String, AnimationProvider> providerTreeMap = new TreeMap<>(String::compareToIgnoreCase);
+  private final TreeMap<String, AnimationProvider> providerTreeMap =
+      new TreeMap<>(String::compareToIgnoreCase);
 
-    public InteliAnimationModule() {
-        registerProvider("erase", new EraseAnimation());
-    }
+  public InteliAnimationModule() {
+    registerProvider("erase", new EraseAnimation());
+  }
 
-    public void registerProvider(String name, AnimationProvider provider) {
-        providerTreeMap.put(name, provider);
-    }
-
+  public void registerProvider(String name, AnimationProvider provider) {
+    providerTreeMap.put(name, provider);
+  }
 }

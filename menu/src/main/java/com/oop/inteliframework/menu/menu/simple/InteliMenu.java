@@ -1,22 +1,24 @@
 package com.oop.inteliframework.menu.menu.simple;
 
 import com.google.common.base.Preconditions;
+import com.oop.inteliframework.item.type.AbstractInteliItem;
 import com.oop.inteliframework.menu.actionable.MenuAction;
-import com.oop.inteliframework.menu.animation.AnimationComponent;
 import com.oop.inteliframework.menu.attribute.AttributeComponent;
 import com.oop.inteliframework.menu.attribute.Attributes;
 import com.oop.inteliframework.menu.button.IButton;
 import com.oop.inteliframework.menu.component.Component;
 import com.oop.inteliframework.menu.interfaces.Menu;
-import com.oop.inteliframework.menu.interfaces.MenuItemBuilder;
 import com.oop.inteliframework.menu.placholder.PlaceholderComponent;
+import com.oop.inteliframework.menu.slot.InteliSlot;
 import com.oop.inteliframework.menu.trigger.Trigger;
 import com.oop.inteliframework.menu.trigger.TriggerComponent;
 import com.oop.inteliframework.menu.trigger.types.ButtonClickTrigger;
 import com.oop.inteliframework.menu.trigger.types.MenuCloseTrigger;
 import com.oop.inteliframework.menu.trigger.types.MenuOpenTrigger;
-import com.oop.inteliframework.menu.InteliMenus;
-import com.oop.inteliframework.menu.slot.InteliSlot;
+import com.oop.inteliframework.plugin.InteliPlatform;
+import com.oop.inteliframework.task.InteliTaskFactory;
+import com.oop.inteliframework.task.bukkit.BukkitTaskController;
+import com.oop.inteliframework.task.bukkit.InteliBukkitTask;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
@@ -32,11 +34,8 @@ import org.bukkit.inventory.Inventory;
 
 import java.util.*;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Supplier;
-
-import static com.oop.inteliframework.menu.InteliMenus.getInteliMenus;
 
 public class InteliMenu implements Menu<InteliMenu, InteliSlot, IButton> {
 
@@ -44,9 +43,11 @@ public class InteliMenu implements Menu<InteliMenu, InteliSlot, IButton> {
   @Getter private final Map<Class, Component> componentMap = new HashMap<>();
   @Getter private InteliSlot[] slots;
   @Getter @Setter private MenuAction currentAction = MenuAction.NONE;
+
   @Getter
   @Setter(AccessLevel.PROTECTED)
   private InventoryData inventoryData;
+
   @Getter private int rows;
 
   @Getter @Setter private Function<InteliMenu, String> titleSupplier;
@@ -184,27 +185,29 @@ public class InteliMenu implements Menu<InteliMenu, InteliSlot, IButton> {
               }
             });
 
-    animationTask =
-        InteliMenus.getInteliMenus()
-            .getScheduler()
-            .scheduleAtFixedRate(
-                () -> {
-                  getComponent(AnimationComponent.class).ifPresent(AnimationComponent::execute);
-                  for (InteliSlot slot :
-                      getInventoryData()
-                          .findSlots(
-                              slot ->
-                                  slot.getHolder().isPresent()
-                                      && slot.getHolder()
-                                          .get()
-                                          .getComponent(AnimationComponent.class)
-                                          .isPresent())) {
-                    slot.getHolder().get().getComponent(AnimationComponent.class).get().execute();
-                  }
-                },
-                2,
-                2,
-                TimeUnit.MILLISECONDS);
+    //    animationTask =
+    //        InteliMenuComponent.getInteliMenus()
+    //            .getScheduler()
+    //            .scheduleAtFixedRate(
+    //                () -> {
+    //
+    // getComponent(AnimationComponent.class).ifPresent(AnimationComponent::execute);
+    //                  for (InteliSlot slot :
+    //                      getInventoryData()
+    //                          .findSlots(
+    //                              slot ->
+    //                                  slot.getHolder().isPresent()
+    //                                      && slot.getHolder()
+    //                                          .get()
+    //                                          .getComponent(AnimationComponent.class)
+    //                                          .isPresent())) {
+    //
+    // slot.getHolder().get().getComponent(AnimationComponent.class).get().execute();
+    //                  }
+    //                },
+    //                2,
+    //                2,
+    //                TimeUnit.MILLISECONDS);
   }
 
   @Override
@@ -270,17 +273,17 @@ public class InteliMenu implements Menu<InteliMenu, InteliSlot, IButton> {
       }
       requestItem(slot.getIndex())
           .ifPresent(
-              menuItemBuilder -> {
-                preSetItem(menuItemBuilder);
+              item -> {
+                preSetItem(item);
 
-                inventory.setItem(slot.getIndex(), menuItemBuilder.getItem());
+                inventory.setItem(slot.getIndex(), item.asBukkitStack());
                 InteliSlot slotClone = slot.clone();
 
                 slotClone
                     .getHolder()
                     .ifPresent(
                         holder -> {
-                          holder.setCurrentItem(menuItemBuilder::getItem);
+                          holder.setCurrentItem(item::asBukkitStack);
                           holder.setCurrentMenu(this);
                           holder.setParent(slotClone);
                         });
@@ -298,8 +301,13 @@ public class InteliMenu implements Menu<InteliMenu, InteliSlot, IButton> {
         getViewer().isPresent(), "Failed to open a menu, cause there's no assigned player!");
 
     if (Bukkit.isPrimaryThread()) {
-      Bukkit.getScheduler()
-          .runTaskAsynchronously(getInteliMenus().getOwningPlugin(), () -> open(object, callback));
+      new InteliBukkitTask(
+              InteliPlatform.getInstance()
+                  .safeModuleByClass(InteliTaskFactory.class)
+                  .controllerByClass(BukkitTaskController.class)
+                  .get())
+          .body($ -> open(object, callback))
+          .run();
       return;
     }
 
@@ -313,16 +321,21 @@ public class InteliMenu implements Menu<InteliMenu, InteliSlot, IButton> {
       return;
     }
 
-    Bukkit.getScheduler()
-        .runTask(
-            getInteliMenus().getOwningPlugin(),
-            () -> {
+    new InteliBukkitTask(
+            InteliPlatform.getInstance()
+                .safeModuleByClass(InteliTaskFactory.class)
+                .controllerByClass(BukkitTaskController.class)
+                .get())
+        .sync(true)
+        .body(
+            $ -> {
               player.openInventory(inventory);
 
               if (callback != null) {
                 callback.run();
               }
-            });
+            })
+        .run();
   }
 
   protected void setSize(int size) {
@@ -335,7 +348,7 @@ public class InteliMenu implements Menu<InteliMenu, InteliSlot, IButton> {
     }
   }
 
-  protected void preSetItem(MenuItemBuilder builder) {}
+  protected void preSetItem(AbstractInteliItem<?, ?> builder) {}
 
   protected String preSetTitle(String title) {
     String[] newTitle = new String[] {title};

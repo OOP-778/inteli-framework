@@ -1,12 +1,12 @@
 package com.oop.inteliframework.menu.config.menu;
 
+import com.oop.inteliframework.item.type.AbstractInteliItem;
 import com.oop.inteliframework.menu.button.IButton;
 import com.oop.inteliframework.menu.button.state.StateComponent;
 import com.oop.inteliframework.menu.button.state.StateRequestComponent;
 import com.oop.inteliframework.menu.component.ComponentHolder;
 import com.oop.inteliframework.menu.config.ConfigDataKeys;
 import com.oop.inteliframework.menu.data.DataComponent;
-import com.oop.inteliframework.menu.interfaces.MenuItemBuilder;
 import com.oop.inteliframework.menu.trigger.TriggerComponent;
 import com.oop.inteliframework.menu.trigger.types.ButtonClickTrigger;
 import lombok.NonNull;
@@ -19,7 +19,7 @@ public interface ConfigMenu<T> extends ComponentHolder<T> {
 
   // Register an state request on an button
   default void onStateRequest(
-      @NonNull String identifier, @NonNull Function<IButton, MenuItemBuilder> stateProvider) {
+      @NonNull String identifier, @NonNull Function<IButton, AbstractInteliItem> stateProvider) {
     applyComponent(
         StateRequestComponent.class,
         src -> {

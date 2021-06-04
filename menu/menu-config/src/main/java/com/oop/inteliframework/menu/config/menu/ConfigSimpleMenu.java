@@ -1,9 +1,9 @@
 package com.oop.inteliframework.menu.config.menu;
 
-import com.oop.inteliframework.menu.button.IButton;
-import com.oop.inteliframework.menu.config.MenuConfiguration;
 import com.oop.inteliframework.menu.attribute.AttributeComponent;
 import com.oop.inteliframework.menu.attribute.Attributes;
+import com.oop.inteliframework.menu.button.IButton;
+import com.oop.inteliframework.menu.config.MenuConfiguration;
 import com.oop.inteliframework.menu.designer.MenuDesigner;
 import com.oop.inteliframework.menu.menu.simple.InteliMenu;
 import org.bukkit.entity.Player;

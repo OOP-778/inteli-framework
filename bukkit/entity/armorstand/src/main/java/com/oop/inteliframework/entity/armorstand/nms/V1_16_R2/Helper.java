@@ -1,0 +1,45 @@
+package com.oop.inteliframework.entity.armorstand.nms.V1_16_R2;
+
+import com.oop.inteliframework.commons.util.SimpleReflection;
+import net.minecraft.server.v1_16_R2.Packet;
+import net.minecraft.server.v1_16_R2.PacketPlayOutEntityMetadata;
+import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer;
+import org.bukkit.entity.Player;
+
+import java.util.Collection;
+import java.util.List;
+
+public class Helper {
+  public static void sendPacket(Player player, Packet... packets) {
+    if (!player.isOnline()) return;
+
+    for (Packet packet : packets) {
+      ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+    }
+  }
+
+  public static void sendPacket(Collection<Player> players, Collection<Packet> packets) {
+    for (Player player : players) {
+      if (!player.isOnline()) return;
+
+      for (Packet packet : packets) {
+        ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+      }
+    }
+  }
+
+  public static Packet constructEntityMetaPacket(List objectList, int id) {
+    try {
+      Packet packet = new PacketPlayOutEntityMetadata();
+
+      SimpleReflection.getField(packet.getClass(), List.class).set(packet, objectList);
+
+      SimpleReflection.getField(packet.getClass(), int.class).set(packet, id);
+
+      return packet;
+    } catch (Throwable throwable) {
+      throwable.printStackTrace();
+    }
+    return null;
+  }
+}

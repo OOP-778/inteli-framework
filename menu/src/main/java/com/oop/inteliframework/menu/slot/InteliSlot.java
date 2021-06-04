@@ -11,7 +11,6 @@ import java.util.*;
 public class InteliSlot implements MenuSlot<InteliSlot, IButton> {
 
   @Getter @Setter private int index;
-
   private IButton holder;
 
   @Getter private Map<Class, Component> componentMap = new HashMap<>();

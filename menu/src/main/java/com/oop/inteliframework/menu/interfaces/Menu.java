@@ -1,10 +1,11 @@
 package com.oop.inteliframework.menu.interfaces;
 
 import com.google.common.base.Preconditions;
+import com.oop.inteliframework.item.type.AbstractInteliItem;
+import com.oop.inteliframework.item.type.item.InteliItem;
 import com.oop.inteliframework.menu.actionable.Actionable;
 import com.oop.inteliframework.menu.button.state.StateRequestComponent;
 import com.oop.inteliframework.menu.component.ComponentHolder;
-import com.oop.inteliframework.menu.placholder.PlaceholderComponent;
 import com.oop.inteliframework.menu.slot.InteliSlot;
 import lombok.NonNull;
 import org.bukkit.entity.Player;
@@ -106,14 +107,14 @@ public interface Menu<M extends Menu, S extends MenuSlot, B extends MenuButton>
   /*
   Requests an itemstack from slot
   */
-  default Optional<MenuItemBuilder> requestItem(int slot) {
+  default Optional<AbstractInteliItem<?, ?>> requestItem(int slot) {
     Preconditions.checkArgument(
         slot < getSlots().length,
         "Cannot request an item at an invalid slot! (" + slot + "/" + getSlots().length + ")");
 
     final S slotObj = getSlots()[slot];
     final B button = (B) getSlots()[slot].getHolder().orElse(null);
-    final MenuItemBuilder[] builder = {null};
+    final AbstractInteliItem<?, ?>[] builder = {null};
 
     // Request an state if component there
     getComponent(StateRequestComponent.class)
@@ -121,12 +122,12 @@ public interface Menu<M extends Menu, S extends MenuSlot, B extends MenuButton>
         .ifPresent(f -> builder[0] = f.apply((InteliSlot) slotObj).clone());
 
     if (builder[0] == null && button != null && button.getCurrentItem().isPresent()) {
-      builder[0] = MenuItemBuilder.of(((Supplier<ItemStack>) button.getCurrentItem().get()).get());
+      builder[0] = new InteliItem(((Supplier<ItemStack>) button.getCurrentItem().get()).get());
     }
 
     // Replace with placeholders if component there
-    getComponent(PlaceholderComponent.class)
-        .ifPresent(c -> c.getPlaceholders().forEach(builder[0]::replace));
+    //    getComponent(PlaceholderComponent.class)
+    //        .ifPresent(c -> c.getPlaceholders().forEach(builder[0]::replace));
 
     return Optional.ofNullable(builder[0]);
   }

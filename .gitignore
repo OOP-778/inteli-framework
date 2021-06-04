@@ -28,3 +28,4 @@ target/
 archive/
 lib/
 venv/
+data/

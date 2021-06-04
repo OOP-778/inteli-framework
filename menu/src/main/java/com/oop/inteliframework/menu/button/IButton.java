@@ -48,10 +48,6 @@ public class IButton implements MenuButton<IButton> {
         + "currentItem="
         + currentItem
         + ", components="
-        + Arrays.toString(componentMap.values().stream().map(Objects::toString).toArray())
-        +
-        //                ", parent" + parent == null ? "null" : "present" +
-        //                ", menu" + currentMenu == null ? "null" : "present" +
-        '}';
+        + Arrays.toString(componentMap.values().stream().map(Objects::toString).toArray());
   }
 }

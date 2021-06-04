@@ -1,5 +1,8 @@
 package com.oop.inteliframework.menu.interfaces;
 
+import com.oop.inteliframework.item.type.AbstractInteliItem;
+import com.oop.inteliframework.item.type.item.InteliItem;
+import lombok.NonNull;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
@@ -7,24 +10,24 @@ import java.util.Optional;
 
 public interface Stateable<T extends Stateable> {
 
-  Map<String, MenuItemBuilder> getStates();
+  Map<String, AbstractInteliItem> getStates();
 
-  default T registerDefaultState(ItemStack itemStack) {
+  default T registerDefaultState(@NonNull ItemStack itemStack) {
     registerState("default", itemStack);
     return (T) this;
   }
 
-  default T registerState(String id, ItemStack itemStack) {
+  default T registerState(@NonNull String id, @NonNull ItemStack itemStack) {
     getStates().remove(id.toLowerCase());
-    getStates().put(id.toLowerCase(), MenuItemBuilder.of(itemStack));
+    getStates().put(id.toLowerCase(), new InteliItem(itemStack));
     return (T) this;
   }
 
-  default Optional<MenuItemBuilder> getDefaultState() {
+  default Optional<AbstractInteliItem<?, ?>> getDefaultState() {
     return getState("default");
   }
 
-  default Optional<MenuItemBuilder> getState(String id) {
+  default Optional<AbstractInteliItem<?, ?>> getState(String id) {
     return Optional.ofNullable(getStates().get(id.toLowerCase()));
   }
 }

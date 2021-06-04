@@ -13,8 +13,9 @@ public interface Arguments {
     Argument<Number> arg = new Argument<>();
     arg.labeled("number");
     arg.parser(
-        input -> {
-          Double parsed = Doubles.tryParse(input.poll());
+        inputs -> {
+          String input = inputs.poll();
+          Double parsed = Doubles.tryParse(input);
           if (parsed == null) return new ParseResult<>(format("Invalid Number: {}", input));
 
           return new ParseResult<>(parsed);

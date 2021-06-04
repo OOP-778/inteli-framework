@@ -1,7 +1,7 @@
 package com.oop.inteliframework.dependency;
 
-import lombok.EqualsAndHashCode;
 import com.oop.inteliframework.dependency.relocation.Relocation;
+import lombok.EqualsAndHashCode;
 
 import java.util.Base64;
 import java.util.Collection;
@@ -60,7 +60,7 @@ public class Library {
    * @param relocations jar relocations or null
    */
   private Library(
-          String classesPath,
+      String classesPath,
       Collection<String> urls,
       String groupId,
       String artifactId,
@@ -80,9 +80,7 @@ public class Library {
     this.classesPath = classesPath;
     this.checksum = checksum;
     this.relocations =
-        relocations != null
-            ? new LinkedList<>(relocations)
-            : Collections.emptyList();
+        relocations != null ? new LinkedList<>(relocations) : Collections.emptyList();
 
     String path =
         this.groupId.replace('.', '/')
@@ -377,7 +375,8 @@ public class Library {
      * @return new library
      */
     public Library build() {
-      return new Library(classesPath, urls, groupId, artifactId, version, classifier, checksum, relocations);
+      return new Library(
+          classesPath, urls, groupId, artifactId, version, classifier, checksum, relocations);
     }
   }
 }

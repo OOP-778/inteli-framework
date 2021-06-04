@@ -2,11 +2,13 @@ package com.oop.inteliframework.task.type.inteli;
 
 import com.oop.inteliframework.task.type.AbstractTaskController;
 import com.oop.inteliframework.task.type.InteliTask;
+import lombok.SneakyThrows;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 public class InteliTaskController extends AbstractTaskController<InteliTaskController> {
 
@@ -35,7 +37,7 @@ public class InteliTaskController extends AbstractTaskController<InteliTaskContr
 
     if (taskProvider.repeatable()) {
       if (taskProvider.delay() != -1)
-        scheduler.scheduleAtFixedRate(runnable, 0, taskProvider.delay(),TimeUnit.MILLISECONDS);
+        scheduler.scheduleAtFixedRate(runnable, 0, taskProvider.delay(), TimeUnit.MILLISECONDS);
     } else if (taskProvider.delay() != -1) {
       scheduler.schedule(runnable, taskProvider.delay(), TimeUnit.MILLISECONDS);
     } else scheduler.execute(runnable);
@@ -47,5 +49,20 @@ public class InteliTaskController extends AbstractTaskController<InteliTaskContr
     if (task != null) {
       task.cancel();
     }
+  }
+
+  @Override
+  @SneakyThrows
+  public void shutdown() {
+    scheduler.shutdown();
+    scheduler.awaitTermination(10, TimeUnit.SECONDS);
+  }
+
+  @Override
+  public InteliTask prepareTask(Consumer<InteliTask> taskConsumer) {
+    InteliTask task = new InteliTask(this);
+    taskConsumer.accept(task);
+
+    return task;
   }
 }

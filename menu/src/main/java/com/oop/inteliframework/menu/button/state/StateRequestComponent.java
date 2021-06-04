@@ -1,8 +1,8 @@
 package com.oop.inteliframework.menu.button.state;
 
 import com.oop.inteliframework.commons.util.InteliPair;
+import com.oop.inteliframework.item.type.AbstractInteliItem;
 import com.oop.inteliframework.menu.component.Component;
-import com.oop.inteliframework.menu.interfaces.MenuItemBuilder;
 import com.oop.inteliframework.menu.slot.InteliSlot;
 import lombok.Getter;
 
@@ -14,15 +14,16 @@ import java.util.function.Predicate;
 public class StateRequestComponent implements Component<StateRequestComponent> {
 
   @Getter
-  private final Set<InteliPair<Predicate<InteliSlot>, Function<InteliSlot, MenuItemBuilder>>>
+  private final Set<
+          InteliPair<Predicate<InteliSlot>, Function<InteliSlot, AbstractInteliItem<?, ?>>>>
       requests = new HashSet<>();
 
   public void register(
-      Predicate<InteliSlot> filter, Function<InteliSlot, MenuItemBuilder> function) {
+      Predicate<InteliSlot> filter, Function<InteliSlot, AbstractInteliItem<?, ?>> function) {
     requests.add(new InteliPair<>(filter, function));
   }
 
-  public void register(int slot, Function<InteliSlot, MenuItemBuilder> function) {
+  public void register(int slot, Function<InteliSlot, AbstractInteliItem<?, ?>> function) {
     register(s -> s.getIndex() == slot, function);
   }
 
@@ -33,8 +34,8 @@ public class StateRequestComponent implements Component<StateRequestComponent> {
     return component;
   }
 
-  public Function<InteliSlot, MenuItemBuilder> find(InteliSlot slot) {
-    for (InteliPair<Predicate<InteliSlot>, Function<InteliSlot, MenuItemBuilder>> request :
+  public Function<InteliSlot, AbstractInteliItem<?, ?>> find(InteliSlot slot) {
+    for (InteliPair<Predicate<InteliSlot>, Function<InteliSlot, AbstractInteliItem<?, ?>>> request :
         requests) {
       if (!request.getKey().test(slot)) {
         continue;

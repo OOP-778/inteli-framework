@@ -30,7 +30,8 @@ public class Serializer {
     return (Function<T, SerializedProperty>) serializerFor(object.getClass(), true);
   }
 
-  public static <T> Function<T, SerializedProperty> serializerFor(@NonNull T object, boolean detectKey) {
+  public static <T> Function<T, SerializedProperty> serializerFor(
+      @NonNull T object, boolean detectKey) {
     return (Function<T, SerializedProperty>) serializerFor(object.getClass(), detectKey);
   }
 
@@ -38,7 +39,8 @@ public class Serializer {
     return serializerFor(clazz, true);
   }
 
-  public static <T> Function<T, SerializedProperty> serializerFor(Class<T> clazz, boolean detectKey) {
+  public static <T> Function<T, SerializedProperty> serializerFor(
+      Class<T> clazz, boolean detectKey) {
     if (isPrimitive(clazz)) return value -> new SerializedProperty(null, new BaseValueNode(value));
 
     // If it's a possible section

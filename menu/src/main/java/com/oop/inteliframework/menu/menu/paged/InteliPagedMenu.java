@@ -217,7 +217,6 @@ public class InteliPagedMenu<T extends Object> extends InteliMenu {
       return;
     }
 
-    System.out.println("page");
     currentPage += 1;
     refreshAction();
   }

@@ -1,0 +1,26 @@
+NavigatorComponent ~ Global State Management Component that is attached to every route menu
+open enchant -> path is /
+
+on enchant click:
+   assign the same navigator component
+   set the current path to /<enchant name>
+
+   if the path is unknown we have a fallback path:
+      fallback to: /
+
+   on shift click:
+      assign clicked props to local the navigator component
+      path: /prestiges
+
+      prestiges clicked on swiftness
+
+      prestiges callback <Menu, String>
+
+      prestiges swiftness no prestiges:
+         sends the message to the player
+         fallbacks to previous menu
+
+different types of paths:
+ static ~ built on time whenever needed
+ dynamic ~ rebuilt every time
+ linked ~ This path is rebuilt whenever link calls, that's for menus that are global

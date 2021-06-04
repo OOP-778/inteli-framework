@@ -76,14 +76,15 @@ public class ObjectProperty<T> implements Property<T> {
   public void fromNode(Node node) {
     if (Configurable.class.isAssignableFrom(clazz)) {
       this.object = loaderFrom(clazz).apply(node);
+      return;
     }
 
     PropertyHandler<T> propertyHandler =
-            InteliPlatform.getInstance()
-                    .moduleByClass(InteliPropertyModule.class)
-                    .get()
-                    .handlerByClass((Class<T>) object.getClass())
-                    .get();
+        InteliPlatform.getInstance()
+            .moduleByClass(InteliPropertyModule.class)
+            .get()
+            .handlerByClass((Class<T>) object.getClass())
+            .get();
     this.object = propertyHandler.fromNode(node);
   }
 

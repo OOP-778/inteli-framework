@@ -9,11 +9,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-
 public class InteliFileModule implements InteliModule {
 
-  @Getter
-  private final FileWatcher watcher = new FileWatcher();
+  @Getter private final FileWatcher watcher = new FileWatcher();
 
   private final TreeMap<String, FileController> controllerTreeMap =
       new TreeMap<>(String::compareToIgnoreCase);
@@ -26,19 +24,10 @@ public class InteliFileModule implements InteliModule {
   }
 
   public void startWatcher() {
-    ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-    scheduledExecutorService.scheduleAtFixedRate(
-            watcher::watch,
-            0,
-            1,
-            TimeUnit.SECONDS
-    );
+    ScheduledExecutorService scheduledExecutorService =
+        Executors.newSingleThreadScheduledExecutor();
+    scheduledExecutorService.scheduleAtFixedRate(watcher::watch, 0, 1, TimeUnit.SECONDS);
 
-    scheduledExecutorService.scheduleAtFixedRate(
-            watcher::fire,
-            0,
-            3,
-            TimeUnit.SECONDS
-    );
+    scheduledExecutorService.scheduleAtFixedRate(watcher::fire, 0, 3, TimeUnit.SECONDS);
   }
 }

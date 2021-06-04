@@ -13,19 +13,17 @@ import java.util.function.Predicate;
 public class LoadFromResourcesPrerequisite {
 
   private final FileController controller;
+  private Predicate<String> filter;
+  private Paths.CopyOption option = Paths.CopyOption.COPY_IF_NOT_EXIST;
   public LoadFromResourcesPrerequisite(FileController fileController) {
     this.controller = fileController;
   }
 
-  private Predicate<String> filter;
-  private Paths.CopyOption option = Paths.CopyOption.COPY_IF_NOT_EXIST;
-
   protected void load() {
     Paths.copyResourcesFromJar(
-            filter,
-            InteliPlatform.getInstance().starter().getClass(),
-            new File(controller.getPath().toAbsolutePath().toString()),
-            option
-    );
+        filter,
+        InteliPlatform.getInstance().starter().getClass(),
+        new File(controller.getPath().toAbsolutePath().toString()),
+        option);
   }
 }

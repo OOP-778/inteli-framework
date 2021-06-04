@@ -221,10 +221,10 @@ public abstract class LibraryManager {
    * <p>Checksum comparison is ignored if the library doesn't have a checksum or if the library jar
    * already exists in the save directory.
    *
-   * <p>Most of the time it is advised to use {@link #loadLibrary(com.oop.inteliframework.dependency.Library)} instead of this method
-   * because this one is only concerned with downloading the jar and returning the local path. It's
-   * usually more desirable to download the jar and add it to the plugin's classpath in one
-   * operation.
+   * <p>Most of the time it is advised to use {@link
+   * #loadLibrary(com.oop.inteliframework.dependency.Library)} instead of this method because this
+   * one is only concerned with downloading the jar and returning the local path. It's usually more
+   * desirable to download the jar and add it to the plugin's classpath in one operation.
    *
    * @param library the library to download
    * @return local file path to library

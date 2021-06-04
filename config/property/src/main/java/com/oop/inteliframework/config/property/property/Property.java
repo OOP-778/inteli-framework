@@ -9,29 +9,27 @@ import com.oop.inteliframework.config.node.api.Node;
  */
 public interface Property<T> {
 
-    /**
-     * Convert property to node
-     *
-     * @return a converted node from property might contain a suggested key
-     */
-    SerializedProperty toNode();
+  /**
+   * Convert property to node
+   *
+   * @return a converted node from property might contain a suggested key
+   */
+  SerializedProperty toNode();
 
-    /**
-     * Load from node to property
-     */
-    void fromNode(Node node);
+  /** Load from node to property */
+  void fromNode(Node node);
 
-    /**
-     * Get the property value
-     *
-     * @return property value
-     */
-    T get();
+  /**
+   * Get the property value
+   *
+   * @return property value
+   */
+  T get();
 
-    /**
-     * Type of the data that this property holds
-     *
-     * @return Class of the type
-     */
-    Class<T> type();
+  /**
+   * Type of the data that this property holds
+   *
+   * @return Class of the type
+   */
+  Class<T> type();
 }

@@ -1,0 +1,14 @@
+# <--------------->
+# Commands Configuration
+# <--------------->
+
+# Configuration of the commands
+# You cannot change the key of the sections
+# Cause the plugin won't know about the command
+commands:
+  prison:
+    help:
+      enabled: true
+      permission: "prison.help.biggay"
+      message:
+        - ""

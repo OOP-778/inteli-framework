@@ -1,10 +1,12 @@
 package com.oop.inteliframework.menu.actionable;
 
 import com.google.common.base.Preconditions;
+import com.oop.inteliframework.plugin.InteliPlatform;
+import com.oop.inteliframework.task.InteliTaskFactory;
+import com.oop.inteliframework.task.bukkit.BukkitTaskController;
+import com.oop.inteliframework.task.bukkit.InteliBukkitTask;
 import lombok.NonNull;
 import org.bukkit.entity.Player;
-
-import static com.oop.inteliframework.menu.InteliMenus.getInteliMenus;
 
 public interface Actionable<T extends Actionable>
     extends Openable<T>, Moveable<T>, Viewable, Parentable<T>, Refreshable<T> {
@@ -80,16 +82,21 @@ public interface Actionable<T extends Actionable>
           });
 
     } else if (action == MenuAction.CLOSE) {
-      getInteliMenus()
-          .getUtil()
-          .ensureSync(
-              () -> {
+      new InteliBukkitTask(
+              InteliPlatform.getInstance()
+                  .safeModuleByClass(InteliTaskFactory.class)
+                  .controllerByClass(BukkitTaskController.class)
+                  .get())
+          .sync(true)
+          .body(
+              $ -> {
                 player.closeInventory();
                 setCurrentAction(MenuAction.NONE);
                 if (callback != null) {
                   callback.run();
                 }
-              });
+              })
+          .run();
 
     } else if (action == MenuAction.RETURN) {
       if (!getParent().isPresent()) {

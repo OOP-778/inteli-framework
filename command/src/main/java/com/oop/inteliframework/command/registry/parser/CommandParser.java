@@ -52,12 +52,14 @@ public class CommandParser {
             return null;
           }
 
+          Queue<String> beforeParse = new LinkedList<>(history.getWaitingForParse());
           ParseResult<?> parseResult =
               ((Argument<?>) element).parser().parse(history.getWaitingForParse());
 
           if (parseResult.getMessage() != null) {
             if (((Argument<?>) element).optional()) return null;
 
+            history.setWaitingForParse(beforeParse);
             history.getResultedInto().add(new InvalidArgumentError(element, history, parseResult));
             return null;
           }
@@ -102,9 +104,9 @@ public class CommandParser {
         new CommandParseHistory(
             commandData,
             executor,
-            waitingParsing,
             new LinkedList<>(),
             new LinkedHashSet<>(Collections.singletonList(currentElement)),
+            waitingParsing,
             currentElement);
 
     _parse(history, returnOnErrors);

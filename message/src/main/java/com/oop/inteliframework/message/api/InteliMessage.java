@@ -1,18 +1,9 @@
 package com.oop.inteliframework.message.api;
 
-import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextReplacementConfig;
+/** Base message */
+public interface InteliMessage<T extends InteliMessage>
+    extends Replaceable<T>, Sendable, Componentable {
 
-import java.util.function.Consumer;
-
-/**
- * Base message
- */
-public interface InteliMessage<T extends InteliMessage> {
-
-  T replace(Consumer<TextReplacementConfig.Builder> builderConsumer);
-  Component toComponent();
-  void send(Audience audience);
+    T clone();
 
 }

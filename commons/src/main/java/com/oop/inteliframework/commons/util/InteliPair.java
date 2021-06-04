@@ -7,7 +7,6 @@ import lombok.Data;
 @Data
 public class InteliPair<K, V> {
 
-    private K key;
-    private V value;
-
+  private K key;
+  private V value;
 }

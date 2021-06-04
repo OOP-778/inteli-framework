@@ -17,10 +17,22 @@ allprojects {
 var props: MutableMap<String, ProjectConfig> = hashMapOf()
 loadProjects()
 
-configureProject("hologram") {
+configureProject("bukkit-entity-armorstand") {
     needMc = true
     needNMS = true
 }
+
+configureProject("bukkit-entity-commons") {
+    needMc = true
+    needNMS = true
+}
+
+configureProject({
+    name.startsWith("bukkit")
+}, {
+    needMc = true
+    needNMS = true
+})
 
 configureProject("hologram-animation") {
     needMc = true
@@ -41,13 +53,6 @@ configureProject("adapters") {
     needMc = true
 }
 
-configureProject("test-spigot") {
-    needMc = true
-    needNMS = true
-    needNbtApi = true
-    out = "/run/media/oop-778/BRABARAR/Serrvers/OOP/1.8.8/plugins/"
-}
-
 configureProject("commons") {
     needMc = true
 }
@@ -56,28 +61,16 @@ configureProject("recipe") {
     needMc = true
 }
 
-configureProject("item") {
-    needMc = true
-    needNbtApi = true
-    mcVersion = MCVersion.V1_16
-    version = 1.0
-}
-
 configureProject("task") {
     needUnitTesting = true
     needPlatform = true
-}
-
-configureProject("plugin") {
-    needMc = true
-    needUnitTesting = true
 }
 
 configureProject("command") {
     needMc = true
 }
 
-configureProject("command-bukkit") {
+configureProject("bukkit-command") {
     needMc = true
 }
 
@@ -93,27 +86,52 @@ configureProject("message-api") {
     needPlatform = true
 }
 
+configureProject("message-bukkit") {
+    needMc = true
+    needNbtApi = true
+}
+
+configureProject("menu-navigator") {
+    needMc = true
+}
+
 configureProject("menu-config") {
     needMc = true
 }
 
-configureProject("test-spigot") {
-    publish = false
+configureProject("bukkit-item") {
+    mcVersion = MCVersion.V1_16;
 }
 
-configureProject("task-bukkit") {
+configureProject("bukkit-entity-tracker") {
+    publish = false
     needMc = true
+}
+
+configureProject("bukkit-test") {
+    publish = false
+    needMc = true
+    needNMS = true
+    needNbtApi = true
+    out = "/run/media/oop-778/BRABARAR/Serrvers/OOP/1.8.8/plugins/"
+}
+
+configureProject("NPC") {
+    needMc = true
+    needNMS = true
 }
 
 configureProject("vanilla") {
     publish = false
 }
 
+val directory = projectDir
 
 allprojects {
     repositories {
         jcenter()
         mavenCentral()
+        maven { setUrl("https://jitpack.io/") }
         maven { setUrl("https://repo.codemc.org/repository/nms/") }
         maven { setUrl("https://oss.sonatype.org/content/repositories/snapshots") }
         maven { setUrl("https://repo.codemc.org/repository/maven-public/") }
@@ -127,14 +145,11 @@ allprojects {
                 compileOnly("org.spigotmc:spigot-api:${it.mcVersion.versionName}")
             }
 
-            if (it.needNbtApi)
-                implementation("de.tr7zw:item-nbt-api:2.7.1")
-
             if (it.needUnitTesting)
                 testImplementation("junit:junit:4.13")
 
             if (it.needNMS)
-                compileOnly(fileTree("../lib/"))
+                compileOnly(fileTree("${directory}/lib/"))
 
             if (it.needPlatform)
                 compileOnly(project(":platform"))
@@ -146,6 +161,10 @@ allprojects {
     }
 
     tasks {
+        named<JavaCompile>("compileJava") {
+            options.encoding = "utf-8"
+        }
+
         register("cleanOut") {
             val directory = File("$projectDir/out/")
             if (directory.exists())
@@ -228,7 +247,6 @@ tasks {
 // << UTILS START >>
 fun loadProjects() {
     for (children in allprojects) {
-        println(children.name)
         props[children.name.toLowerCase()] = ProjectConfig(children.name, version)
     }
 }
@@ -237,23 +255,30 @@ fun configureProject(name: String, apply: (ProjectConfig).() -> Unit) {
     props[name.toLowerCase()]?.let(apply)
 }
 
+fun configureProject(filter: (ProjectConfig).() -> Boolean, apply: (ProjectConfig).() -> Unit) {
+    props.values.forEach {
+        if (filter(it))
+            apply(it)
+    }
+}
+
 data class ProjectConfig(
-        val name: String,
-        var outName: String = name,
-        var publish: Boolean = true,
-        var group: String = "com.oop.inteliframework",
-        var artifact: String = name,
-        var out: String = "out",
-        var version: Any,
-        var needMc: Boolean = false,
-        var mcVersion: MCVersion = MCVersion.V1_8,
-        var needNMS: Boolean = false,
-        var needNbtApi: Boolean = false,
-        var needUnitTesting: Boolean = false,
-        var needPlatform: Boolean = false
+    val name: String,
+    var outName: String = name,
+    var publish: Boolean = true,
+    var group: String = "com.oop.inteliframework",
+    var artifact: String = name,
+    var out: String = "out",
+    var version: Any,
+    var needMc: Boolean = false,
+    var mcVersion: MCVersion = MCVersion.V1_8,
+    var needNMS: Boolean = false,
+    var needNbtApi: Boolean = false,
+    var needUnitTesting: Boolean = false,
+    var needPlatform: Boolean = false
 ) {
     constructor(project: String, version: Any) : this(
-            name = project, version = version
+        name = project, version = version
     )
 }
 

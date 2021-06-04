@@ -4,9 +4,7 @@ import com.oop.inteliframework.command.CommandData;
 import com.oop.inteliframework.command.ExecutorWrapper;
 import com.oop.inteliframework.command.api.CommandElement;
 import com.oop.inteliframework.command.error.CommandError;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.List;
 import java.util.Queue;
@@ -19,8 +17,9 @@ public class CommandParseHistory {
 
   private final CommandData data;
   private final ExecutorWrapper executor;
-  private final Queue<String> waitingForParse;
   private final List<CommandError> resultedInto;
   private final Set<CommandElement> path;
+  @Setter(AccessLevel.PROTECTED)
+  private Queue<String> waitingForParse;
   private CommandElement<?> lastElement;
 }

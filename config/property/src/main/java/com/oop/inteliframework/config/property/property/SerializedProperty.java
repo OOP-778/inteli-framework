@@ -9,11 +9,10 @@ import org.jetbrains.annotations.Nullable;
 @AllArgsConstructor
 public class SerializedProperty {
 
-    @Nullable
-    private String suggestedKey;
-    private Node node;
+  @Nullable private String suggestedKey;
+  private Node node;
 
-    public static SerializedProperty of(Node node) {
-        return new SerializedProperty(null, node);
-    }
+  public static SerializedProperty of(Node node) {
+    return new SerializedProperty(null, node);
+  }
 }

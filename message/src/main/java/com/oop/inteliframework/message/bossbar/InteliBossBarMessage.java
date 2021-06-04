@@ -1,5 +1,7 @@
 package com.oop.inteliframework.message.bossbar;
 
+import com.oop.inteliframework.message.ComponentUtil;
+import com.oop.inteliframework.message.Replacer;
 import com.oop.inteliframework.message.api.InteliMessage;
 import com.oop.inteliframework.task.SimpleTaskFactory;
 import lombok.AllArgsConstructor;
@@ -9,7 +11,6 @@ import lombok.ToString;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextReplacementConfig;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -20,12 +21,7 @@ import java.util.function.Consumer;
 public class InteliBossBarMessage implements InteliMessage<InteliBossBarMessage> {
 
   private final @NonNull BossBarProps props;
-  private final Component text;
-
-  @Override
-  public InteliBossBarMessage replace(Consumer<TextReplacementConfig.Builder> builderConsumer) {
-    return new InteliBossBarMessage(props, text.replaceText(builderConsumer));
-  }
+  private Component text;
 
   @Override
   public Component toComponent() {
@@ -35,10 +31,21 @@ public class InteliBossBarMessage implements InteliMessage<InteliBossBarMessage>
   @Override
   public void send(Audience audience) {
     BossBar bossBar =
-        BossBar.bossBar(text, props.percentage(), props.color(), props.overlay());
+        BossBar.bossBar(toComponent(), props.percentage(), props.color(), props.overlay());
 
     audience.showBossBar(bossBar);
-    SimpleTaskFactory.later(
-        $ -> audience.hideBossBar(bossBar), props.stay(), TimeUnit.MILLISECONDS);
+    SimpleTaskFactory.later($ -> audience.hideBossBar(bossBar), props.stay(), TimeUnit.SECONDS)
+        .run();
+  }
+
+  @Override
+  public InteliBossBarMessage clone() {
+    return new InteliBossBarMessage(props.toBuilder().build(), text);
+  }
+
+  @Override
+  public InteliBossBarMessage replace(Replacer replacer) {
+    this.text = ComponentUtil.colorizeFromBukkit(replacer.accept(ComponentUtil.contentFromComponent(text)));
+    return this;
   }
 }

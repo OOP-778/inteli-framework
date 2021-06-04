@@ -4,7 +4,6 @@ import com.oop.inteliframework.plugin.InteliPlatform;
 import com.oop.inteliframework.plugin.logger.InteliLogger;
 
 public interface InteliModule {
-
   default InteliPlatform platform() {
     return InteliPlatform.getInstance();
   }

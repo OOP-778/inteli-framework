@@ -9,6 +9,7 @@ import lombok.experimental.Accessors;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Function;
 
 @Accessors(fluent = true)
 @EqualsAndHashCode(callSuper = true)
@@ -51,6 +52,11 @@ public class BaseValueNode extends BaseNode implements ValueNode {
     return getAs(value, clazz);
   }
 
+  @Override
+  public <B, T> B apply(Class<T> clazz, Function<T, B> user) {
+    return user.apply(getAs(clazz));
+  }
+
   private <T> T getAs(Object object, Class<T> clazz) {
     Class objectClazz = Primitives.unwrap(value.getClass());
     Class requiredClazz = Primitives.unwrap(clazz);
@@ -65,6 +71,8 @@ public class BaseValueNode extends BaseNode implements ValueNode {
 
   private <T> Object doConversion(Object parsed, Class<T> clazz) {
     String value = parsed.toString();
+    clazz = Primitives.wrap(clazz);
+
     if (clazz == String.class) {
       return value;
     }

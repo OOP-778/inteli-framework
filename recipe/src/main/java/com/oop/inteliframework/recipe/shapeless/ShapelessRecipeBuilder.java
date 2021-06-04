@@ -13,34 +13,32 @@ import java.util.function.Function;
 @Accessors(chain = true, fluent = true)
 public class ShapelessRecipeBuilder {
 
-    private Map<ItemStack, Integer> required = Maps.newHashMap();
-    private ItemStack result;
+  private Map<ItemStack, Integer> required = Maps.newHashMap();
+  private ItemStack result;
+  @Setter private Function<Player, ItemStack> resultRequester;
 
-    protected ShapelessRecipeBuilder() {}
+  protected ShapelessRecipeBuilder() {}
 
-    public static ShapelessRecipeBuilder builder() {
-        return new ShapelessRecipeBuilder();
-    }
+  public static ShapelessRecipeBuilder builder() {
+    return new ShapelessRecipeBuilder();
+  }
 
-    @Setter
-    private Function<Player, ItemStack> resultRequester;
+  public ShapelessRecipeBuilder required(int amount, ItemStack itemStack) {
+    required.put(itemStack, amount);
+    return this;
+  }
 
-    public ShapelessRecipeBuilder required(int amount, ItemStack itemStack) {
-        required.put(itemStack, amount);
-        return this;
-    }
+  public ShapelessRecipeBuilder required(ItemStack itemStack) {
+    required.put(itemStack, itemStack.getAmount());
+    return this;
+  }
 
-    public ShapelessRecipeBuilder required(ItemStack itemStack) {
-        required.put(itemStack, itemStack.getAmount());
-        return this;
-    }
+  public ShapelessRecipeBuilder result(@NonNull ItemStack result) {
+    this.result = result;
+    return this;
+  }
 
-    public ShapelessRecipeBuilder result(@NonNull ItemStack result) {
-        this.result = result;
-        return this;
-    }
-
-    public ShapelessRecipe build() {
-        return new ShapelessRecipe(required, result, resultRequester);
-    }
+  public ShapelessRecipe build() {
+    return new ShapelessRecipe(required, result, resultRequester);
+  }
 }

@@ -50,8 +50,7 @@ public class Loader {
     return propertyHandler::fromNode;
   }
 
-  public static <T> Function<Node, T> loaderFromConfigurable(
-      Class<? extends Configurable> clazz) {
+  public static <T> Function<Node, T> loaderFromConfigurable(Class<? extends Configurable> clazz) {
     // Validation
     InteliPlatform.getInstance().safeModuleByClass(InteliPropertyModule.class).validate(clazz);
 

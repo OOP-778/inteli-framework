@@ -7,11 +7,14 @@ import com.oop.inteliframework.config.api.configuration.PlainConfig;
 import com.oop.inteliframework.config.node.api.Node;
 import com.oop.inteliframework.config.node.api.ParentNode;
 import com.oop.inteliframework.config.node.api.iterator.NodeIterator;
+import com.oop.inteliframework.item.comp.InteliMaterial;
+import com.oop.inteliframework.item.type.AbstractInteliItem;
+import com.oop.inteliframework.item.type.item.InteliItem;
+import com.oop.inteliframework.item.type.item.InteliItemMeta;
 import com.oop.inteliframework.menu.button.IButton;
 import com.oop.inteliframework.menu.button.state.StateComponent;
 import com.oop.inteliframework.menu.config.modifiers.MenuModifier;
 import com.oop.inteliframework.menu.data.DataComponent;
-import com.oop.inteliframework.menu.interfaces.MenuItemBuilder;
 import lombok.Getter;
 
 import java.util.*;
@@ -58,7 +61,8 @@ public class MenuConfiguration {
           loadButton(buttonSection.getKey(), buttonSection.getValue().asParent());
         } catch (Throwable throwable) {
           throw new IllegalStateException(
-              StringFormat.format("Failed to load button by {}", buttonSection.getKey()), throwable);
+              StringFormat.format("Failed to load button by {}", buttonSection.getKey()),
+              throwable);
         }
       }
 
@@ -103,8 +107,8 @@ public class MenuConfiguration {
 
     // We have no states
     if (buttonSection.isPresent("material")) {
-      MenuItemBuilder itemBuilder = loadState(buttonSection);
-      button.setCurrentItem(itemBuilder::getItem);
+      AbstractInteliItem itemBuilder = loadState(buttonSection);
+      button.setCurrentItem(itemBuilder::asBukkitStack);
 
       // Set identifier of the button if present
       buttonSection.ifPresent(
@@ -151,23 +155,29 @@ public class MenuConfiguration {
             });
   }
 
-  private MenuItemBuilder loadState(ParentNode stateSection) {
-    MenuItemBuilder itemBuilder =
-        MenuItemBuilder.of(
-            loader
-                .getItemProvider()
-                .apply(
+  private AbstractInteliItem loadState(ParentNode stateSection) {
+    AbstractInteliItem<InteliItemMeta, ?> itemBuilder =
+        new InteliItem(
+            InteliMaterial.matchMaterial(
                     stateSection
                         .get("material", "Material must be present!")
                         .asValue()
-                        .getAs(String.class)));
+                        .getAs(String.class))
+                .parseItem());
 
     stateSection.ifPresent(
-        "lore", loreNode -> itemBuilder.lore(loreNode.asValue().getAsListOf(String.class)));
+        "lore",
+        loreNode ->
+            itemBuilder.applyMeta(
+                meta ->
+                    meta.applyLore(
+                        lore -> lore.lore(loreNode.asValue().getAsListOf(String.class)))));
 
     stateSection.ifPresent(
         "display-name",
-        displayNameNode -> itemBuilder.displayName(displayNameNode.asValue().getAs(String.class)));
+        displayNameNode ->
+            itemBuilder.applyMeta(
+                meta -> meta.name(displayNameNode.asValue().getAs(String.class))));
 
     return itemBuilder;
   }

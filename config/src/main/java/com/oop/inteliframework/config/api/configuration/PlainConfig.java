@@ -21,7 +21,7 @@ import static com.oop.inteliframework.commons.util.StringFormat.format;
 @Accessors(fluent = true)
 public class PlainConfig extends BaseParentNode {
 
-  @Setter protected ConfigurationHandler handler;
+  @Setter @Getter protected ConfigurationHandler handler;
 
   @Getter @Nullable protected File file;
 
@@ -41,22 +41,6 @@ public class PlainConfig extends BaseParentNode {
                         "Failed to find configuration handler for filename: " + file.getName()));
   }
 
-  public void load() {
-    try {
-      nodes.clear();
-      if (file.getTotalSpace() == 0) return;
-      Node loaded = handler.load(new FileInputStream(file));
-      Preconditions.checkArgument(
-              loaded instanceof BaseParentNode, "Loaded node must be parentable!");
-      merge((BaseParentNode) loaded);
-    } catch (Throwable throwable) {
-      throw new IllegalStateException(
-              format(
-                      "Failed to load file with name: {} with handler: {}", file.getName(), handler.name()),
-              throwable);
-    }
-  }
-
   public PlainConfig(String filename, @NonNull InputStream stream) {
     handler =
         ConfigurationHandlers.findHandler(filename)
@@ -73,6 +57,22 @@ public class PlainConfig extends BaseParentNode {
     } catch (Throwable throwable) {
       throw new IllegalStateException(
           format("Failed to load file with name: {} with handler: {}", filename, handler.name()),
+          throwable);
+    }
+  }
+
+  public void load() {
+    try {
+      nodes.clear();
+      if (file.getTotalSpace() == 0) return;
+      Node loaded = handler.load(new FileInputStream(file));
+      Preconditions.checkArgument(
+          loaded instanceof BaseParentNode, "Loaded node must be parentable!");
+      merge((BaseParentNode) loaded);
+    } catch (Throwable throwable) {
+      throw new IllegalStateException(
+          format(
+              "Failed to load file with name: {} with handler: {}", file.getName(), handler.name()),
           throwable);
     }
   }

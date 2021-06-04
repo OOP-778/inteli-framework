@@ -12,26 +12,27 @@ import java.util.function.Function;
 @AllArgsConstructor
 @Getter
 public class ShapedRecipe implements Recipe {
-    private ItemStack[][] matrix;
-    private ItemStack result;
-    private Function<Player, ItemStack> resultRequester;
+  private ItemStack[][] matrix;
+  private ItemStack result;
+  private Function<Player, ItemStack> resultRequester;
 
-    public int getLen() {
-        return matrix.length;
-    }
+  public static ShapedRecipeBuilder builder() {
+    return new ShapedRecipeBuilder();
+  }
 
-    public boolean is3x3() {
-        return matrix.length == 3;
-    }
+  public int getLen() {
+    return matrix.length;
+  }
 
-    public static ShapedRecipeBuilder builder() {
-        return new ShapedRecipeBuilder();
-    }
+  public boolean is3x3() {
+    return matrix.length == 3;
+  }
 
-    @Override
-    public ItemStack getResult(Player player) {
-        if (resultRequester == null || player == null) return result;
+  @Override
+  public ItemStack getResult(Player player) {
+    if (resultRequester == null || player == null) return result;
 
-        return Objects.requireNonNull(resultRequester.apply(player), "The result given cannot be null!");
-    }
+    return Objects.requireNonNull(
+        resultRequester.apply(player), "The result given cannot be null!");
+  }
 }

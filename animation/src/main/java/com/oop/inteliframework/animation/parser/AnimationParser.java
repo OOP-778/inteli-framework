@@ -32,14 +32,17 @@ public class AnimationParser {
 
       // Parse animation name
       InteliPair<String, Integer> animationNamePair =
-              matchTill(groupCharacters, 0, character -> !Character.isAlphabetic(character));
+          matchTill(groupCharacters, 0, character -> !Character.isAlphabetic(character));
       String animationName = animationNamePair.getKey();
 
       // Check if animation is valid
-      AnimationProvider animationProvider = InteliPlatform.getInstance().safeModuleByClass(InteliAnimationModule.class)
+      AnimationProvider animationProvider =
+          InteliPlatform.getInstance()
+              .safeModuleByClass(InteliAnimationModule.class)
               .getProviderTreeMap()
               .get(animationName);
-      Preconditions.checkArgument(animationProvider != null, "Failed to find animation provider by name: " + animationName);
+      Preconditions.checkArgument(
+          animationProvider != null, "Failed to find animation provider by name: " + animationName);
 
       // Get rid of the animation name from the group
       group = group.substring(animationNamePair.getValue());
@@ -49,11 +52,11 @@ public class AnimationParser {
 
       // Do we have properties?
       Map<String, Object> props = new HashMap<>();
-      int textIndex = split.length -1;
+      int textIndex = split.length - 1;
 
       if (split.length == 2) {
         String propsString = StringUtils.replace(split[0], " ", "");
-        propsString = propsString.substring(1, propsString.length()-1);
+        propsString = propsString.substring(1, propsString.length() - 1);
 
         String[] propsSplit = StringUtils.split(propsString, ",");
         for (String s : propsSplit) {
@@ -103,7 +106,7 @@ public class AnimationParser {
   }
 
   private static InteliPair<String, Integer> matchTill(
-          char[] chars, int starting, Predicate<Character> predicate) {
+      char[] chars, int starting, Predicate<Character> predicate) {
     int step = 0;
     StringBuilder builder = new StringBuilder();
     for (int i = starting; i < chars.length; i++) {
@@ -116,5 +119,4 @@ public class AnimationParser {
 
     return new InteliPair<>(builder.toString(), step);
   }
-
 }

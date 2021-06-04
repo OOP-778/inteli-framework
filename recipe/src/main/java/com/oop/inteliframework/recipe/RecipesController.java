@@ -3,8 +3,13 @@ package com.oop.inteliframework.recipe;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.oop.inteliframework.commons.util.InteliPair;
+import com.oop.inteliframework.commons.util.InteliVersion;
+import com.oop.inteliframework.plugin.InteliPlatform;
 import com.oop.inteliframework.recipe.shaped.ShapedRecipe;
 import com.oop.inteliframework.recipe.shapeless.ShapelessRecipe;
+import com.oop.inteliframework.task.InteliTaskFactory;
+import com.oop.inteliframework.task.bukkit.BukkitTaskController;
+import com.oop.inteliframework.task.bukkit.InteliBukkitTask;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
@@ -18,7 +23,6 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -34,7 +38,6 @@ public class RecipesController implements Listener {
   private final Set<Recipe> recipes = Sets.newConcurrentHashSet();
   private final Map<CraftingInventory, FoundRecipe> foundRecipes = Maps.newHashMap();
   @Setter @Getter boolean overrideDefault = false;
-  @Setter private JavaPlugin owner;
 
   private RecipesController() {
     instance = this;
@@ -115,16 +118,13 @@ public class RecipesController implements Listener {
 
       if (!items.isEmpty()) {
         foundRecipes.put(inventory, new FoundRecipe(recipe, items));
-        inventory.setResult(recipe.getResult((Player) inventory.getViewers().get(0)));
+        inventory.setItem(0, recipe.getResult((Player) inventory.getViewers().get(0)));
         break;
       }
     }
   }
 
-  @EventHandler
-  public void onClickEvent(InventoryClickEvent event) {
-    if (!(event.getClickedInventory() instanceof CraftingInventory)) return;
-
+  public void handleClickEvent(InventoryClickEvent event) {
     CraftingInventory inventory = (CraftingInventory) event.getClickedInventory();
     FoundRecipe recipe = foundRecipes.get(inventory);
     if (recipe == null) {
@@ -176,6 +176,26 @@ public class RecipesController implements Listener {
           .getWhoClicked()
           .setItemOnCursor(recipe.getRecipe().getResult((Player) event.getWhoClicked()));
     }
+  }
+
+  @EventHandler
+  public void onClickEvent(InventoryClickEvent event) {
+    if (!(event.getClickedInventory() instanceof CraftingInventory)) return;
+
+    if (InteliVersion.is(8)) {
+      new InteliBukkitTask(
+              InteliPlatform.getInstance()
+                  .safeModuleByClass(InteliTaskFactory.class)
+                  .controllerByClass(BukkitTaskController.class)
+                  .get())
+          .sync(true)
+          .delay(500)
+          .body($ -> handleClickEvent(event))
+          .run();
+      return;
+    }
+
+    handleClickEvent(event);
   }
 
   private boolean checkEmpty(CraftingInventory inventory) {

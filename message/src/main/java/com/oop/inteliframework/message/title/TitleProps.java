@@ -5,19 +5,15 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
-@Builder
+@Builder (toBuilder = true)
 @Getter
 @Accessors(fluent = true)
 @ToString
 public class TitleProps {
 
-    @Builder.Default()
-    private final long fadeIn = 10;
+  @Builder.Default() private final long fadeIn = 10;
 
-    @Builder.Default()
-    private final long stay = 10;
+  @Builder.Default() private final long stay = 10;
 
-    @Builder.Default()
-    private final long fadeOut = 10;
-
+  @Builder.Default() private final long fadeOut = 10;
 }

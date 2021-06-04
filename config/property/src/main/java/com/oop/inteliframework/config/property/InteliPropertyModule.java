@@ -25,6 +25,14 @@ public class InteliPropertyModule implements InteliModule {
   // Classes cache
   @Getter private final ClassesCache classesCache = new ClassesCache();
 
+  public InteliPropertyModule registerHandler(PropertyHandler... handlers) {
+    for (PropertyHandler handler : handlers) {
+      propertyHandlerMap.put(handler.getObjectClass(), handler);
+    }
+
+    return this;
+  }
+
   public <T> Optional<PropertyHandler<T>> handlerByClass(Class<T> clazz) {
     return Optional.ofNullable(propertyHandlerMap.get(clazz)).map(o -> (PropertyHandler<T>) o);
   }

@@ -53,7 +53,7 @@ public class Paths {
         if (!resourceNameFilter.test(entry.getName())) continue;
 
         if (!Files.exists(entryPath.getParent())) {
-            Files.createDirectories(entryPath.getParent());
+          Files.createDirectories(entryPath.getParent());
         }
 
         if (copyOption == CopyOption.COPY_IF_NOT_EXIST && file.exists()) continue;

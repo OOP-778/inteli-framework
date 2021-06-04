@@ -13,21 +13,20 @@ import java.util.function.Function;
 @AllArgsConstructor
 public class ShapelessRecipe implements Recipe {
 
-    @Getter
-    private Map<ItemStack, Integer> required;
+  @Getter private Map<ItemStack, Integer> required;
 
-    private ItemStack result;
-    private Function<Player, ItemStack> resultRequester;
+  private ItemStack result;
+  private Function<Player, ItemStack> resultRequester;
 
-    @Override
-    public ItemStack getResult(Player player) {
-        if (resultRequester == null || player == null) return result;
+  public static ShapelessRecipeBuilder builder() {
+    return new ShapelessRecipeBuilder();
+  }
 
-        return Objects.requireNonNull(resultRequester.apply(player), "The result given cannot be null!");
-    }
+  @Override
+  public ItemStack getResult(Player player) {
+    if (resultRequester == null || player == null) return result;
 
-    public static ShapelessRecipeBuilder builder() {
-        return new ShapelessRecipeBuilder();
-    }
-
+    return Objects.requireNonNull(
+        resultRequester.apply(player), "The result given cannot be null!");
+  }
 }

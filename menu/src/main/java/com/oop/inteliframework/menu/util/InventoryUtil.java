@@ -1,5 +1,6 @@
 package com.oop.inteliframework.menu.util;
 
+import com.oop.inteliframework.commons.util.InteliVersion;
 import com.oop.inteliframework.commons.util.SimpleReflection;
 import lombok.SneakyThrows;
 import org.bukkit.ChatColor;
@@ -18,7 +19,7 @@ public class InventoryUtil {
     Class<?> chatMessageClass = findClass("ChatComponentText");
     Class<?> craftInventoryClass = findClass("{cb}.inventory.CraftInventory");
 
-    if (MCVersion.isBefore(9) && title.length() > 16) {
+    if (InteliVersion.isBefore(9) && title.length() > 16) {
       title = title.substring(0, 15);
     }
 
@@ -31,7 +32,7 @@ public class InventoryUtil {
             .newInstance(ChatColor.translateAlternateColorCodes('&', title));
 
     Object packet;
-    if (MCVersion.isAfter(13)) {
+    if (InteliVersion.isAfter(13)) {
       Class<?> containerClass = findClass("{nms}.Containers");
       Constructor packetConst =
           SimpleReflection.getConstructor(

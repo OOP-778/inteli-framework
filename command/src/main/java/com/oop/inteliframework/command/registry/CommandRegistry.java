@@ -2,14 +2,18 @@ package com.oop.inteliframework.command.registry;
 
 import com.oop.inteliframework.command.CommandData;
 import com.oop.inteliframework.command.ExecutorWrapper;
+import com.oop.inteliframework.command.api.CommandElement;
 import com.oop.inteliframework.command.api.ParentableElement;
 import com.oop.inteliframework.command.api.TabComplete;
 import com.oop.inteliframework.command.element.argument.Argument;
 import com.oop.inteliframework.command.element.argument.NoValueArgument;
 import com.oop.inteliframework.command.element.command.Command;
 import com.oop.inteliframework.command.error.CommandError;
+import com.oop.inteliframework.command.error.MissingArgumentsError;
 import com.oop.inteliframework.command.registry.parser.CommandParseHistory;
+import com.oop.inteliframework.command.style.DefaultStyle;
 import com.oop.inteliframework.command.style.RegistryStyle;
+import com.oop.inteliframework.plugin.module.InteliModule;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -23,14 +27,14 @@ import static com.oop.inteliframework.command.registry.parser.CommandParser.pars
 import static com.oop.inteliframework.command.registry.parser.ParserHelper.checkRequirements;
 
 /** Class that handles all the commands registered */
-public class CommandRegistry {
+public class CommandRegistry implements InteliModule {
 
   /** Store all the commands ignore case here */
   @Getter
   private final TreeMap<String, Command> elementTreeMap =
       new TreeMap<>(String::compareToIgnoreCase);
 
-  @Setter @Getter @NonNull private RegistryStyle style;
+  @Setter @Getter @NonNull private RegistryStyle style = new DefaultStyle();
 
   @Setter @Getter private int tabCompletionSizeLimit = 50;
 
@@ -75,11 +79,24 @@ public class CommandRegistry {
       return true;
     }
 
-    if (parse.getLastElement() instanceof Command) {
-      if (((Command) parse.getLastElement()).executer() != null)
-        ((Command) parse.getLastElement()).executer().execute(executor, data);
+    LinkedList<CommandElement> commandElements = new LinkedList<>(parse.getPath());
+    Collections.reverse(commandElements);
+
+    Command firstCommand =
+        (Command)
+            commandElements.stream()
+                .filter(element -> element instanceof Command)
+                .findFirst()
+                .orElse(null);
+    if (firstCommand != null) {
+      if (firstCommand.executer() != null) {
+        firstCommand.executer().execute(executor, data);
+        return true;
+      }
     }
 
+    parse.getResultedInto().add(new MissingArgumentsError(parse, parse.getLastElement()));
+    style.handleError(parse.getResultedInto().toArray(new CommandError[0]), this, parse);
     return true;
   }
 
@@ -105,7 +122,7 @@ public class CommandRegistry {
   protected List<String> _tabComplete(@NonNull CommandParseHistory history, boolean isAfter) {
     if (!isAfter && history.getLastElement().tabComplete().isPresent()) {
       return ((TabComplete) history.getLastElement().tabComplete().get())
-          .complete(history.getExecutor(), history.getLastElement(), history.getData());
+          .complete(history.getLastElement(), history);
     }
 
     if (history.getLastElement() instanceof ParentableElement) {
@@ -120,9 +137,7 @@ public class CommandRegistry {
 
                     if (c instanceof Argument) {
                       if (c.tabComplete().isPresent()) {
-                        possible.addAll(
-                            ((TabComplete) c.tabComplete().get())
-                                .complete(history.getExecutor(), c, history.getData()));
+                        possible.addAll(((TabComplete) c.tabComplete().get()).complete(c, history));
 
                       } else possible.add("<" + c.labeled() + ">");
 
@@ -147,33 +162,34 @@ public class CommandRegistry {
 
     input = normalize(input);
 
-    String[] s = StringUtils.split(input, ' ');
-    if (s.length == 0) return new ArrayList<>();
+    String[] splitArgs = StringUtils.split(input, ' ');
+    if (splitArgs.length == 0) return new ArrayList<>();
 
-    Optional<Command> lookupCommand = findCommand(s[0]);
+    Optional<Command> lookupCommand = findCommand(splitArgs[0]);
     if (!lookupCommand.isPresent()) return new ArrayList<>();
 
-    input = StringUtils.replaceOnce(input, s[0], "");
-    s = Arrays.copyOfRange(s, 1, s.length);
+    input = StringUtils.replaceOnce(input, splitArgs[0], "");
+    splitArgs = Arrays.copyOfRange(splitArgs, 1, splitArgs.length);
 
     boolean isAfterArgument = StringUtils.endsWith(input, " ");
-    if (s.length == 0 && !isAfterArgument) return new ArrayList<>();
-    if (s.length == 0)
+    if (splitArgs.length == 0 && !isAfterArgument) return new ArrayList<>();
+    if (splitArgs.length == 0)
       return checkSize(
           _tabComplete(
               new CommandParseHistory(
                   new CommandData(),
                   executor,
                   new LinkedList<>(),
+                  new LinkedHashSet<>(),
                   new LinkedList<>(),
-                  new HashSet<>(),
                   lookupCommand.get()),
               true));
 
     LinkedList<String> linked =
         isAfterArgument
-            ? new LinkedList<>(Arrays.asList(s))
-            : new LinkedList<>(Arrays.asList(Arrays.copyOfRange(s, 0, s.length - 1)));
+            ? new LinkedList<>(Arrays.asList(splitArgs))
+            : new LinkedList<>(
+                Arrays.asList(Arrays.copyOfRange(splitArgs, 0, splitArgs.length - 1)));
 
     CommandParseHistory parse = parse(executor, lookupCommand.get(), data, linked, false);
 
@@ -186,7 +202,7 @@ public class CommandRegistry {
     List<String> apply = _tabComplete(parse, !StringUtils.endsWith(input, " ") || isAfterArgument);
 
     if (!isAfterArgument) {
-      String[] finalS = s;
+      String[] finalS = splitArgs;
       apply.removeIf(
           complete ->
               !complete

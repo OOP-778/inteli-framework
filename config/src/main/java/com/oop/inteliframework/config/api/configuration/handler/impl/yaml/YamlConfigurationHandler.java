@@ -60,9 +60,10 @@ public class YamlConfigurationHandler implements ConfigurationHandler {
     if (StringUtils.contains(input, "- ")) {
       String spacesChars = getCharXTimes(spaces + 2, ' ');
 
-      return "\n" + Arrays.stream(StringUtils.split(input, "-"))
-          .map(value -> spacesChars + "-" + value)
-          .collect(Collectors.joining(""));
+      return "\n"
+          + Arrays.stream(StringUtils.split(input, "-"))
+              .map(value -> spacesChars + "-" + value)
+              .collect(Collectors.joining(""));
     }
     return input;
   }
@@ -142,14 +143,15 @@ public class YamlConfigurationHandler implements ConfigurationHandler {
         printHeader(writer, node);
       }
 
-      Consumer<Node> emptySpace = (node1) -> {
-        try {
-          if (node1.comments().isEmpty()) return;
-          writer.write("\n");
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      };
+      Consumer<Node> emptySpace =
+          (node1) -> {
+            try {
+              if (node1.comments().isEmpty()) return;
+              writer.write("\n");
+            } catch (IOException e) {
+              e.printStackTrace();
+            }
+          };
 
       int space = 0;
       for (Map.Entry<String, Node> hierarchyEntry : node.map(NodeIterator.HIERARCHY).entrySet()) {

@@ -4,20 +4,15 @@ import com.oop.inteliframework.config.api.configuration.PlainConfig;
 import com.oop.inteliframework.menu.config.modifiers.ModifierHolder;
 import com.oop.inteliframework.menu.config.modifiers.def.ActionModifier;
 import lombok.Getter;
-import lombok.Setter;
-import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 
 @Getter
 public class MenuLoader extends ModifierHolder {
   private final Map<String, MenuConfiguration> loadedMenus = new HashMap<>();
-
-  @Setter private Function<String, ItemStack> itemProvider;
 
   public MenuLoader() {
     registerModifier(new ActionModifier());

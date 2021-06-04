@@ -6,6 +6,7 @@ import com.oop.inteliframework.task.type.inteli.InteliTaskController;
 import lombok.NonNull;
 
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Here you need to implement run and cancel task logic
@@ -30,4 +31,10 @@ public interface TaskController<T extends TaskController, R extends Task> {
   /** @return All running tasks with id's */
   @NonNull
   Map<Long, R> runningTasks();
+
+  /** Shutdown Task Controller */
+  void shutdown();
+
+  /** Prepare and return a task */
+  R prepareTask(Consumer<R> taskConsumer);
 }

@@ -15,9 +15,8 @@ import java.util.Set;
 @Accessors(fluent = true)
 @ToString
 public class Command extends ParentableElement<Command> {
-  private CommandExecution executer;
-
   private final Set<String> aliases = new HashSet<>();
+  private CommandExecution executer;
 
   public Command onExecute(CommandExecution exec) {
     this.executer = exec;

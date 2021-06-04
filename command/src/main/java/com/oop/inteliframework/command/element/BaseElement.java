@@ -1,5 +1,6 @@
 package com.oop.inteliframework.command.element;
 
+import com.google.common.base.Preconditions;
 import com.oop.inteliframework.command.api.CommandElement;
 import com.oop.inteliframework.command.api.TabComplete;
 import com.oop.inteliframework.command.api.requirement.CommandElementRequirement;
@@ -21,7 +22,8 @@ public abstract class BaseElement<O extends BaseElement<O>> implements CommandEl
   @Getter
   private final BaseCommandElementRequirements filters =
       new BaseCommandElementRequirements((O) this);
-  @Getter private @NonNull String labeled;
+
+  @Getter private String labeled;
   @Getter private boolean enabled = true;
   private TabComplete<O> tabComplete;
 
@@ -46,6 +48,10 @@ public abstract class BaseElement<O extends BaseElement<O>> implements CommandEl
   @Override
   public Optional<TabComplete<O>> tabComplete() {
     return Optional.ofNullable(tabComplete);
+  }
+
+  public void assertReady() {
+    Preconditions.checkArgument(labeled != null, "Labeled is not set!");
   }
 
   @Override

@@ -53,11 +53,7 @@ public class RelocationHelper {
     // ObjectWeb ASM
     classLoader.addPath(
         libraryManager.downloadLibrary(
-            Library.builder()
-                .groupId("org.ow2.asm")
-                .artifactId("asm")
-                .version("7.1")
-                .build()));
+            Library.builder().groupId("org.ow2.asm").artifactId("asm").version("7.1").build()));
 
     // Luck's Jar Relocator
     classLoader.addPath(
