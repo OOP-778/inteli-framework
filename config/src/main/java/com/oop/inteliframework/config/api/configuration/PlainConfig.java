@@ -10,11 +10,12 @@ import lombok.NonNull;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.util.List;
 
 import static com.oop.inteliframework.commons.util.StringFormat.format;
 
@@ -23,7 +24,7 @@ public class PlainConfig extends BaseParentNode {
 
   @Setter @Getter protected ConfigurationHandler handler;
 
-  @Getter @Nullable protected File file;
+  @Getter protected File file;
 
   @SneakyThrows
   public PlainConfig(@NonNull File file) {
@@ -61,10 +62,21 @@ public class PlainConfig extends BaseParentNode {
     }
   }
 
+  @SneakyThrows
+  protected static boolean isEmpty(File file) {
+    // If file is fully empty
+    if (file.length() == 0) return true;
+
+    // If file contains just spaces or tabs
+    List<String> lines = Files.readAllLines(file.toPath());
+    return lines.stream().allMatch(line -> line.trim().isEmpty());
+  }
+
   public void load() {
     try {
       nodes.clear();
-      if (file.getTotalSpace() == 0) return;
+      if (isEmpty(file)) return;
+
       Node loaded = handler.load(new FileInputStream(file));
       Preconditions.checkArgument(
           loaded instanceof BaseParentNode, "Loaded node must be parentable!");
