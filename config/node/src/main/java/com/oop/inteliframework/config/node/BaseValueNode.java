@@ -21,7 +21,7 @@ public class BaseValueNode extends BaseNode implements ValueNode {
     this.value = value;
     Preconditions.checkArgument(
         value instanceof List || isPrimitive(value.getClass()),
-        "ValueNode can only contain lists & primitive objects!");
+        "ValueNode can only contain lists & primitive objects, given: " + value.getClass());
   }
 
   public static boolean isPrimitive(Class<?> clazz) {
