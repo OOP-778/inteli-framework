@@ -6,4 +6,6 @@ public abstract class ExecutorWrapper {
   }
 
   public abstract void sendMessage(String text, Object... args);
+
+  public abstract boolean isConsole();
 }

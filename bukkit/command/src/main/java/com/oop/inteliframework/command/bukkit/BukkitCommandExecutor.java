@@ -4,6 +4,7 @@ import com.oop.inteliframework.command.ExecutorWrapper;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 import static com.oop.inteliframework.commons.util.StringFormat.format;
@@ -19,5 +20,10 @@ public class BukkitCommandExecutor extends ExecutorWrapper {
   @Override
   public void sendMessage(String text, Object... args) {
     commandSender.sendMessage(format(text, args));
+  }
+
+  @Override
+  public boolean isConsole() {
+    return !isPlayer();
   }
 }
