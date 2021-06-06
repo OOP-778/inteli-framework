@@ -1,6 +1,7 @@
 package com.oop.inteliframework.command.api;
 
 import com.oop.inteliframework.command.element.BaseElement;
+import com.oop.inteliframework.command.element.argument.Argument;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
@@ -36,5 +37,19 @@ public abstract class ParentableElement<P extends ParentableElement<P>> extends 
     }
 
     return Optional.empty();
+  }
+
+  public boolean requiresChildren() {
+    boolean requires = false;
+    for (CommandElement<?> value : children.values()) {
+      if (value instanceof Argument && ((Argument<?>) value).optional()) {
+        requires = false;
+        continue;
+      }
+
+      requires = true;
+    }
+
+    return requires;
   }
 }

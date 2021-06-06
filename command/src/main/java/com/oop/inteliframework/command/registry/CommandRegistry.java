@@ -42,13 +42,52 @@ public class CommandRegistry implements InteliModule {
     elementTreeMap.put(command.labeled(), command);
   }
 
-  public Optional<Command> findCommand(String identifier) {
-    return elementTreeMap.values().stream()
-        .filter(
-            command ->
-                command.labeled().equalsIgnoreCase(identifier)
-                    || command.aliases().contains(identifier))
+  protected <T extends CommandElement<?>> Optional<T> _findInMap(
+      Map<String, T> map, String identifier) {
+    return map.values().stream()
+        .map(
+            command -> {
+              if (command.labeled().equalsIgnoreCase(identifier)) {
+                return command;
+              }
+
+              if (command instanceof Command
+                  && ((Command) command).aliases().contains(identifier)) {
+                return command;
+              }
+
+              return null;
+            })
+        .filter(Objects::nonNull)
         .findFirst();
+  }
+
+  public Optional<CommandElement<?>> findCommandElement(String identifier) {
+    if (StringUtils.contains(identifier, ".")) {
+      LinkedList<String> queue =
+          new LinkedList<>(Arrays.asList(StringUtils.split(identifier, ".")));
+      Collections.reverse(queue);
+
+      Optional<CommandElement<?>> optionalCommand = findCommandElement(queue.poll());
+      while (!queue.isEmpty()) {
+        optionalCommand =
+            optionalCommand.flatMap(
+                element -> {
+                  if (element instanceof ParentableElement) {
+                    return _findInMap(((ParentableElement) element).children(), queue.poll());
+                  }
+
+                  return Optional.empty();
+                });
+        if (!optionalCommand.isPresent()) {
+          break;
+        }
+      }
+
+      return optionalCommand;
+    }
+
+    return _findInMap(elementTreeMap, identifier).map(command -> command);
   }
 
   /** Command execution & tab completion section */
@@ -61,11 +100,17 @@ public class CommandRegistry implements InteliModule {
     String[] s = StringUtils.split(input, ' ');
     if (s.length == 0) return false;
 
-    Optional<Command> lookupCommand = findCommand(s[0]);
+    Optional<Command> lookupCommand =
+        findCommandElement(s[0]).map(commandElement -> (Command) commandElement);
     if (!lookupCommand.isPresent()) return false;
 
     s = Arrays.copyOfRange(s, 1, s.length);
     if (s.length == 0) {
+      Command command = lookupCommand.get();
+      if (command.executer() != null && !command.requiresChildren()) {
+        command.executer().execute(executor, new CommandData());
+      }
+
       return true;
     }
 
@@ -165,7 +210,8 @@ public class CommandRegistry implements InteliModule {
     String[] splitArgs = StringUtils.split(input, ' ');
     if (splitArgs.length == 0) return new ArrayList<>();
 
-    Optional<Command> lookupCommand = findCommand(splitArgs[0]);
+    Optional<Command> lookupCommand =
+        findCommandElement(splitArgs[0]).map(commandElement -> (Command) commandElement);
     if (!lookupCommand.isPresent()) return new ArrayList<>();
 
     input = StringUtils.replaceOnce(input, splitArgs[0], "");
