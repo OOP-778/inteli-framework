@@ -44,6 +44,10 @@ public class CollectionProperty<T, C extends Collection<T>> implements Property<
   public void fromNode(Node node) {
     Function<Node, T> valueLoader = loaderFrom(valueClass);
 
+    if (!collection.isEmpty()) {
+      collection.clear();
+    }
+
     if (node instanceof BaseParentNode) {
       for (Map.Entry<String, Node> nodeEntry :
           ((BaseParentNode) node).map(NodeIterator.ALL).entrySet()) {

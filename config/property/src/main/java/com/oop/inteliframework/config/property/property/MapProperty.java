@@ -51,6 +51,8 @@ public class MapProperty<K, V, M extends Map> implements Property<M> {
     Preconditions.checkArgument(
         node instanceof ParentNode, "MapProperty can only load from ParentNode!");
 
+    map.clear();
+
     Function<Node, K> keyLoader;
     Function<Node, V> valueLoader;
     keyLoader = loaderFrom(keyClass);
