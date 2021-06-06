@@ -27,8 +27,6 @@ public class AssociatedConfig<T extends Configurable> extends PlainConfig {
   public AssociatedConfig(@NonNull File file, Class<T> clazz) {
     super(file);
     this.clazz = clazz;
-
-    load();
   }
 
   public void reload(Consumer<Throwable> onError) {
@@ -55,7 +53,8 @@ public class AssociatedConfig<T extends Configurable> extends PlainConfig {
     }
 
     try {
-      this.object = Loader.loaderFrom(clazz).apply(this);
+      this.object = Loader.constructConfigurable(clazz);
+      Loader.loaderFromConfigurable(object).apply(this);
     } catch (Throwable throwable) {
       throw new IllegalStateException("Failed to load " + file, throwable);
     }
