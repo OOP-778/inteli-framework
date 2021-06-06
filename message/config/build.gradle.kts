@@ -6,3 +6,4 @@ dependencies {
     compileOnly("com.google.guava:guava:30.1-jre")
     implementation("net.kyori:adventure-api:4.7.0")
 }
+

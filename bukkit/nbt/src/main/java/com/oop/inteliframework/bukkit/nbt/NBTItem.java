@@ -4,6 +4,7 @@ import lombok.NonNull;
 import lombok.SneakyThrows;
 import net.querz.nbt.tag.CompoundTag;
 import net.querz.nbt.tag.Tag;
+import org.bukkit.craftbukkit.v1_8_R1.CraftOfflinePlayer;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
@@ -16,7 +17,7 @@ public class NBTItem extends CompoundTag {
   public NBTItem(@NonNull ItemStack itemStack) {
     this.itemStack = itemStack;
     final CompoundTag tag = InteliNbt.getTags().fromItemStack(itemStack);
-
+    
     for (Map.Entry<String, Tag<?>> stringTagEntry : tag) {
       put(stringTagEntry.getKey(), stringTagEntry.getValue());
     }

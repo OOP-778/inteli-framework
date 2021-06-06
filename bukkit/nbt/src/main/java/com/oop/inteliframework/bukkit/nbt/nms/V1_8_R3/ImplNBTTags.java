@@ -18,7 +18,7 @@ public class ImplNBTTags implements NBTTags {
     final net.minecraft.server.v1_8_R3.ItemStack nmsCopy = CraftItemStack.asNMSCopy(itemStack);
     if (nmsCopy.getTag() == null) return new CompoundTag();
 
-    System.out.println(nmsCopy.getTag().toString());
+    System.out.println(nmsCopy.getTag());
     return convertCompound(nmsCopy.getTag());
   }
 
