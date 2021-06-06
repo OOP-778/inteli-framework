@@ -34,7 +34,7 @@ public class Loader {
     }
 
     if (Configurable.class.isAssignableFrom(clazz)) {
-      return loaderFromConfigurable((Class<? extends Configurable>) clazz);
+      return loaderFromConfigurable(constructConfigurable(clazz));
     }
 
     // Find custom object serializer
@@ -50,17 +50,23 @@ public class Loader {
     return propertyHandler::fromNode;
   }
 
-  public static <T> Function<Node, T> loaderFromConfigurable(Class<? extends Configurable> clazz) {
-    // Validation
-    InteliPlatform.getInstance().safeModuleByClass(InteliPropertyModule.class).validate(clazz);
-
+  public static <T> T constructConfigurable(Class<T> clazz) {
     Constructor<T> constructor;
     try {
-      constructor = (Constructor<T>) clazz.getDeclaredConstructor();
+      constructor = clazz.getDeclaredConstructor();
       constructor.setAccessible(true);
+
+      return constructor.newInstance();
     } catch (Throwable throwable) {
       throw new IllegalStateException("Failed to find empty constructor for class: " + clazz);
     }
+  }
+
+  public static <T> Function<Node, T> loaderFromConfigurable(T object) {
+    final Class<T> clazz = (Class<T>) object.getClass();
+
+    // Validation
+    InteliPlatform.getInstance().safeModuleByClass(InteliPropertyModule.class).validate(clazz);
 
     List<Field> propertiesOf =
         InteliPlatform.getInstance()
@@ -82,22 +88,21 @@ public class Loader {
       Preconditions.checkArgument(
           node instanceof ParentNode, "Configurable node requires an ParentNode and it's not");
 
-      T object;
-      try {
-        object = constructor.newInstance();
-      } catch (Throwable throwable) {
-        throw new IllegalStateException(
-            "Failed to initialize object of class: " + clazz, throwable);
-      }
-
       ParentNode configurableNode = (ParentNode) node;
       Map<String, Node> nodesMap = configurableNode.map(NodeIterator.ALL);
 
       for (Map.Entry<String, Field> objectPropertyEntry : mappedProperties.entrySet()) {
         try {
           Node entryNode = nodesMap.get(objectPropertyEntry.getKey());
+
+          Property entryProperty = (Property) objectPropertyEntry.getValue().get(object);
+
           if (entryNode == null) {
             if (objectPropertyEntry.getValue().getAnnotation(Optional.class) != null) {
+              continue;
+            }
+
+            if (entryProperty.get() != null) {
               continue;
             }
 
@@ -108,7 +113,6 @@ public class Loader {
                     objectPropertyEntry.getKey()));
           }
 
-          Property entryProperty = (Property) objectPropertyEntry.getValue().get(object);
           entryProperty.fromNode(entryNode);
 
         } catch (Throwable throwable) {
