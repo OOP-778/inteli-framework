@@ -159,10 +159,13 @@ public class BaseParentNode extends BaseNode implements ParentNode {
       String key = pathQueue.poll();
 
       if (!pathQueue.isEmpty()) {
-        BaseParentNode newParent = new BaseParentNode();
+        BaseParentNode finalCurrentParent = currentParent;
+        currentParent = (BaseParentNode) currentParent.nodes.computeIfAbsent(key, $ -> {
+          BaseParentNode newParent = new BaseParentNode();
+          finalCurrentParent.assignNode(key, newParent);
 
-        currentParent.set(key, newParent);
-        currentParent = newParent;
+          return newParent;
+        });
         continue;
       }
 
@@ -260,28 +263,8 @@ public class BaseParentNode extends BaseNode implements ParentNode {
   }
 
   public Node set(String path, Object object) {
-    String[] splitPath = StringUtils.split(path, ".");
-    Queue<String> pathQueue = new LinkedList<>(Arrays.asList(splitPath));
-
-    Node node = new BaseValueNode(object);
-    BaseParentNode currentParent = this;
-
-    while (!pathQueue.isEmpty()) {
-      String key = pathQueue.poll();
-
-      if (!pathQueue.isEmpty()) {
-        BaseParentNode newParent = new BaseParentNode();
-
-        currentParent.set(key, newParent);
-        currentParent = newParent;
-        continue;
-      }
-
-      // If was last entry
-      currentParent.assignNode(key, node);
-      return node;
-    }
-
+    Node node = object instanceof Node ? (Node) object : new BaseValueNode(object);
+    assignNode(path, node);
     return node;
   }
 
