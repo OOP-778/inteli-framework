@@ -38,6 +38,11 @@ public interface EnchantHolder<T extends SimpleInteliMeta> {
   T removeEnchant(final @NonNull InteliEnchantment enchant);
 
   /**
+   * Removes all enchants
+   */
+  T removeEnchants();
+
+  /**
    * @return Map of applyable enchants
    * @throws NullPointerException If enchants is null
    */

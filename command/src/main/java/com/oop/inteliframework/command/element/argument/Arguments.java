@@ -13,7 +13,7 @@ public interface Arguments {
     Argument<Number> arg = new Argument<>();
     arg.labeled("number");
     arg.parser(
-        inputs -> {
+        (inputs, $) -> {
           String input = inputs.poll();
           Double parsed = Doubles.tryParse(input);
           if (parsed == null) return new ParseResult<>(format("Invalid Number: {}", input));

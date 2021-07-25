@@ -24,7 +24,7 @@ public class BukkitEventSystem extends EventSystem<Event> {
                   hooked.values()) {
                 for (Set<HookedEvent<? super Event>> hookedEvents : value.values()) {
                   for (HookedEvent<? super Event> hookedEvent : hookedEvents) {
-                    ((HandlerList) ((BukkitHookedEvent) hookedEvent).getEvent()).unregisterAll();
+                    HandlerList.unregisterAll(((BukkitHookedEvent) hookedEvent).getEvent());
                   }
                 }
               }

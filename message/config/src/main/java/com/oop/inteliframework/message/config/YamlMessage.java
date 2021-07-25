@@ -308,6 +308,13 @@ public class YamlMessage {
       return message.stream().noneMatch(Chat::requiresSection);
     }
 
+    public static InteliChatMessage load(Node node) {
+      if (node.isParent())
+        return load(node.asParent());
+      else
+        return load(node.asValue());
+    }
+
     public static InteliChatMessage load(ValueNode node) {
       InteliChatMessage message = new InteliChatMessage();
       if (node.value() instanceof List) {

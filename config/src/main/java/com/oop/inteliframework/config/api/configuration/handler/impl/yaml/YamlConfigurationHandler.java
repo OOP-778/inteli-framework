@@ -1,5 +1,6 @@
 package com.oop.inteliframework.config.api.configuration.handler.impl.yaml;
 
+import com.oop.inteliframework.commons.util.InteliPair;
 import com.oop.inteliframework.config.api.configuration.handler.ConfigurationHandler;
 import com.oop.inteliframework.config.node.BaseParentNode;
 import com.oop.inteliframework.config.node.BaseValueNode;
@@ -57,13 +58,14 @@ public class YamlConfigurationHandler implements ConfigurationHandler {
 
   @SneakyThrows
   private static String normalizeYamlDump(int spaces, String input) {
-    if (StringUtils.contains(input, "- ")) {
+    if (StringUtils.startsWith(input, "- ")) {
       String spacesChars = getCharXTimes(spaces + 2, ' ');
 
       return "\n"
-          + Arrays.stream(StringUtils.split(input, "-"))
+          + Arrays.stream(("\n" + input).split("\n-"))
+              .filter(string -> !string.isEmpty())
               .map(value -> spacesChars + "-" + value)
-              .collect(Collectors.joining(""));
+              .collect(Collectors.joining("\n"));
     }
     return input;
   }
@@ -153,29 +155,22 @@ public class YamlConfigurationHandler implements ConfigurationHandler {
             }
           };
 
-      int space = 0;
-      for (Map.Entry<String, Node> hierarchyEntry : node.map(NodeIterator.HIERARCHY).entrySet()) {
+      int space;
+      for (Map.Entry<String, Node> hierarchyEntry :
+          node.map(NodeIterator.HIERARCHY, true).entrySet()) {
+        InteliPair<String, Integer> convertedKey = convertKey(hierarchyEntry.getKey());
+
         // Adjust spaces if needed
-        space =
-            useAndProduce(
-                StringUtils.split(hierarchyEntry.getKey(), ".").length,
-                len -> {
-                  return len == 1 ? 0 : len * 2;
-                });
+        space = useAndProduce(convertedKey.getValue(), len -> len == 1 ? 0 : len * 2);
 
         // Append comments if has any
         appendComments(writer, space, hierarchyEntry.getValue());
-
-        String key;
-        String[] keySplit = StringUtils.split(hierarchyEntry.getKey(), ".");
-        if (keySplit.length > 1) key = keySplit[keySplit.length - 1];
-        else key = keySplit[0];
 
         // Write value if value
         if (hierarchyEntry.getValue() instanceof BaseValueNode) {
           writer.write(
               getCharXTimes(space, ' ')
-                  + key
+                  + convertedKey.getKey()
                   + ": "
                   + normalizeYamlDump(
                       space, yaml.dump(((BaseValueNode) hierarchyEntry.getValue()).value())));
@@ -183,12 +178,27 @@ public class YamlConfigurationHandler implements ConfigurationHandler {
           continue;
         }
 
-        writer.write(getCharXTimes(space, ' ') + key + ":" + "\n");
-        emptySpace.accept(hierarchyEntry.getValue());
+        writer.write(getCharXTimes(space, ' ') + convertedKey.getKey() + ":" + "\n");
       }
 
       writer.flush();
     }
+  }
+
+  protected InteliPair<String, Integer> convertKey(String currentKey) {
+    int markerIndex = StringUtils.indexOf(currentKey, BaseParentNode.VALUE_KEY_MARKER);
+    if (markerIndex == -1) {
+      String[] split = StringUtils.split(currentKey, ".");
+      return new InteliPair<>(split[split.length - 1], split.length);
+    }
+
+    String subString = currentKey.substring(0, markerIndex);
+    int spaces = StringUtils.countMatches(subString, ".");
+
+    String key = currentKey.substring(markerIndex);
+    key = StringUtils.replace(key, BaseParentNode.VALUE_KEY_MARKER, "");
+
+    return new InteliPair<>(key, spaces+1);
   }
 
   @Override

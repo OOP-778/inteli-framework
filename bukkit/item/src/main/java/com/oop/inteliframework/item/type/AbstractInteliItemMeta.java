@@ -25,6 +25,8 @@ public abstract class AbstractInteliItemMeta<M extends ItemMeta, T extends Abstr
   private final @NonNull M meta;
   private InteliLore lore;
 
+  private boolean glowing = false;
+
   public AbstractInteliItemMeta(final @NonNull M meta, final @NonNull Function<T, T> cloner) {
     this.meta = meta;
     this.cloner = cloner;
@@ -62,7 +64,7 @@ public abstract class AbstractInteliItemMeta<M extends ItemMeta, T extends Abstr
 
   @Override
   public @NonNull M asBukkitMeta() {
-    meta.setLore(lore.lore());
+    meta.setLore(lore.raw());
     return meta;
   }
 
@@ -120,7 +122,26 @@ public abstract class AbstractInteliItemMeta<M extends ItemMeta, T extends Abstr
 
   @Override
   public T glowing(boolean enable) {
-    enchant(InteliEnchantment.DAMAGE_ALL, 1).flag(ItemFlag.HIDE_ENCHANTS);
+    this.glowing = enable;
+    if (enable) {
+      return (T) enchant(InteliEnchantment.DAMAGE_ALL, 1).flag(ItemFlag.HIDE_ENCHANTS);
+    }
+
+    removeEnchants();
+    return (T) this;
+  }
+
+  @Override
+  public boolean glowing() {
+    return glowing;
+  }
+
+  @Override
+  public T removeEnchants() {
+    for (Enchantment enchantment : meta.getEnchants().keySet()) {
+      meta.removeEnchant(enchantment);
+    }
+
     return (T) this;
   }
 

@@ -24,7 +24,7 @@ public class PlainConfig extends BaseParentNode {
 
   @Setter @Getter protected ConfigurationHandler handler;
 
-  @Getter protected File file;
+  @Setter @Getter protected File file;
 
   @SneakyThrows
   public PlainConfig(@NonNull File file) {

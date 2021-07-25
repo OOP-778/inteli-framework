@@ -64,7 +64,7 @@ public class DefaultStyle implements RegistryStyle {
     sendHelpMessage(executor, history);
   }
 
-  private String buildAvailableArgs(CommandParseHistory history, CommandElement<?> lastElement) {
+  protected String buildAvailableArgs(CommandParseHistory history, CommandElement<?> lastElement) {
     if (lastElement instanceof ParentableElement) {
       return ((ParentableElement<?>) lastElement)
           .children().values().stream()
@@ -98,11 +98,11 @@ public class DefaultStyle implements RegistryStyle {
     return lastElement.labeled();
   }
 
-  public void sendHelpMessage(ExecutorWrapper executor, CommandParseHistory history) {
+  protected void sendHelpMessage(ExecutorWrapper executor, CommandParseHistory history) {
     executor.sendMessage(history.getLastElement().labeled());
   }
 
-  public String buildUserFriendlyPath(Set<CommandElement> elementSet) {
+  protected String buildUserFriendlyPath(Set<CommandElement> elementSet) {
     List<String> path = new LinkedList<>();
     for (CommandElement<?> commandElement : elementSet) {
       if (commandElement instanceof Argument) {

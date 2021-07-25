@@ -21,6 +21,10 @@ import java.util.stream.Collectors;
 public class InteliChatMessage extends InsertableList<ChatLineElement> implements InteliMessage<InteliChatMessage> {
   @Getter @Setter private boolean centered = false;
 
+  public InteliChatMessage(String... lines) {
+    addAll(Arrays.stream(lines).map(ChatLineElement::new).collect(Collectors.toList()));
+  }
+
   public InteliChatMessage(ChatLineElement... elements) {
     addAll(Arrays.asList(elements));
   }

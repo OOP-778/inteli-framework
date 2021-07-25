@@ -43,7 +43,7 @@ public class CommandRegistry implements InteliModule {
   }
 
   protected <T extends CommandElement<?>> Optional<T> _findInMap(
-      Map<String, T> map, String identifier) {
+      Map<String, T> map, String identifier, boolean lookForSimilar) {
     return map.values().stream()
         .map(
             command -> {
@@ -62,19 +62,19 @@ public class CommandRegistry implements InteliModule {
         .findFirst();
   }
 
-  public Optional<CommandElement<?>> findCommandElement(String identifier) {
+  public Optional<CommandElement<?>> findCommandElement(String identifier, boolean lookForSimilar) {
     if (StringUtils.contains(identifier, ".")) {
       LinkedList<String> queue =
           new LinkedList<>(Arrays.asList(StringUtils.split(identifier, ".")));
       Collections.reverse(queue);
 
-      Optional<CommandElement<?>> optionalCommand = findCommandElement(queue.poll());
+      Optional<CommandElement<?>> optionalCommand = findCommandElement(queue.poll(), lookForSimilar);
       while (!queue.isEmpty()) {
         optionalCommand =
             optionalCommand.flatMap(
                 element -> {
                   if (element instanceof ParentableElement) {
-                    return _findInMap(((ParentableElement) element).children(), queue.poll());
+                    return _findInMap(((ParentableElement) element).children(), queue.poll(), lookForSimilar);
                   }
 
                   return Optional.empty();
@@ -87,7 +87,7 @@ public class CommandRegistry implements InteliModule {
       return optionalCommand;
     }
 
-    return _findInMap(elementTreeMap, identifier).map(command -> command);
+    return _findInMap(elementTreeMap, identifier, lookForSimilar).map(command -> command);
   }
 
   /** Command execution & tab completion section */
@@ -101,20 +101,32 @@ public class CommandRegistry implements InteliModule {
     if (s.length == 0) return false;
 
     Optional<Command> lookupCommand =
-        findCommandElement(s[0]).map(commandElement -> (Command) commandElement);
+        findCommandElement(s[0], false).map(commandElement -> (Command) commandElement);
     if (!lookupCommand.isPresent()) return false;
 
-    s = Arrays.copyOfRange(s, 1, s.length);
-    if (s.length == 0) {
-      Command command = lookupCommand.get();
-      if (command.executer() != null && !command.requiresChildren()) {
-        command.executer().execute(executor, new CommandData());
-      }
+    CommandData data = new CommandData();
+    Command command = lookupCommand.get();
+    CommandParseHistory history = new CommandParseHistory(data, executor, new LinkedList<>(), new HashSet<>(Collections.singletonList(command)), new LinkedList<>(), command);
 
+    CommandError commandError = checkRequirements(command, history);
+    if (commandError != null) {
+      history.getResultedInto().add(commandError);
+      style.handleError(history.getResultedInto().toArray(new CommandError[0]), this, history);
       return true;
     }
 
-    CommandData data = new CommandData();
+    s = Arrays.copyOfRange(s, 1, s.length);
+    if (s.length == 0) {
+      if (command.executer() != null) {
+        command.executer().execute(executor, new CommandData());
+        return true;
+      }
+
+      history.getResultedInto().add(new MissingArgumentsError(history, command));
+      style.handleError(history.getResultedInto().toArray(new CommandError[0]), this, history);
+      return true;
+    }
+
     CommandParseHistory parse =
         parse(executor, lookupCommand.get(), data, new LinkedList<>(Arrays.asList(s)), true);
 
@@ -211,8 +223,17 @@ public class CommandRegistry implements InteliModule {
     if (splitArgs.length == 0) return new ArrayList<>();
 
     Optional<Command> lookupCommand =
-        findCommandElement(splitArgs[0]).map(commandElement -> (Command) commandElement);
+        findCommandElement(splitArgs[0], false).map(commandElement -> (Command) commandElement);
     if (!lookupCommand.isPresent()) return new ArrayList<>();
+
+    Command command = lookupCommand.get();
+
+    CommandParseHistory history = new CommandParseHistory(data, executor, new LinkedList<>(), new HashSet<>(Collections.singletonList(command)), new LinkedList<>(), command);
+
+    CommandError commandError = checkRequirements(command, history);
+    if (commandError != null) {
+      return new ArrayList<>();
+    }
 
     input = StringUtils.replaceOnce(input, splitArgs[0], "");
     splitArgs = Arrays.copyOfRange(splitArgs, 1, splitArgs.length);
@@ -228,7 +249,7 @@ public class CommandRegistry implements InteliModule {
                   new LinkedList<>(),
                   new LinkedHashSet<>(),
                   new LinkedList<>(),
-                  lookupCommand.get()),
+                  command),
               true));
 
     LinkedList<String> linked =
@@ -237,7 +258,7 @@ public class CommandRegistry implements InteliModule {
             : new LinkedList<>(
                 Arrays.asList(Arrays.copyOfRange(splitArgs, 0, splitArgs.length - 1)));
 
-    CommandParseHistory parse = parse(executor, lookupCommand.get(), data, linked, false);
+    CommandParseHistory parse = parse(executor, command, data, linked, false);
 
     // We parsed last element before last argument, so we try to validate last arg based of it
     if (!parse.getResultedInto().isEmpty()) {

@@ -3,6 +3,7 @@ package com.oop.inteliframework.item.type.skull;
 import com.oop.inteliframework.commons.util.InteliVersion;
 import com.oop.inteliframework.item.comp.InteliMaterial;
 import com.oop.inteliframework.item.type.AbstractInteliItem;
+import lombok.Getter;
 import lombok.NonNull;
 import net.querz.nbt.tag.CompoundTag;
 import net.querz.nbt.tag.ListTag;
@@ -15,6 +16,8 @@ import java.util.UUID;
 public class InteliSkullItem extends AbstractInteliItem<InteliSkullMeta, InteliSkullItem> {
   private final String defaultTexture =
       "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYmFkYzA0OGE3Y2U3OGY3ZGFkNzJhMDdkYTI3ZDg1YzA5MTY4ODFlNTUyMmVlZWQxZTNkYWYyMTdhMzhjMWEifX19";
+
+  @Getter
   private String texture;
 
   public InteliSkullItem(@NonNull ItemStack itemStack) {

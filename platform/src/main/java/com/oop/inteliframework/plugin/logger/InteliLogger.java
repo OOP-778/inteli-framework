@@ -15,11 +15,11 @@ public class InteliLogger {
 
   private final Logger logger;
   @Setter private @NonNull LoggerStyle style = LoggerStyle.defaultStyle();
-  private String name;
+  private final String name;
 
   public InteliLogger(@NonNull String name) {
     this.name = name;
-    this.logger = Logger.getLogger(name);
+    this.logger = Logger.getAnonymousLogger();
   }
 
   public void error(String message, Object... args) {

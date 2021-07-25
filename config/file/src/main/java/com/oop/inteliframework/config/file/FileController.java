@@ -42,7 +42,7 @@ public class FileController<T extends FileController<T>> {
       File file = filePath.toAbsolutePath().toFile();
       if (!Files.exists(filePath.toAbsolutePath())) {
         try {
-          Files.createFile(path);
+          Files.createFile(filePath);
         } catch (IOException e) {
           e.printStackTrace();
         }

@@ -126,9 +126,19 @@ project(":bukkit:test").name = "bukkit-test"
 include("bukkit:item")
 project(":bukkit:item").name = "bukkit-item"
 
+include("bukkit:item-config")
+project(":bukkit:item-config").name = "bukkit-item-config"
+
 include("menu")
 include("menu:menu-config")
 include("menu:navigator")
 include("menu:navigator:config")
 project(":menu:navigator").name = "menu-navigator"
 project(":menu:navigator:config").name = "menu-navigator-config"
+
+include("bungee")
+include("bungee:command")
+project(":bungee:command").name = "bungee-command"
+
+include("bungee:event")
+project(":bungee:event").name = "bungee-event"

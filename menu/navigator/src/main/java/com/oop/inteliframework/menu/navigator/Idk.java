@@ -1,7 +1,6 @@
 package com.oop.inteliframework.menu.navigator;
 
 import com.oop.inteliframework.menu.navigator.route.match.RouteMatcher;
-
 import java.util.regex.Pattern;
 
 public class Idk {

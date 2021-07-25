@@ -7,10 +7,16 @@ import com.oop.inteliframework.config.node.BaseValueNode;
 import com.oop.inteliframework.config.node.api.Node;
 import com.oop.inteliframework.config.node.api.ParentNode;
 import com.oop.inteliframework.config.node.api.iterator.NodeIterator;
+import com.oop.inteliframework.config.property.InteliPropertyModule;
+import com.oop.inteliframework.config.property.annotations.NodeKey;
+import com.oop.inteliframework.plugin.InteliPlatform;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import lombok.ToString;
 
+import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -47,6 +53,7 @@ public class MapProperty<K, V, M extends Map> implements Property<M> {
   }
 
   @Override
+  @SneakyThrows
   public void fromNode(Node node) {
     Preconditions.checkArgument(
         node instanceof ParentNode, "MapProperty can only load from ParentNode!");
@@ -62,6 +69,23 @@ public class MapProperty<K, V, M extends Map> implements Property<M> {
 
       K key = keyLoader.apply(new BaseValueNode(nodeEntry.getKey()));
       V value = valueLoader.apply(nodeEntry.getValue());
+
+      List<Field> fields =
+          InteliPlatform.getInstance()
+              .safeModuleByClass(InteliPropertyModule.class)
+              .getClassesCache()
+              .getFields(value.getClass());
+
+      for (Field field : fields) {
+        if (!field.isAnnotationPresent(NodeKey.class)) continue;
+
+        Property keyProperty = (Property) field.get(value);
+        Preconditions.checkArgument(
+            keyProperty.type().equals(String.class),
+            "The node key must be an string in " + value.getClass());
+
+        keyProperty.fromNode(new BaseValueNode(nodeEntry.getKey()));
+      }
 
       map.put(key, value);
     }
@@ -90,7 +114,7 @@ public class MapProperty<K, V, M extends Map> implements Property<M> {
           serializedValue.getSuggestedKey() != null
               ? serializedValue.getSuggestedKey()
               : serializedKey.getNode().asValue().value().toString();
-      node.assignNode(entryKey, serializedValue.getNode());
+      node.assignNode(entryKey, serializedValue.getNode(), false);
     }
 
     return SerializedProperty.of(node);

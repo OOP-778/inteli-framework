@@ -54,5 +54,5 @@ public interface SimpleInteliLore<T extends SimpleInteliLore> {
 
   /** @return Built lore */
   @NonNull
-  List<String> lore();
+  List<String> raw();
 }

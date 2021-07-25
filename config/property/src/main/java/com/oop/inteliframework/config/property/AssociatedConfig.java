@@ -42,15 +42,6 @@ public class AssociatedConfig<T extends Configurable> extends PlainConfig {
   @Override
   public void load() {
     super.load();
-    InteliPair<List<String>, Boolean> comments = ReflectionUtil.getComments(clazz);
-
-    boolean putComments = comments().isEmpty();
-    if (!comments().isEmpty() && comments.getValue()) putComments = true;
-
-    if (putComments) {
-      comments().clear();
-      comments().addAll(comments.getKey());
-    }
 
     try {
       this.object = Loader.constructConfigurable(clazz);
@@ -61,6 +52,16 @@ public class AssociatedConfig<T extends Configurable> extends PlainConfig {
   }
 
   public void sync() {
+    InteliPair<List<String>, Boolean> comments = ReflectionUtil.getComments(clazz);
+
+    boolean putComments = comments().isEmpty();
+    if (!comments().isEmpty() && comments.getValue()) putComments = true;
+
+    if (putComments) {
+      comments().clear();
+      comments().addAll(comments.getKey());
+    }
+
     nodes.clear();
     SerializedProperty property = Serializer.serializerForConfigurable(clazz, false).apply(object);
 

@@ -57,8 +57,10 @@ public class Loader {
       constructor.setAccessible(true);
 
       return constructor.newInstance();
-    } catch (Throwable throwable) {
+    } catch (NoSuchMethodException $) {
       throw new IllegalStateException("Failed to find empty constructor for class: " + clazz);
+    } catch (Throwable throwable) {
+      throw new IllegalStateException("Error while constructing " + clazz, throwable);
     }
   }
 

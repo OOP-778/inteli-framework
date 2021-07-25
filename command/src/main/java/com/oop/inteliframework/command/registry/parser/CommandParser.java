@@ -54,7 +54,7 @@ public class CommandParser {
 
           Queue<String> beforeParse = new LinkedList<>(history.getWaitingForParse());
           ParseResult<?> parseResult =
-              ((Argument<?>) element).parser().parse(history.getWaitingForParse());
+              ((Argument<?>) element).parser().parse(history.getWaitingForParse(), history);
 
           if (parseResult.getMessage() != null) {
             if (((Argument<?>) element).optional()) return null;

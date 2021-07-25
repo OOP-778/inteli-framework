@@ -1,6 +1,6 @@
 package com.oop.inteliframework.message;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 import java.util.function.Function;

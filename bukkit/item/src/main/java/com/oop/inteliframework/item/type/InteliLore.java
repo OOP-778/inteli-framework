@@ -61,7 +61,7 @@ public class InteliLore implements SimpleInteliLore<InteliLore> {
   }
 
   @Override
-  public @NonNull List<String> lore() {
+  public @NonNull List<String> raw() {
     return lore;
   }
 }

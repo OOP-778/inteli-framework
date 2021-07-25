@@ -34,6 +34,13 @@ configureProject({
     needNMS = true
 })
 
+configureProject({
+    name.startsWith("bungee")
+}, {
+    needBungee = true
+})
+
+
 configureProject("hologram-animation") {
     needMc = true
 }
@@ -100,7 +107,7 @@ configureProject("menu-config") {
 }
 
 configureProject("bukkit-item") {
-    mcVersion = MCVersion.V1_16;
+    mcVersion = MCVersion.V1_15;
 }
 
 configureProject("bukkit-entity-tracker") {
@@ -114,6 +121,10 @@ configureProject("bukkit-test") {
     needNMS = true
     needNbtApi = true
     out = "/run/media/oop-778/BRABARAR/Serrvers/OOP/1.8.8/plugins/"
+}
+
+configureProject("bukkit-event") {
+    needMc = true
 }
 
 configureProject("NPC") {
@@ -153,8 +164,12 @@ allprojects {
 
             if (it.needPlatform)
                 compileOnly(project(":platform"))
+
+            if (it.needBungee)
+                compileOnly(fileTree("${directory}/bungee/lib/"))
         }
 
+        compileOnly("org.apache.commons:commons-lang3:3.12.0")
         implementation("org.jetbrains:annotations:20.1.0")
         compileOnly("org.projectlombok:lombok:1.18.8")
         annotationProcessor("org.projectlombok:lombok:1.18.8")
@@ -275,7 +290,8 @@ data class ProjectConfig(
     var needNMS: Boolean = false,
     var needNbtApi: Boolean = false,
     var needUnitTesting: Boolean = false,
-    var needPlatform: Boolean = false
+    var needPlatform: Boolean = false,
+    var needBungee: Boolean = false
 ) {
     constructor(project: String, version: Any) : this(
         name = project, version = version

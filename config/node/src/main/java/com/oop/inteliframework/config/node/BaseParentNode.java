@@ -29,6 +29,8 @@ import static com.oop.inteliframework.commons.util.StringFormat.format;
 @EqualsAndHashCode(callSuper = true)
 public class BaseParentNode extends BaseNode implements ParentNode {
 
+  public static String VALUE_KEY_MARKER = "/~\\";
+
   @Getter protected final Map<String, Node> nodes = new TreeMap<>(String::compareToIgnoreCase);
 
   protected static void _joinParents(
@@ -36,18 +38,25 @@ public class BaseParentNode extends BaseNode implements ParentNode {
       @NonNull String currentPath,
       @NonNull BaseParentNode node,
       @NonNull Predicate<Map.Entry<String, Node>> filter,
-      boolean hierarchy) {
+      boolean hierarchy,
+      boolean mark) {
     for (Map.Entry<String, Node> nodeEntry :
         node.nodes.entrySet().stream()
             .sorted(Comparator.comparing(entry -> entry.getValue().isParent()))
             .collect(Collectors.toList())) {
+
+      String nodeKey = nodeEntry.getKey();
+      if (hierarchy && mark && StringUtils.contains(nodeEntry.getKey(), ".")) {
+        nodeKey = VALUE_KEY_MARKER + nodeKey + VALUE_KEY_MARKER;
+      }
+
       String path =
-          currentPath + (currentPath.isEmpty() ? nodeEntry.getKey() : "." + nodeEntry.getKey());
+          currentPath + (currentPath.isEmpty() ? nodeKey : "." + nodeKey);
       if (!filter.test(new AbstractMap.SimpleEntry<>(path, nodeEntry.getValue()))) continue;
 
       map.put(path, nodeEntry.getValue());
       if (nodeEntry.getValue() instanceof BaseParentNode && hierarchy)
-        _joinParents(map, path, (BaseParentNode) nodeEntry.getValue(), filter, true);
+        _joinParents(map, path, (BaseParentNode) nodeEntry.getValue(), filter, true, mark);
     }
   }
 
@@ -125,7 +134,9 @@ public class BaseParentNode extends BaseNode implements ParentNode {
 
   @Override
   public Map<String, Node> map(
-      @NonNull NodeIterator iteratorType, @Nullable Predicate<Map.Entry<String, Node>> filter) {
+      @NonNull NodeIterator iteratorType,
+      @Nullable Predicate<Map.Entry<String, Node>> filter,
+      boolean markValues) {
     final Map<String, Node> finalMap = new LinkedHashMap<>();
 
     _joinParents(
@@ -143,15 +154,20 @@ public class BaseParentNode extends BaseNode implements ParentNode {
           if (filter != null) return filter.test(pair);
           return true;
         },
-        iteratorType == NodeIterator.HIERARCHY);
+        iteratorType == NodeIterator.HIERARCHY,
+        markValues);
 
     return finalMap;
   }
 
-  @Override
   public void assignNode(String path, Node node) {
-    String[] splitPath = StringUtils.split(path, ".");
-    Queue<String> pathQueue = new LinkedList<>(Arrays.asList(splitPath));
+    assignNode(path, node, true);
+  }
+
+  @Override
+  public void assignNode(String path, Node node, boolean split) {
+    Queue<String> pathQueue =
+        new LinkedList<>(split ? Arrays.asList(StringUtils.split(path, ".")) : Arrays.asList(path));
 
     BaseParentNode currentParent = this;
 
@@ -160,12 +176,16 @@ public class BaseParentNode extends BaseNode implements ParentNode {
 
       if (!pathQueue.isEmpty()) {
         BaseParentNode finalCurrentParent = currentParent;
-        currentParent = (BaseParentNode) currentParent.nodes.computeIfAbsent(key, $ -> {
-          BaseParentNode newParent = new BaseParentNode();
-          finalCurrentParent.assignNode(key, newParent);
+        currentParent =
+            (BaseParentNode)
+                currentParent.nodes.computeIfAbsent(
+                    key,
+                    $ -> {
+                      BaseParentNode newParent = new BaseParentNode();
+                      finalCurrentParent.assignNode(key, newParent);
 
-          return newParent;
-        });
+                      return newParent;
+                    });
         continue;
       }
 

@@ -40,6 +40,9 @@ public interface SimpleInteliMeta<
   /** @param enable Enable simple glowing for item */
   T glowing(final boolean enable);
 
+  /** Check if item was set to glowing */
+  boolean glowing();
+
   /**
    * @return As bukkit meta
    * @throws NullPointerException If meta is null

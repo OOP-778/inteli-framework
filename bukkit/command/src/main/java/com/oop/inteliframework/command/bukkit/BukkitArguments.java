@@ -16,7 +16,7 @@ public interface BukkitArguments {
     Argument<Player> playerArgument = new Argument<>();
     playerArgument.labeled("player");
     playerArgument.parser(
-        inputs -> {
+        (inputs, $) -> {
           String input = inputs.poll();
           Player player = Bukkit.getPlayerExact(input);
           if (player == null) return new ParseResult<>(format("Invalid player {}", input));

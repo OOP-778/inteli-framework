@@ -72,7 +72,7 @@ public interface ParentNode extends Node, Iterable<Node> {
    * @param filter optional filter to filter out nodes you don't want
    */
   Map<String, Node> map(
-      @NonNull NodeIterator iteratorType, @Nullable Predicate<Map.Entry<String, Node>> filter);
+      @NonNull NodeIterator iteratorType, @Nullable Predicate<Map.Entry<String, Node>> filter, boolean mark);
 
   /**
    * Map nodes by iteratorType
@@ -80,7 +80,17 @@ public interface ParentNode extends Node, Iterable<Node> {
    * @param iteratorType that you want to map with
    */
   default Map<String, Node> map(@NonNull NodeIterator iteratorType) {
-    return map(iteratorType, null);
+    return map(iteratorType, null, false);
+  }
+
+  /**
+   * Map nodes by iteratorType
+   *
+   * @param iteratorType that you want to map with
+   * @param mark when value keys starts with dots, it breaks hierarchy looper, so you can mark it and work with it when serializing
+   */
+  default Map<String, Node> map(@NonNull NodeIterator iteratorType, boolean mark) {
+    return map(iteratorType, null, mark);
   }
 
   /**
@@ -88,8 +98,9 @@ public interface ParentNode extends Node, Iterable<Node> {
    *
    * @param key key that you're assigning at
    * @param node that you're assign
+   * @param split Should it split at dots and create sub sections for it
    */
-  void assignNode(String key, Node node);
+  void assignNode(String key, Node node, boolean split);
 
   /**
    * Get a node at a key
