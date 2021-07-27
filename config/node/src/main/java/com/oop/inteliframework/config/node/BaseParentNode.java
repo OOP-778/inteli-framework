@@ -1,5 +1,7 @@
 package com.oop.inteliframework.config.node;
 
+import static com.oop.inteliframework.commons.util.StringFormat.format;
+
 import com.oop.inteliframework.commons.util.InteliOptional;
 import com.oop.inteliframework.commons.util.InteliPair;
 import com.oop.inteliframework.config.node.api.Node;
@@ -7,6 +9,25 @@ import com.oop.inteliframework.config.node.api.ParentNode;
 import com.oop.inteliframework.config.node.api.ValueNode;
 import com.oop.inteliframework.config.node.api.iterator.NodeIterator;
 import com.oop.inteliframework.config.node.api.policy.NodeDuplicatePolicy;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.Spliterator;
+import java.util.TreeMap;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -15,23 +36,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static com.oop.inteliframework.commons.util.StringFormat.format;
-
 @Accessors(fluent = true)
 @EqualsAndHashCode(callSuper = true)
 public class BaseParentNode extends BaseNode implements ParentNode {
 
   public static String VALUE_KEY_MARKER = "/~\\";
 
-  @Getter protected final Map<String, Node> nodes = new TreeMap<>(String::compareToIgnoreCase);
+  @Getter
+  protected final Map<String, Node> nodes = new TreeMap<>(String::compareToIgnoreCase);
 
   protected static void _joinParents(
       @NonNull Map<String, Node> map,
@@ -52,11 +64,14 @@ public class BaseParentNode extends BaseNode implements ParentNode {
 
       String path =
           currentPath + (currentPath.isEmpty() ? nodeKey : "." + nodeKey);
-      if (!filter.test(new AbstractMap.SimpleEntry<>(path, nodeEntry.getValue()))) continue;
+      if (!filter.test(new AbstractMap.SimpleEntry<>(path, nodeEntry.getValue()))) {
+        continue;
+      }
 
       map.put(path, nodeEntry.getValue());
-      if (nodeEntry.getValue() instanceof BaseParentNode && hierarchy)
+      if (nodeEntry.getValue() instanceof BaseParentNode && hierarchy) {
         _joinParents(map, path, (BaseParentNode) nodeEntry.getValue(), filter, true, mark);
+      }
     }
   }
 
@@ -65,14 +80,17 @@ public class BaseParentNode extends BaseNode implements ParentNode {
     for (Map.Entry<String, Node> mergingNodeEntry : node.map(NodeIterator.ALL).entrySet()) {
       switch (policy) {
         case THROW:
-          if (nodes.containsKey(mergingNodeEntry.getKey()))
+          if (nodes.containsKey(mergingNodeEntry.getKey())) {
             throw new IllegalStateException(
                 format("A node with key of {} already exists", mergingNodeEntry.getKey()));
+          }
           nodes.put(mergingNodeEntry.getKey(), mergingNodeEntry.getValue());
           break;
 
         case IGNORE:
-          if (nodes.containsKey(mergingNodeEntry.getKey())) continue;
+          if (nodes.containsKey(mergingNodeEntry.getKey())) {
+            continue;
+          }
           nodes.put(mergingNodeEntry.getKey(), mergingNodeEntry.getValue());
           break;
 
@@ -99,19 +117,24 @@ public class BaseParentNode extends BaseNode implements ParentNode {
       @Nullable Comparator<Node> comparator) {
     Function<Stream<Node>, Stream<Node>> filterStream =
         stream -> {
-          if (filter == null) return stream;
+          if (filter == null) {
+            return stream;
+          }
           return stream.filter(filter);
         };
 
     Function<Stream<Node>, Stream<Node>> sortStream =
         stream -> {
-          if (comparator == null) return stream;
+          if (comparator == null) {
+            return stream;
+          }
           return stream.sorted(comparator);
         };
 
     final Stream<Node> stream;
-    if (type == NodeIterator.ALL) stream = nodes.values().stream();
-    else if (type == NodeIterator.HIERARCHY) {
+    if (type == NodeIterator.ALL) {
+      stream = nodes.values().stream();
+    } else if (type == NodeIterator.HIERARCHY) {
       stream =
           nodes.values().stream()
               .flatMap(
@@ -145,13 +168,17 @@ public class BaseParentNode extends BaseNode implements ParentNode {
         this,
         pair -> {
           // Filter out by iterator type
-          if (iteratorType == NodeIterator.PARENT && !(pair.getValue() instanceof ParentNode))
+          if (iteratorType == NodeIterator.PARENT && !(pair.getValue() instanceof ParentNode)) {
             return false;
+          }
 
-          if (iteratorType == NodeIterator.VALUE && !(pair.getValue() instanceof ValueNode))
+          if (iteratorType == NodeIterator.VALUE && !(pair.getValue() instanceof ValueNode)) {
             return false;
+          }
 
-          if (filter != null) return filter.test(pair);
+          if (filter != null) {
+            return filter.test(pair);
+          }
           return true;
         },
         iteratorType == NodeIterator.HIERARCHY,
@@ -204,7 +231,9 @@ public class BaseParentNode extends BaseNode implements ParentNode {
 
       if (!pathQueue.isEmpty()) {
         Node possibleParent = currentParent.nodes.get(key);
-        if (!(possibleParent instanceof BaseParentNode)) return Optional.empty();
+        if (!(possibleParent instanceof BaseParentNode)) {
+          return Optional.empty();
+        }
 
         currentParent = (BaseParentNode) possibleParent;
         continue;
@@ -241,6 +270,11 @@ public class BaseParentNode extends BaseNode implements ParentNode {
   @Override
   public void ifPresent(String path, Consumer<Node> nodeConsumer) {
     _get(path).map(InteliPair::getKey).ifPresent(nodeConsumer);
+  }
+
+  @Override
+  public Optional<Node> getAsOptional(String path) {
+    return _get(path).map(InteliPair::getKey);
   }
 
   @Override
