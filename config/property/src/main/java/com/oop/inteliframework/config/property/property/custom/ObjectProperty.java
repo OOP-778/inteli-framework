@@ -67,7 +67,7 @@ public class ObjectProperty<T> implements Property<T> {
         InteliPlatform.getInstance()
             .moduleByClass(InteliPropertyModule.class)
             .get()
-            .handlerByClass((Class<T>) object.getClass())
+            .handlerByClass(type())
             .get();
     return propertyHandler.toNode(object);
   }
@@ -83,7 +83,7 @@ public class ObjectProperty<T> implements Property<T> {
         InteliPlatform.getInstance()
             .moduleByClass(InteliPropertyModule.class)
             .get()
-            .handlerByClass((Class<T>) object.getClass())
+            .handlerByClass(type())
             .get();
     this.object = propertyHandler.fromNode(node);
   }
@@ -95,7 +95,7 @@ public class ObjectProperty<T> implements Property<T> {
 
   @Override
   public Class<T> type() {
-    return clazz;
+    return object == null ? clazz : (Class<T>) object.getClass();
   }
 
   public static class Mutable<T> extends ObjectProperty<T>

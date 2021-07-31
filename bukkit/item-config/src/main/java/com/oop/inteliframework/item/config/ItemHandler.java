@@ -490,9 +490,9 @@ public class ItemHandler implements PropertyHandler<AbstractInteliItem> {
 
     private InteliMaterial getMaterial(@NonNull BaseParentNode node,
         @Nullable Predicate<InteliMaterial> materialPredicate, @Nullable String errorMessage) {
-      final InteliMaterial material = InteliMaterial.valueOf(
+      final InteliMaterial material = InteliMaterial.matchMaterial(
           node.get("material", "Material is not provided!").asValue().getAs(String.class)
-              .toLowerCase(Locale.ROOT));
+              .toUpperCase(Locale.ROOT));
 
       if (materialPredicate != null) {
         if (!materialPredicate.test(material)) {
