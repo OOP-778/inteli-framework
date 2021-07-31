@@ -1,19 +1,21 @@
 package com.oop.inteliframework.commons.util;
 
-import lombok.SneakyThrows;
-import lombok.experimental.UtilityClass;
-import org.bukkit.ChatColor;
-
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import lombok.NonNull;
+import lombok.SneakyThrows;
+import lombok.experimental.UtilityClass;
+import org.bukkit.ChatColor;
 
 @UtilityClass
 public final class StringFormat {
+
   private static final Pattern HEX = Pattern.compile("#(?:[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})");
 
   public static String format(String message, Object... args) {
@@ -73,5 +75,9 @@ public final class StringFormat {
 
   public static <T extends Collection<String>> List<String> colorizeCollection(T collection) {
     return collection.stream().map(StringFormat::colored).collect(Collectors.toList());
+  }
+
+  public static String[] colorizeArray(@NonNull String[] array) {
+    return Arrays.stream(array).map(StringFormat::colored).toArray(String[]::new);
   }
 }
