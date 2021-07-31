@@ -4,25 +4,26 @@ import com.oop.inteliframework.bukkit.nbt.InteliNbt;
 import com.oop.inteliframework.bukkit.nbt.NBTItem;
 import com.oop.inteliframework.item.api.SimpleInteliItem;
 import com.oop.inteliframework.item.comp.InteliMaterial;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.Consumer;
-import java.util.function.Function;
-
 public abstract class AbstractInteliItem<
-        M extends AbstractInteliItemMeta, T extends AbstractInteliItem>
+    M extends AbstractInteliItemMeta, T extends AbstractInteliItem>
     implements SimpleInteliItem<M, AbstractInteliItem<M, T>> {
+
   @Getter(AccessLevel.NONE)
-  private @Nullable final Function<T, T> cloner;
+  private @Nullable
+  final Function<T, T> cloner;
 
   @Getter(AccessLevel.NONE)
   private @NonNull ItemStack itemStack;
 
-  private @NonNull M meta;
+  private M meta;
   private NBTItem nbt;
 
   public AbstractInteliItem(
@@ -39,7 +40,7 @@ public abstract class AbstractInteliItem<
 
   @Override
   public @Nullable M meta() {
-    return meta;
+    return meta == null ? _createMeta() : meta;
   }
 
   @Override
@@ -80,7 +81,9 @@ public abstract class AbstractInteliItem<
 
   @Override
   public T applyMeta(@NonNull Consumer<M> supplier) {
-    if (meta == null) meta = _createMeta();
+    if (meta == null) {
+      meta = _createMeta();
+    }
 
     supplier.accept(meta);
 
@@ -90,7 +93,9 @@ public abstract class AbstractInteliItem<
 
   @Override
   public <O> O provideWithMeta(@NonNull Function<M, O> provider) {
-    if (meta == null) meta = _createMeta();
+    if (meta == null) {
+      meta = _createMeta();
+    }
     return provider.apply(meta);
   }
 

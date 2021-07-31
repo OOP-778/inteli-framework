@@ -463,7 +463,7 @@ public class ItemHandler implements PropertyHandler<AbstractInteliItem> {
           .map(NodeIterator.ALL)
           .values()
           .stream()
-          .map(it -> it.asParent())
+          .map(Node::asParent)
           .forEach(data -> {
 
             item.meta()
@@ -514,7 +514,7 @@ public class ItemHandler implements PropertyHandler<AbstractInteliItem> {
         return null;
       }
 
-      return Enum.valueOf(enumClass, name.toLowerCase(Locale.ROOT));
+      return Enum.valueOf(enumClass, name.toUpperCase(Locale.ROOT));
     }
 
     private InteliPotion deserializeIPotion(@NonNull BaseParentNode node) {
