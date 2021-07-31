@@ -1,13 +1,10 @@
 package com.oop.inteliframework.item.type;
 
+import static com.oop.inteliframework.commons.util.StringFormat.colored;
+import static com.oop.inteliframework.commons.util.StringFormat.colorizeCollection;
+
 import com.oop.inteliframework.item.api.SimpleInteliMeta;
 import com.oop.inteliframework.item.comp.InteliEnchantment;
-import lombok.NonNull;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.jetbrains.annotations.Nullable;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
@@ -15,14 +12,17 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-
-import static com.oop.inteliframework.commons.util.StringFormat.colored;
-import static com.oop.inteliframework.commons.util.StringFormat.colorizeCollection;
+import lombok.NonNull;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class AbstractInteliItemMeta<M extends ItemMeta, T extends AbstractInteliItemMeta>
     implements SimpleInteliMeta<M, T, InteliLore> {
+
   private final @NonNull Function<T, T> cloner;
-  private final @NonNull M meta;
+  private @NonNull M meta;
   private InteliLore lore;
 
   private boolean glowing = false;
@@ -32,6 +32,19 @@ public abstract class AbstractInteliItemMeta<M extends ItemMeta, T extends Abstr
     this.cloner = cloner;
 
     this.lore = new InteliLore(meta.hasLore() ? meta.getLore() : new ArrayList<>());
+  }
+
+  @Override
+  public T appendValues(@NonNull T meta) {
+    meta.name(this.meta.getDisplayName());
+    meta.lore(new InteliLore(this.meta.getLore()));
+    this.meta.getEnchants().forEach(
+        (enchantment, level) -> meta.enchant(InteliEnchantment.matchInteliEnchantment(enchantment),
+            level, true));
+    meta.flags(this.meta.getItemFlags().toArray(ItemFlag[]::new));
+
+    this.meta = (M) meta.asBukkitMeta();
+    return (T) this;
   }
 
   @Override
