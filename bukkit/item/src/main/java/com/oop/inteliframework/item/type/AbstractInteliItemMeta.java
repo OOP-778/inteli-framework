@@ -41,7 +41,7 @@ public abstract class AbstractInteliItemMeta<M extends ItemMeta, T extends Abstr
     this.meta.getEnchants().forEach(
         (enchantment, level) -> meta.enchant(InteliEnchantment.matchInteliEnchantment(enchantment),
             level, true));
-    meta.flags(this.meta.getItemFlags().toArray(ItemFlag[]::new));
+    meta.flags(this.meta.getItemFlags().toArray(new ItemFlag[0]));
 
     this.meta = (M) meta.asBukkitMeta();
     return (T) this;
