@@ -172,6 +172,6 @@ public abstract class AbstractInteliItemMeta<M extends ItemMeta, T extends Abstr
 
   @Override
   public InteliLore lore() {
-    return lore;
+    return lore == null ? new InteliLore(new ArrayList<>()) : lore;
   }
 }
