@@ -6,6 +6,7 @@ import com.oop.inteliframework.config.node.api.iterator.NodeIterator;
 import com.oop.inteliframework.config.property.property.SerializedProperty;
 import com.oop.inteliframework.config.property.property.custom.PropertyHandler;
 import com.oop.inteliframework.item.comp.InteliMaterial;
+import com.oop.inteliframework.item.comp.InteliPotion;
 import com.oop.inteliframework.item.type.AbstractInteliItem;
 import com.oop.inteliframework.item.type.InteliLore;
 import com.oop.inteliframework.item.type.banner.InteliBannerItem;
@@ -22,6 +23,7 @@ import com.oop.inteliframework.item.type.potion.InteliPotionItem;
 import com.oop.inteliframework.item.type.potion.InteliPotionMeta;
 import com.oop.inteliframework.item.type.skull.InteliSkullItem;
 import com.oop.inteliframework.item.type.skull.InteliSkullMeta;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -43,22 +45,60 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
 
-public class ItemHandler implements PropertyHandler<InteliItem> {
+public class ItemHandler implements PropertyHandler<AbstractInteliItem> {
+
+  private final Serializer serializer = new Serializer();
+  private final Deserializer deserializer = new Deserializer();
 
   @Override
-  public SerializedProperty toNode(@NonNull InteliItem object) {
-    return null;
+  public SerializedProperty toNode(@NonNull AbstractInteliItem object) {
+    final BaseParentNode node = new BaseParentNode();
+
+    serializer.serializeBasic(node, object);
+
+    if (object instanceof InteliBookItem) {
+      serializer.serializeBook(node, object);
+    } else if (object instanceof InteliSkullItem) {
+      serializer.serializeSkull(node, object);
+    } else if (object instanceof InteliBannerItem) {
+      serializer.serializeBanner(node, object);
+    } else if (object instanceof InteliFireworkItem) {
+      serializer.serializeFirework(node, object);
+    } else if (object instanceof InteliLeatherItem) {
+      serializer.serializeLeatherArmor(node, object);
+    } else if (object instanceof InteliPotionItem) {
+      serializer.serializePotion(node, object);
+    }
+
+    return SerializedProperty.of(node);
   }
 
   @Override
-  public InteliItem fromNode(Node node) {
+  public AbstractInteliItem fromNode(Node node) {
+    final BaseParentNode parentNode = (BaseParentNode) node;
+    final InteliMaterial material = deserializer.getMaterial(parentNode);
 
-    return null;
+    final AbstractInteliItem item = deserializer.deserializeBasic(parentNode);
+    if (material.isLeatherArmor()) {
+      item.meta().appendValues(deserializer.deserializeLeatherArmor(parentNode).meta());
+    } else if (material.isBanner()) {
+      item.meta().appendValues(deserializer.deserializeBanner(parentNode).meta());
+    } else if (material.isBook()) {
+      item.meta().appendValues(deserializer.deserializeBook(parentNode).meta());
+    } else if (material.isPotion()) {
+      item.meta().appendValues(deserializer.deserializePotion(parentNode).meta());
+    } else if (material.isHead()) {
+      item.meta().appendValues(deserializer.deserializeSkull(parentNode).meta());
+    } else if (material == InteliMaterial.FIREWORK_ROCKET) {
+      item.meta().appendValues(deserializer.deserializeFirework(parentNode).meta());
+    }
+
+    return item;
   }
 
   @Override
-  public Class<InteliItem> getObjectClass() {
-    return InteliItem.class;
+  public Class<AbstractInteliItem> getObjectClass() {
+    return AbstractInteliItem.class;
   }
 
   protected static class Serializer {
@@ -241,20 +281,13 @@ public class ItemHandler implements PropertyHandler<InteliItem> {
 
             node.set(currentNode + ".amplifier", effect.getAmplifier());
             node.set(currentNode + ".duration", effect.getDuration());
-            node.set(currentNode + ".ambient", effect.isAmbient());
-            node.set(currentNode + ".particle", effect.hasParticles());
           });
-
-      serializeEffectType(node, "main-effect", meta.getMainEffect());
     }
 
     private void serializeEffectType(@NonNull BaseParentNode node, @NonNull String basePath,
         @NonNull
             PotionEffectType type) {
-      node.set(basePath + ".type.name", type.getName());
-      node.set(basePath + ".type.modifier",
-          type.getDurationModifier());
-      node.set(basePath + ".type.instant", type.isInstant());
+      node.set(basePath + ".type", type.getName());
     }
 
     private <T, S> void serializeList(@NonNull BaseParentNode node, @NonNull String basePath,
@@ -342,7 +375,7 @@ public class ItemHandler implements PropertyHandler<InteliItem> {
       node
           .getAsOptional("texture")
           .map(_node -> _node.asValue().getAs(String.class))
-          .ifPresent(texture -> item.texture(texture));
+          .ifPresent(item::texture);
 
       return item;
     }
@@ -382,7 +415,7 @@ public class ItemHandler implements PropertyHandler<InteliItem> {
 
       node.getAsOptional("dye")
           .map(it -> it.asValue().getAs(String.class))
-          .flatMap(it -> Optional.of(colorOf(it)))
+          .flatMap(it -> Optional.ofNullable(colorOf(it)))
           .ifPresent(color -> item.meta().color(color));
 
       return item;
@@ -404,8 +437,18 @@ public class ItemHandler implements PropertyHandler<InteliItem> {
           .ifPresent(parentNode ->
               parentNode
                   .forEach(part -> {
-                    part.get("type", "Type is not provided!");
-
+                    item.meta().effect(FireworkEffect.builder()
+                        .withColor(deserializeColors(part.get("colors", "Colors cannot be empty!")))
+                        .withFade(deserializeColors(
+                            part.get("fade-colors", "Fade colors cannot be empty!")))
+                        .flicker(part.getAsOptional("flicker")
+                            .map(it -> it.asValue().getAs(boolean.class)).orElse(false))
+                        .trail(part.getAsOptional("trail")
+                            .map(it -> it.asValue().getAs(boolean.class)).orElse(false))
+                        .with(enumValueOf(
+                            part.get("type", "Type is not provided!").asValue().getAs(String.class),
+                            FireworkEffect.Type.class))
+                        .build());
                   })
           );
 
@@ -413,10 +456,38 @@ public class ItemHandler implements PropertyHandler<InteliItem> {
     }
 
     protected AbstractInteliItem<?, ?> deserializePotion(@NonNull BaseParentNode node) {
-      throw new UnsupportedOperationException("This deserialization type is not supported!");
+      final InteliPotionItem item = new InteliPotionItem(getMaterial(node).parseItem());
+
+      node.get("effects", "Effects cannot be empty!")
+          .asParent()
+          .map(NodeIterator.ALL)
+          .values()
+          .stream()
+          .map(it -> it.asParent())
+          .forEach(data -> {
+
+            item.meta()
+                .customEffect(deserializeIPotion((BaseParentNode) data),
+                    data.get("amplifier").asValue().getAs(int.class),
+                    data.get("duration").asValue().getAs(int.class),
+                    false);
+
+          });
+
+      return item;
     }
 
-    @Nullable
+    private List<Color> deserializeColors(@NonNull Node node) {
+      final List<Color> colors = new ArrayList<>();
+
+      node.asParent()
+          .map(NodeIterator.ALL)
+          .values().stream().map(it -> it.asValue().getAs(String.class))
+          .forEach(data -> colors.add(colorOf(data)));
+
+      return colors;
+    }
+
     private InteliMaterial getMaterial(@NonNull BaseParentNode node,
         @Nullable Predicate<InteliMaterial> materialPredicate, @Nullable String errorMessage) {
       final InteliMaterial material = InteliMaterial.valueOf(
@@ -433,22 +504,27 @@ public class ItemHandler implements PropertyHandler<InteliItem> {
       return material;
     }
 
-    @Nullable
     private InteliMaterial getMaterial(@NonNull BaseParentNode node) {
       return getMaterial(node, null, null);
     }
 
     @Nullable
     private <T extends Enum<T>> T enumValueOf(@Nullable String name, @NonNull Class<T> enumClass) {
-      if (name == null) return null;
+      if (name == null) {
+        return null;
+      }
 
       return Enum.valueOf(enumClass, name.toLowerCase(Locale.ROOT));
+    }
+
+    private InteliPotion deserializeIPotion(@NonNull BaseParentNode node) {
+      return InteliPotion.valueOf(
+          node.get("type", "Type is not provided!").asValue().getAs(String.class));
     }
 
     @Nullable
     private Color colorOf(@NonNull String path) {
       final String[] strColor = path.split(";");
-
 
       Color color = null;
       try {
