@@ -326,7 +326,7 @@ public class ItemHandler implements PropertyHandler<AbstractInteliItem> {
 
       node.getAsOptional("display-name")
           .map(_node -> _node.asValue().getAs(String.class))
-          .ifPresent(name -> item.meta().nameSupplier(() -> name));
+          .ifPresent(name -> item.meta().name(name));
       node
           .getAsOptional("glow")
           .map(_node -> _node.asValue().getAs(boolean.class))

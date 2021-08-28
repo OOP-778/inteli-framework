@@ -4,7 +4,6 @@ import lombok.NonNull;
 import lombok.SneakyThrows;
 import net.querz.nbt.tag.CompoundTag;
 import net.querz.nbt.tag.Tag;
-import org.bukkit.craftbukkit.v1_8_R1.CraftOfflinePlayer;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
