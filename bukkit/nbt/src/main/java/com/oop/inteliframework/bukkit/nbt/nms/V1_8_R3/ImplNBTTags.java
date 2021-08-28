@@ -104,6 +104,10 @@ public class ImplNBTTags implements NBTTags {
       return convertListToNMS((ListTag<?>) tag);
     }
 
+    if (tag instanceof IntTag) {
+      return new NBTTagInt(((IntTag)tag).asInt());
+    }
+
     if (tag instanceof StringTag) {
       return new NBTTagString(((StringTag) tag).getValue());
     }

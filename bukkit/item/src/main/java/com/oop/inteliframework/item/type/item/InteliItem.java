@@ -13,7 +13,7 @@ public class InteliItem extends AbstractInteliItem<InteliItemMeta, InteliItem> {
   @Override
   protected InteliItemMeta _createMeta() {
     return new InteliItemMeta(
-        asBukkitStack().hasItemMeta()
+        !asBukkitStack().hasItemMeta()
             ? Bukkit.getItemFactory().getItemMeta(asBukkitStack().getType())
             : asBukkitStack().getItemMeta());
   }

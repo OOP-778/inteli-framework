@@ -1,5 +1,6 @@
 package com.oop.inteliframework.item.config;
 
+import com.oop.inteliframework.commons.util.StringFormat;
 import com.oop.inteliframework.config.node.BaseParentNode;
 import com.oop.inteliframework.config.node.api.Node;
 import com.oop.inteliframework.config.node.api.iterator.NodeIterator;
@@ -8,6 +9,7 @@ import com.oop.inteliframework.config.property.property.custom.PropertyHandler;
 import com.oop.inteliframework.item.comp.InteliMaterial;
 import com.oop.inteliframework.item.comp.InteliPotion;
 import com.oop.inteliframework.item.type.AbstractInteliItem;
+import com.oop.inteliframework.item.type.AbstractInteliItemMeta;
 import com.oop.inteliframework.item.type.InteliLore;
 import com.oop.inteliframework.item.type.banner.InteliBannerItem;
 import com.oop.inteliframework.item.type.banner.InteliBannerMeta;
@@ -32,13 +34,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
 import lombok.NonNull;
 import org.apache.commons.lang.StringUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.DyeColor;
-import org.bukkit.FireworkEffect;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.*;
 import org.bukkit.block.banner.Pattern;
 import org.bukkit.block.banner.PatternType;
 import org.bukkit.potion.PotionEffect;
@@ -78,22 +78,27 @@ public class ItemHandler implements PropertyHandler<AbstractInteliItem> {
     final BaseParentNode parentNode = (BaseParentNode) node;
     final InteliMaterial material = deserializer.getMaterial(parentNode);
 
-    final AbstractInteliItem item = deserializer.deserializeBasic(parentNode);
+    final AbstractInteliItem templateItem = deserializer.deserializeBasic(parentNode);
+    AbstractInteliItem customItem = null;
     if (material.isLeatherArmor()) {
-      item.meta().appendValues(deserializer.deserializeLeatherArmor(parentNode).meta());
+      customItem = deserializer.deserializeLeatherArmor(parentNode);
     } else if (material.isBanner()) {
-      item.meta().appendValues(deserializer.deserializeBanner(parentNode).meta());
+      customItem = deserializer.deserializeBanner(parentNode);
     } else if (material.isBook()) {
-      item.meta().appendValues(deserializer.deserializeBook(parentNode).meta());
+      customItem = deserializer.deserializeBook(parentNode);
     } else if (material.isPotion()) {
-      item.meta().appendValues(deserializer.deserializePotion(parentNode).meta());
+      customItem = deserializer.deserializePotion(parentNode);
     } else if (material.isHead()) {
-      item.meta().appendValues(deserializer.deserializeSkull(parentNode).meta());
+      customItem = deserializer.deserializeSkull(parentNode);
     } else if (material == InteliMaterial.FIREWORK_ROCKET) {
-      item.meta().appendValues(deserializer.deserializeFirework(parentNode).meta());
+      customItem = deserializer.deserializeFirework(parentNode);
     }
 
-    return item;
+    if (customItem != null) {
+      customItem.meta().appendValues(templateItem.meta());
+    }
+
+    return customItem == null ? templateItem : customItem;
   }
 
   @Override
@@ -104,17 +109,12 @@ public class ItemHandler implements PropertyHandler<AbstractInteliItem> {
   protected static class Serializer {
 
     protected void serializeBasic(@NonNull BaseParentNode node,
-        @NonNull AbstractInteliItem<?, ?> _item) {
-      if (!(_item instanceof InteliItem)) {
-        return;
-      }
-
-      final InteliItem item = (InteliItem) _item;
+        @NonNull AbstractInteliItem<?, ?> item) {
 
       // Write material
       node.set("material", item.material().name().toLowerCase(Locale.ROOT));
 
-      final InteliItemMeta meta = item.meta();
+      final AbstractInteliItemMeta meta = item.meta();
       if (meta == null) {
         return;
       }
@@ -122,7 +122,7 @@ public class ItemHandler implements PropertyHandler<AbstractInteliItem> {
       // Set the display name
       final String displayName = meta.name();
       if (displayName != null) {
-        node.set("display-name", displayName);
+        node.set("display-name", displayName.replace("§", "&"));
       }
 
       // Set if glowing
@@ -131,7 +131,7 @@ public class ItemHandler implements PropertyHandler<AbstractInteliItem> {
       }
 
       // Set lore
-      node.set("lore", meta.lore().raw());
+      node.set("lore", meta.lore().raw().stream().map(line -> line.replace("§", "&")).collect(Collectors.toList()));
     }
 
     protected void serializeBook(@NonNull BaseParentNode node,
@@ -319,7 +319,7 @@ public class ItemHandler implements PropertyHandler<AbstractInteliItem> {
 
   protected static class Deserializer {
 
-    protected AbstractInteliItem<?, ?> deserializeBasic(@NonNull BaseParentNode node) {
+    protected AbstractInteliItem deserializeBasic(@NonNull BaseParentNode node) {
       final InteliMaterial material = getMaterial(node);
 
       final InteliItem item = new InteliItem(material.parseItem());
@@ -334,12 +334,12 @@ public class ItemHandler implements PropertyHandler<AbstractInteliItem> {
 
       node.getAsOptional("lore")
           .map(_node -> _node.asValue().getAsListOf(String.class))
-          .ifPresent(lore -> item.meta().lore(new InteliLore(lore)));
+          .ifPresent(lore -> item.meta().lore(new InteliLore(StringFormat.colorizeCollection(lore))));
 
       return item;
     }
 
-    protected AbstractInteliItem<?, ?> deserializeBook(@NonNull BaseParentNode node) {
+    protected AbstractInteliItem deserializeBook(@NonNull BaseParentNode node) {
       final InteliBookItem item = new InteliBookItem(getMaterial(node).parseItem());
 
       node.getAsOptional("author")
@@ -366,7 +366,7 @@ public class ItemHandler implements PropertyHandler<AbstractInteliItem> {
       return item;
     }
 
-    protected AbstractInteliItem<?, ?> deserializeSkull(@NonNull BaseParentNode node) {
+    protected AbstractInteliItem deserializeSkull(@NonNull BaseParentNode node) {
       final InteliSkullItem item = new InteliSkullItem(getMaterial(node).parseItem());
 
       node.getAsOptional("head")
@@ -380,7 +380,7 @@ public class ItemHandler implements PropertyHandler<AbstractInteliItem> {
       return item;
     }
 
-    protected AbstractInteliItem<?, ?> deserializeBanner(@NonNull BaseParentNode node) {
+    protected AbstractInteliItem deserializeBanner(@NonNull BaseParentNode node) {
       final InteliBannerItem item = new InteliBannerItem(getMaterial(node).parseItem());
 
       node.getAsOptional("pattern")
@@ -410,7 +410,7 @@ public class ItemHandler implements PropertyHandler<AbstractInteliItem> {
       return item;
     }
 
-    protected AbstractInteliItem<?, ?> deserializeLeatherArmor(@NonNull BaseParentNode node) {
+    protected AbstractInteliItem deserializeLeatherArmor(@NonNull BaseParentNode node) {
       final InteliLeatherItem item = new InteliLeatherItem(getMaterial(node).parseItem());
 
       node.getAsOptional("dye")
@@ -421,7 +421,7 @@ public class ItemHandler implements PropertyHandler<AbstractInteliItem> {
       return item;
     }
 
-    protected AbstractInteliItem<?, ?> deserializeFirework(@NonNull BaseParentNode node) {
+    protected AbstractInteliItem deserializeFirework(@NonNull BaseParentNode node) {
       final InteliFireworkItem item = new InteliFireworkItem(getMaterial(node).parseItem());
 
       node.getAsOptional("power")
@@ -455,7 +455,7 @@ public class ItemHandler implements PropertyHandler<AbstractInteliItem> {
       return item;
     }
 
-    protected AbstractInteliItem<?, ?> deserializePotion(@NonNull BaseParentNode node) {
+    protected AbstractInteliItem deserializePotion(@NonNull BaseParentNode node) {
       final InteliPotionItem item = new InteliPotionItem(getMaterial(node).parseItem());
 
       node.get("effects", "Effects cannot be empty!")

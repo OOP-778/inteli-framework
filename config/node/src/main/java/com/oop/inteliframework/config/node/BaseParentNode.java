@@ -45,6 +45,28 @@ public class BaseParentNode extends BaseNode implements ParentNode {
   @Getter
   protected final Map<String, Node> nodes = new TreeMap<>(String::compareToIgnoreCase);
 
+  public static BaseParentNode ofRawValues(Map<String, Object> map) {
+    final BaseParentNode baseParentNode = new BaseParentNode();
+    convertMapIntoNodes(map, baseParentNode);
+
+    return baseParentNode;
+  }
+
+  protected static void convertMapIntoNodes(Map<String, Object> data, @NonNull BaseParentNode currentNode) {
+    for (Map.Entry<String, Object> dataEntry : data.entrySet()) {
+      final Object value = dataEntry.getValue();
+      if (value instanceof Map) {
+        final BaseParentNode newNode = new BaseParentNode();
+        currentNode.assignNode(dataEntry.getKey(), newNode);
+
+        convertMapIntoNodes((Map<String, Object>) value, newNode);
+        continue;
+      }
+
+      currentNode.set(dataEntry.getKey(), value);
+    }
+  }
+
   protected static void _joinParents(
       @NonNull Map<String, Node> map,
       @NonNull String currentPath,

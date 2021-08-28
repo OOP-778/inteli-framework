@@ -40,7 +40,7 @@ public abstract class AbstractInteliItem<
 
   @Override
   public @Nullable M meta() {
-    return meta == null ? _createMeta() : meta;
+    return meta == null ? ((this.meta = _createMeta())) : meta;
   }
 
   @Override
@@ -53,12 +53,18 @@ public abstract class AbstractInteliItem<
 
   @Override
   public @NonNull InteliMaterial material() {
-    return InteliMaterial.matchMaterial(itemStack.getType());
+    return InteliMaterial.matchMaterial(itemStack);
   }
 
   @Override
   public @NonNull ItemStack asBukkitStack() {
-    return InteliNbt.getTags().setItemStackTag(itemStack, nbt);
+    final ItemStack item = InteliNbt.getTags().setItemStackTag(itemStack, nbt);
+
+    if (meta != null) {
+      item.setItemMeta(meta.asBukkitMeta());
+    }
+
+    return item;
   }
 
   @Override

@@ -29,6 +29,7 @@ public class InteliSkullItem extends AbstractInteliItem<InteliSkullMeta, InteliS
 
   public InteliSkullItem texture(String texture) {
     this.texture = texture == null ? defaultTexture : texture;
+    System.out.println("setting texture: " + texture);
     applyNBT(
         nbt -> {
           nbt.putAndUse(

@@ -33,7 +33,6 @@ public class InteliActionBarMessage implements InteliMessage<InteliActionBarMess
     return new InteliActionBarMessage(content);
   }
 
-  @Override
   public InteliActionBarMessage replace(Replacer replacer) {
     this.content = ComponentUtil.colorizeFromBukkit(replacer.accept(ComponentUtil.contentFromComponent(content)));
     return this;

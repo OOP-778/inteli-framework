@@ -18,7 +18,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class AbstractInteliItemMeta<M extends ItemMeta, T extends AbstractInteliItemMeta>
+public abstract class AbstractInteliItemMeta<M extends ItemMeta, T extends AbstractInteliItemMeta<?, ?>>
     implements SimpleInteliMeta<M, T, InteliLore> {
 
   private final @NonNull Function<T, T> cloner;
@@ -36,14 +36,16 @@ public abstract class AbstractInteliItemMeta<M extends ItemMeta, T extends Abstr
 
   @Override
   public T appendValues(@NonNull T meta) {
-    meta.name(this.meta.getDisplayName());
-    meta.lore(new InteliLore(this.meta.getLore()));
-    this.meta.getEnchants().forEach(
-        (enchantment, level) -> meta.enchant(InteliEnchantment.matchInteliEnchantment(enchantment),
-            level, true));
-    meta.flags(this.meta.getItemFlags().toArray(new ItemFlag[0]));
+    if (meta.name() != null) {
+      name(meta.name());
+    }
 
-    this.meta = (M) meta.asBukkitMeta();
+    lore(new InteliLore(meta.lore().raw()));
+    meta.enchants().forEach(
+        (enchantment, level) -> enchant(InteliEnchantment.matchInteliEnchantment(enchantment),
+            level, true));
+
+    flags(meta.flags().toArray(new ItemFlag[0]));
     return (T) this;
   }
 

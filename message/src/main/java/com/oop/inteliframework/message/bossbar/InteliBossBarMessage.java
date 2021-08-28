@@ -4,6 +4,7 @@ import com.oop.inteliframework.message.ComponentUtil;
 import com.oop.inteliframework.message.Replacer;
 import com.oop.inteliframework.message.api.InteliMessage;
 import com.oop.inteliframework.task.SimpleTaskFactory;
+import java.util.concurrent.TimeUnit;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
@@ -11,9 +12,6 @@ import lombok.ToString;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
-
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 @Getter
 @AllArgsConstructor
