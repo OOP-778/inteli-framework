@@ -2,6 +2,7 @@ package com.oop.inteliframework.bukkit.nbt.nms.V1_8_R3;
 
 import com.oop.inteliframework.bukkit.nbt.nms.NBTTags;
 import com.oop.inteliframework.bukkit.nbt.nms.TagIdToClass;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import net.minecraft.server.v1_8_R3.*;
 import net.querz.nbt.tag.*;
@@ -159,5 +160,11 @@ public class ImplNBTTags implements NBTTags {
     }
 
     return compound;
+  }
+
+  @Override
+  public ItemStack fromCompound(@NonNull final CompoundTag tag) {
+    final NBTTagCompound nbtTagCompound = convertCompoundToNMS(tag);
+    return CraftItemStack.asBukkitCopy(net.minecraft.server.v1_8_R3.ItemStack.createStack(nbtTagCompound));
   }
 }

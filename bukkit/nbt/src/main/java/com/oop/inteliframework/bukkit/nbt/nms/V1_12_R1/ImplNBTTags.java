@@ -5,6 +5,7 @@ import static com.oop.inteliframework.commons.util.StringFormat.format;
 import com.oop.inteliframework.bukkit.nbt.nms.NBTTags;
 import com.oop.inteliframework.bukkit.nbt.nms.TagIdToClass;
 import java.util.Map;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import net.minecraft.server.v1_12_R1.NBTBase;
 import net.minecraft.server.v1_12_R1.NBTTagByte;
@@ -76,7 +77,7 @@ public class ImplNBTTags implements NBTTags {
     }
 
     for (int i = 0; i < tag.size(); i++) {
-      converted.add(convertTag(tag.get(i)));
+      converted.add(convertTag(tag.i(i)));
     }
 
     return converted;
@@ -139,6 +140,10 @@ public class ImplNBTTags implements NBTTags {
       return convertListToNMS((ListTag<?>) tag);
     }
 
+    if (tag instanceof IntTag) {
+      return new NBTTagInt(((IntTag) tag).asInt());
+    }
+
     if (tag instanceof StringTag) {
       return new NBTTagString(((StringTag) tag).getValue());
     }
@@ -177,6 +182,7 @@ public class ImplNBTTags implements NBTTags {
   public NBTTagList convertListToNMS(ListTag<?> tag) {
     final NBTTagList nbtTagList = new NBTTagList();
     for (Tag<?> inside : tag) {
+      System.out.println("Adding " + inside.valueToString());
       nbtTagList.add(convertTagToNMS(inside));
     }
 
@@ -190,5 +196,11 @@ public class ImplNBTTags implements NBTTags {
     }
 
     return compound;
+  }
+
+  @Override
+  public ItemStack fromCompound(@NonNull final CompoundTag tag) {
+    final net.minecraft.server.v1_12_R1.NBTTagCompound nbtTagCompound = convertCompoundToNMS(tag);
+    return org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack.asBukkitCopy(new net.minecraft.server.v1_12_R1.ItemStack(nbtTagCompound));
   }
 }

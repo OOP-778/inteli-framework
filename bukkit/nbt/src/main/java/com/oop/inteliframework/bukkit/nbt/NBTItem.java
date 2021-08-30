@@ -16,7 +16,7 @@ public class NBTItem extends CompoundTag {
   public NBTItem(@NonNull ItemStack itemStack) {
     this.itemStack = itemStack;
     final CompoundTag tag = InteliNbt.getTags().fromItemStack(itemStack);
-    
+
     for (Map.Entry<String, Tag<?>> stringTagEntry : tag) {
       put(stringTagEntry.getKey(), stringTagEntry.getValue());
     }
@@ -24,5 +24,9 @@ public class NBTItem extends CompoundTag {
 
   public ItemStack getItemStack() {
     return InteliNbt.getTags().setItemStackTag(itemStack, this);
+  }
+
+  public static ItemStack fromNBTTag(@NonNull CompoundTag compoundTag) {
+    return InteliNbt.getTags().fromCompound(compoundTag);
   }
 }

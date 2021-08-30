@@ -17,7 +17,7 @@ public class InteliNbt {
                   NBTTags.class.getPackage().getName(), "ImplNBTTags", NBTTags.class)
               .get()
               .newInstance();
-    } catch (InstantiationException | IllegalAccessException e) {
+    } catch (Throwable e) {
       throw new IllegalStateException(
           format(
               "Unsupported version of {}. NBTTags not found!", InteliVersion.getStringVersion()));
